@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>王者荣耀世界 - 攻略站</title>
+    <style>
+        :root {
+            --bg: #0a0e1a;
+            --card: #111827;
+            --card-hover: #1f2937;
+            --text: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #f59e0b;
+            --accent-hover: #fbbf24;
+            --border: rgba(148,163,184,0.15);
+            --danger: #ef4444;
+            --success: #22c55e;
+            --info: #3b82f6;
+            --glass: rgba(17,24,39,0.85);
+        }
+        [data-theme="light"] {
+            --bg: #f1f5f9;
+            --card: #fff;
+            --card-hover: #f8fafc;
+            --text: #0f172a;
+            --text-secondary: #64748b;
+            --accent: #d97706;
+            --accent-hover: #b45309;
+            --border: rgba(100,116,139,0.15);
+            --glass: rgba(255,255,255,0.9);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
+            background: var(--bg); color: var(--text); line-height:1.6;
+            transition: background-color 0.3s, color 0.3s; min-height:100vh;
+        }
+
+        /* Header */
+        .header {
+            background: var(--glass); border-bottom:1px solid var(--border);
+            padding:0.75rem 2rem; position:sticky; top:0; z-index:100;
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        }
+        .header-inner {
+            max-width:1400px; margin:0 auto;
+            display:flex; justify-content:space-between; align-items:center;
+            flex-wrap:wrap; gap:1rem;
+        }
+        .logo {
+            font-size:1.3rem; font-weight:800;
+            background: linear-gradient(135deg,var(--accent),var(--accent-hover));
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+            background-clip:text; letter-spacing:-0.02em;
+        }
+        .header-nav { display:flex; gap:0.25rem; flex-wrap:wrap; }
+        .header-nav a {
+            padding:0.5rem 1.25rem; border-radius:0.5rem; cursor:pointer;
+            text-decoration:none; color:var(--text-secondary); font-size:0.9rem;
+            font-weight:500; transition:0.25s; border:none; background:transparent;
+        }
+        .header-nav a:hover { color:var(--text); background:rgba(245,158,11,0.1); }
+        .header-nav a.active {
+            background: linear-gradient(135deg,var(--accent),var(--accent-hover));
+            color:#fff; box-shadow:0 4px 15px rgba(245,158,11,0.3);
+        }
+        .header-actions { display:flex; gap:0.5rem; align-items:center; }
+        .btn-icon {
+            width:38px; height:38px; border-radius:0.6rem;
+            border:1px solid var(--border); background:var(--card);
+            color:var(--text-secondary); cursor:pointer; font-size:1.1rem;
+            display:flex; align-items:center; justify-content:center;
+            transition:0.25s;
+        }
+        .btn-icon:hover { transform:translateY(-2px); color:var(--accent); border-color:var(--accent); }
+
+        /* Search */
+        .search-wrap {
+            max-width:1400px; margin:2.5rem auto 1.5rem; padding:0 2rem;
+        }
+        .search-box { max-width:640px; margin:0 auto; position:relative; }
+        .search-box span {
+            position:absolute; left:1.1rem; top:50%; transform:translateY(-50%);
+            color:var(--text-secondary); font-size:1.1rem;
+        }
+        .search-input {
+            width:100%; padding:1rem 1.5rem 1rem 3.2rem;
+            border-radius:1rem; border:2px solid var(--border);
+            background:var(--card); color:var(--text); font-size:1rem;
+            outline:none; transition:0.3s;
+        }
+        .search-input:focus { border-color:var(--accent); }
+
+        /* Filters */
+        .filter-wrap {
+            max-width:1400px; margin:0 auto 1.5rem; padding:0 2rem;
+            display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;
+        }
+        .filter-wrap .label { color:var(--text-secondary); font-size:0.85rem; margin-right:0.5rem; font-weight:500; }
+        .filter-tag {
+            padding:0.35rem 1rem; border-radius:2rem; cursor:pointer;
+            border:1.5px solid var(--border); background:var(--card);
+            color:var(--text-secondary); font-size:0.82rem;
+            transition:0.25s; font-weight:500;
+        }
+        .filter-tag:hover { border-color:var(--accent); color:var(--accent); }
+        .filter-tag.active {
+            background: linear-gradient(135deg,var(--accent),var(--accent-hover));
+            color:#fff; border-color:transparent;
+            box-shadow:0 4px 15px rgba(245,158,11,0.25);
+        }
+
+        /* Content */
+        .main-content { max-width:1400px; margin:0 auto 3rem; padding:0 2rem; }
+        .section-title {
+            font-size:1.4rem; margin-bottom:1.5rem; font-weight:700;
+            display:flex; align-items:center; gap:0.6rem;
+        }
+        .section-title::after {
+            content:""; flex:1; height:1px;
+            background: linear-gradient(90deg,var(--border),transparent);
+            margin-left:1rem;
+        }
+        .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px,1fr)); gap:1.5rem; }
+        .result-count { color:var(--text-secondary); font-size:0.85rem; margin-bottom:1rem; }
+
+        /* Card */
+        .card {
+            background:var(--card); border:1.5px solid var(--border);
+            border-radius:1.25rem; cursor:pointer; transition:0.35s;
+            overflow:hidden; display:flex; flex-direction:column;
+            animation: fadeUp 0.4s ease forwards; position:relative;
+        }
+        .card::before {
+            content:""; position:absolute; top:0; left:0; right:0; height:3px;
+            background: linear-gradient(90deg,var(--accent),var(--accent-hover));
+            opacity:0; transition:0.3s;
+        }
+        .card:hover { transform:translateY(-6px) scale(1.01); border-color:rgba(245,158,11,0.3); }
+        .card:hover::before { opacity:1; }
+        .card-img {
+            height:180px; background:linear-gradient(135deg,#1e293b,#0f172a 50%,#1e293b);
+            display:flex; align-items:center; justify-content:center;
+            font-size:3.5rem; position:relative; overflow:hidden; transition:0.5s;
+        }
+        .card:hover .card-img { transform:scale(1.05); }
+        .card-img::after {
+            content:""; position:absolute; bottom:0; left:0; right:0; height:60%;
+            background:linear-gradient(to top,var(--card),transparent); pointer-events:none;
+        }
+        .card-img img { width:100%; height:100%; object-fit:cover; }
+        .card-badge {
+            position:absolute; top:0.75rem; right:0.75rem; padding:0.3rem 0.7rem;
+            border-radius:0.4rem; font-size:0.75rem; font-weight:700; z-index:2;
+        }
+        .badge-ssr { background:linear-gradient(135deg,#fbbf24,#f59e0b); color:#000; }
+        .badge-sr { background:linear-gradient(135deg,#a78bfa,#8b5cf6); color:#fff; }
+        .badge-r { background:linear-gradient(135deg,#60a5fa,#3b82f6); color:#fff; }
+        .badge-new { background:linear-gradient(135deg,#22c55e,#16a34a); color:#fff; }
+        .badge-hot { background:linear-gradient(135deg,#ef4444,#dc2626); color:#fff; }
+        .card-body { padding:1.25rem 1.5rem 1.5rem; flex:1; display:flex; flex-direction:column; }
+        .card-title {
+            font-size:1.15rem; font-weight:700; margin-bottom:0.6rem;
+            display:flex; justify-content:space-between; align-items:center;
+        }
+        .card-star {
+            background:none; border:none; cursor:pointer; font-size:1.3rem;
+            color:var(--text-secondary); transition:0.3s; padding:0.25rem;
+        }
+        .card-star:hover { transform:scale(1.2); }
+        .card-star.active { color:var(--danger); filter:drop-shadow(0 0 4px rgba(239,68,68,0.4)); }
+        .card-meta {
+            display:flex; gap:0.75rem; color:var(--text-secondary);
+            font-size:0.82rem; margin-bottom:0.75rem;
+        }
+        .card-meta span { display:flex; align-items:center; gap:0.3rem; }
+        .card-tags { display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.75rem; }
+        .card-tag {
+            padding:0.25rem 0.6rem; border-radius:0.35rem;
+            background:rgba(245,158,11,0.08); color:var(--accent);
+            font-size:0.75rem; font-weight:600;
+            border:1px solid rgba(245,158,11,0.15);
+        }
+        .card-desc {
+            color:var(--text-secondary); font-size:0.88rem; line-height:1.6;
+            display:-webkit-box; -webkit-line-clamp:2;
+            -webkit-box-orient:vertical; overflow:hidden; margin-top:auto;
+        }
+
+        /* Code Cards */
+        .code-card {
+            background:var(--card); border:1.5px solid var(--border);
+            border-radius:1.25rem; padding:1.5rem; transition:0.3s;
+            display:flex; flex-direction:column; gap:0.75rem;
+        }
+        .code-card:hover { border-color:var(--accent); transform:translateY(-2px); }
+        .code-value {
+            font-size:1.4rem; font-weight:800; letter-spacing:0.05em;
+            background:linear-gradient(135deg,var(--accent),var(--accent-hover));
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+            background-clip:text; word-break:break-all;
+        }
+        .code-expiry { color:var(--text-secondary); font-size:0.8rem; }
+        .code-btn {
+            padding:0.65rem; border-radius:0.75rem; border:none;
+            background:linear-gradient(135deg,var(--accent),var(--accent-hover));
+            color:#000; font-weight:700; cursor:pointer; font-size:0.9rem;
+            transition:0.3s; width:100%;
+        }
+        .code-btn:hover { transform:translateY(-1px); box-shadow:0 4px 15px rgba(245,158,11,0.25); }
+
+        /* Quick Ref Cards */
+        .quick-card {
+            background:var(--card); border:1.5px solid var(--border);
+            border-radius:1.25rem; padding:1.5rem; transition:0.3s;
+        }
+        .quick-card:hover { border-color:var(--accent); }
+        .quick-card h3 { font-size:1.1rem; margin-bottom:1rem; color:var(--accent); }
+        .quick-card ul { list-style:none; }
+        .quick-card li {
+            padding:0.5rem 0; border-bottom:1px solid var(--border);
+            color:var(--text-secondary); font-size:0.88rem;
+        }
+        .quick-card li:last-child { border-bottom:none; }
+
+        /* Modal */
+        .modal-overlay {
+            position:fixed; top:0;left:0;right:0;bottom:0;
+            background:rgba(0,0,0,0.7); backdrop-filter:blur(8px);
+            display:none; align-items:center; justify-content:center;
+            z-index:1000; padding:1rem;
+        }
+        .modal-overlay.active { display:flex; }
+        .modal {
+            background:var(--card); border-radius:1.5rem; border:1px solid var(--border);
+            max-width:800px; width:100%; max-height:85vh; overflow-y:auto;
+            box-shadow:0 25px 50px rgba(0,0,0,0.4);
+        }
+        .modal-header {
+            padding:1.5rem 2rem; border-bottom:1px solid var(--border);
+            display:flex; justify-content:space-between; align-items:center;
+            position:sticky; top:0; background:var(--glass);
+            backdrop-filter:blur(20px); border-radius:1.5rem 1.5rem 0 0; z-index:10;
+        }
+        .modal-header .title {
+            font-size:1.5rem; font-weight:800;
+            background: linear-gradient(135deg,var(--accent),var(--accent-hover));
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+            background-clip:text;
+        }
+        .modal-header .actions { display:flex; gap:0.5rem; align-items:center; }
+        .modal-close {
+            background:none; border:none; color:var(--text-secondary);
+            font-size:1.5rem; cursor:pointer; width:40px; height:40px;
+            border-radius:0.75rem; display:flex; align-items:center; justify-content:center;
+            transition:0.2s;
+        }
+        .modal-close:hover { background:var(--bg); color:var(--danger); }
+        .modal-body { padding:2rem; }
+        .modal-section { margin-bottom:2rem; }
+        .modal-section:last-child { margin-bottom:0; }
+        .modal-section .subtitle {
+            font-size:1.15rem; font-weight:700; margin-bottom:1rem;
+            color:var(--accent); display:flex; align-items:center; gap:0.5rem;
+        }
+        .modal-section p { color:var(--text-secondary); line-height:1.9; font-size:0.95rem; }
+        .modal-section p strong { color:var(--text); font-weight:600; }
+        .stat-grid {
+            display:grid; grid-template-columns:repeat(auto-fill, minmax(110px,1fr));
+            gap:0.75rem;
+        }
+        .stat-item {
+            background:var(--bg); padding:1rem; border-radius:1rem;
+            text-align:center; border:1.5px solid var(--border); transition:0.2s;
+        }
+        .stat-item:hover { border-color:var(--accent); }
+        .stat-val {
+            font-size:1.5rem; font-weight:800;
+            background: linear-gradient(135deg,var(--accent),var(--accent-hover));
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+            background-clip:text;
+        }
+        .stat-label { font-size:0.8rem; color:var(--text-secondary); margin-top:0.35rem; }
+        .stat-bar { height:4px; background:var(--border); border-radius:2px; margin-top:0.5rem; overflow:hidden; }
+        .stat-bar-fill { height:100%; border-radius:2px; background:linear-gradient(90deg,var(--accent),var(--accent-hover)); }
+        .skill-item {
+            background:var(--bg); border-radius:0.75rem; padding:1rem 1.25rem;
+            margin-bottom:0.75rem; border:1.5px solid var(--border); transition:0.2s;
+        }
+        .skill-item:hover { border-color:rgba(245,158,11,0.3); }
+        .skill-name { font-weight:700; color:var(--accent); font-size:0.95rem; margin-bottom:0.35rem; }
+        .skill-desc { color:var(--text-secondary); font-size:0.88rem; line-height:1.6; }
+        .guide-content h3 { color:var(--accent); font-size:1.1rem; margin:1.5rem 0 0.75rem; font-weight:700; }
+        .guide-content p { margin-bottom:0.75rem; }
+        .guide-content strong { color:var(--text); }
+        .guide-content ul { margin:0.5rem 0 0.5rem 1.5rem; color:var(--text-secondary); }
+        .guide-content li { margin-bottom:0.35rem; }
+        .empty-state { text-align:center; padding:5rem 2rem; color:var(--text-secondary); }
+        .empty-state .icon { font-size:4rem; margin-bottom:1.5rem; opacity:0.6; }
+
+        /* Sidebar */
+        .overlay {
+            position:fixed; top:0;left:0;right:0;bottom:0;
+            background:rgba(0,0,0,0.4); backdrop-filter:blur(4px);
+            display:none; z-index:150;
+        }
+        .overlay.active { display:block; }
+        .sidebar {
+            position:fixed; right:-420px; top:0; bottom:0; width:420px;
+            max-width:90vw; background:var(--card); border-left:1px solid var(--border);
+            z-index:200; transition:right 0.4s cubic-bezier(0.4,0,0.2,1);
+            overflow-y:auto; box-shadow:-10px 0 40px rgba(0,0,0,0.3);
+        }
+        .sidebar.active { right:0; }
+        .sidebar-header {
+            padding:1.5rem 2rem; border-bottom:1px solid var(--border);
+            display:flex; justify-content:space-between; align-items:center;
+            position:sticky; top:0; background:var(--glass);
+            backdrop-filter:blur(20px); z-index:10;
+        }
+        .sidebar-header h3 { font-size:1.2rem; font-weight:700; }
+        .sidebar-list { padding:1rem 1.5rem; }
+        .fav-item {
+            padding:1.25rem; background:var(--bg); border-radius:1rem;
+            margin-bottom:0.75rem; cursor:pointer; transition:0.25s;
+            border:1.5px solid transparent;
+        }
+        .fav-item:hover { background:var(--card-hover); border-color:var(--border); transform:translateX(-4px); }
+
+        .page-section { display:none; }
+        .page-section.active { display:block; }
+
+        @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+        ::-webkit-scrollbar { width:6px; }
+        ::-webkit-scrollbar-track { background:transparent; }
+        ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+        ::-webkit-scrollbar-thumb:hover { background:var(--text-secondary); }
+
+        @media (max-width:768px) {
+            .header { padding:0.75rem 1rem; }
+            .header-inner { flex-direction:column; }
+            .header-nav { overflow-x:auto; }
+            .grid { grid-template-columns:1fr; gap:1rem; }
+            .search-wrap { padding:0 1rem; margin:1.5rem auto 1rem; }
+            .filter-wrap { padding:0 1rem; }
+            .main-content { padding:0 1rem; }
+            .sidebar { width:100%; right:-100%; }
+            .modal-body { padding:1.25rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-inner">
+            <div class="logo">王者荣耀世界攻略站</div>
+            <nav class="header-nav">
+                <a data-tab="heroes" class="active">英雄图鉴</a>
+                <a data-tab="resources">养成资源</a>
+                <a data-tab="guides">攻略文章</a>
+                <a data-tab="maps">地图探索</a>
+                <a data-tab="codes">兑换码</a>
+                <a data-tab="quickref">速查表</a>
+            </nav>
+            <div class="header-actions">
+                <button class="btn-icon" id="randomBtn" title="随机推荐">🎲</button>
+                <button class="btn-icon" id="themeBtn" title="切换主题">🌙</button>
+                <button class="btn-icon" id="favBtn" title="收藏夹">⭐</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Search -->
+    <div class="search-wrap" id="searchSection">
+        <div class="search-box">
+            <span>🔍</span>
+            <input type="text" class="search-input" id="searchInput" placeholder="搜索英雄、装备、攻略...">
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-wrap" id="filterSection">
+        <span class="label">筛选：</span>
+        <span class="filter-tag active" data-filter="all">全部</span>
+        <span class="filter-tag" data-filter="ssr">SSR</span>
+        <span class="filter-tag" data-filter="sr">SR</span>
+        <span class="filter-tag" data-filter="r">R</span>
+        <span class="filter-tag" data-filter="new">最新</span>
+        <span class="filter-tag" data-filter="hot">热门</span>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="page-section active" id="pageMain">
+            <h2 class="section-title" id="sectionTitle">🎭 英雄图鉴</h2>
+            <div class="result-count" id="resultCount"></div>
+            <div class="grid" id="cardGrid"></div>
+        </div>
+        <div class="page-section" id="pageCodes">
+            <h2 class="section-title">🎁 最新兑换码</h2>
+            <div class="grid" id="codesGrid" style="grid-template-columns:repeat(auto-fill, minmax(280px,1fr));"></div>
+        </div>
+        <div class="page-section" id="pageQuickRef">
+            <h2 class="section-title">📋 极简速查</h2>
+            <div class="grid" id="quickRefGrid" style="grid-template-columns:repeat(auto-fill, minmax(300px,1fr));"></div>
+        </div>
+    </main>
+
+    <!-- Detail Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="title" id="modalTitle"></span>
+                <div class="actions">
+                    <button class="btn-icon" id="modalFavBtn" title="收藏" style="font-size:1.2rem;">⭐</button>
+                    <button class="btn-icon" id="modalCopyBtn" title="复制内容" style="font-size:1rem;">📋</button>
+                    <button class="modal-close" id="modalClose">✕</button>
+                </div>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- Favorites Sidebar -->
+    <div class="overlay" id="favoritesOverlay"></div>
+    <aside class="sidebar" id="favoritesSidebar">
+        <div class="sidebar-header">
+            <h3>⭐ 我的收藏</h3>
+            <button class="modal-close" id="favClose">✕</button>
+        </div>
+        <div class="sidebar-list" id="favoritesList"><p style="color:var(--text-secondary);">暂无收藏</p></div>
+    </aside>
+
+    <script>
+        // ============== 数据层 ==============
+        // ⚠️ 部署 Render 后把下面这行换成你的 Render 地址（如 https://xxx.onrender.com/api/data）
+        const API = 'https://你的应用名.onrender.com/api/data';
+        const LS_KEY = 'wzry_favs';
+        const LS_THEME = 'wzry_theme';
+
+        let dataCache = {};
+        let currentTab = 'heroes';
+        let currentFilter = 'all';
+        let searchQuery = '';
+
+        function getFavorites() {
+            try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); }
+            catch { return []; }
+        }
+        function saveFavorites(favs) { localStorage.setItem(LS_KEY, JSON.stringify(favs)); }
+        function toggleFavorite(id) {
+            let favs = getFavorites();
+            const idx = favs.findIndex(f => f.id === id && f.tab === currentTab);
+            if (idx >= 0) favs.splice(idx, 1);
+            else favs.push({ id, tab: currentTab });
+            saveFavorites(favs);
+        }
+        function isFavorited(id) {
+            return getFavorites().some(f => f.id === id && f.tab === currentTab);
+        }
+
+        // ============== API ==============
+        async function loadData(tab) {
+            if (dataCache[tab]) return dataCache[tab];
+            try {
+                const res = await fetch(`${API}/${tab}`);
+                const data = await res.json();
+                dataCache[tab] = data;
+                return data;
+            } catch (e) {
+                console.warn('加载失败:', tab, e.message);
+                return [];
+            }
+        }
+
+        // ============== 筛选 ==============
+        function getFilteredData(data) {
+            let rows = [...data];
+            if (currentFilter && currentFilter !== 'all') {
+                rows = rows.filter(item => {
+                    const badge = (item.badge || '').toLowerCase();
+                    const rarity = (item.rarity || '').toLowerCase();
+                    return badge === currentFilter || rarity === currentFilter;
+                });
+            }
+            if (searchQuery) {
+                const q = searchQuery.toLowerCase();
+                rows = rows.filter(item =>
+                    ['name', 'title', 'subtitle', 'description', 'code'].some(k =>
+                        String(item[k] || '').toLowerCase().includes(q)
+                    )
+                );
+            }
+            return rows;
+        }
+
+        // ============== 分页导航 ==============
+        function showPage(page) {
+            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+            const pageEl = document.getElementById(page === 'main' ? 'pageMain' : page === 'codes' ? 'pageCodes' : 'pageQuickRef');
+            if (pageEl) pageEl.classList.add('active');
+            const searchSec = document.getElementById('searchSection');
+            const filterSec = document.getElementById('filterSection');
+            if (page === 'main') {
+                searchSec.style.display = '';
+                filterSec.style.display = '';
+            } else {
+                searchSec.style.display = 'none';
+                filterSec.style.display = 'none';
+            }
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            currentFilter = 'all';
+            searchQuery = '';
+            document.getElementById('searchInput').value = '';
+            document.querySelectorAll('.header-nav a').forEach(a => a.classList.remove('active'));
+            document.querySelector(`.header-nav a[data-tab="${tab}"]`)?.classList.add('active');
+
+            if (['codes', 'quickref'].includes(tab)) {
+                showPage(tab);
+                loadData(tab).then(data => {
+                    if (tab === 'codes') renderCodes(data);
+                    else renderQuickRef(data);
+                });
+            } else {
+                showPage('main');
+                renderSection();
+                resetFilters();
+                loadData(tab).then(() => renderCards());
+            }
+        }
+
+        function resetFilters() {
+            document.querySelectorAll('#filterSection .filter-tag').forEach(t => t.classList.remove('active'));
+            document.querySelector('#filterSection .filter-tag[data-filter="all"]')?.classList.add('active');
+        }
+
+        // ============== 渲染 ==============
+        function renderSection() {
+            const titles = {
+                heroes: '🎭 英雄图鉴',
+                resources: '💎 养成资源',
+                guides: '📖 攻略文章',
+                maps: '🗺️ 地图探索'
+            };
+            document.getElementById('sectionTitle').textContent = titles[currentTab] || currentTab;
+        }
+
+        async function renderCards() {
+            const data = await loadData(currentTab);
+            const filtered = getFilteredData(data);
+            const grid = document.getElementById('cardGrid');
+            const count = document.getElementById('resultCount');
+
+            count.textContent = `共 ${filtered.length} 条结果`;
+            if (!filtered.length) {
+                grid.innerHTML = '<div class="empty-state"><div class="icon">🔍</div><p>没有找到相关内容</p></div>';
+                return;
+            }
+
+            let html = '';
+            filtered.forEach(item => {
+                const id = item.id;
+                const icon = item.icon || '🗡️';
+                const name = item.name || item.title || '';
+                const subtitle = item.subtitle || '';
+                const rarity = (item.rarity || '').toLowerCase();
+                const badge = (item.badge || '').toLowerCase();
+                const desc = item.description || '';
+                const tags = Array.isArray(item.tags) ? item.tags : [];
+                const categoryLabel = item.category || '';
+                const imageUrl = item.image_url || '';
+                const isFav = isFavorited(id);
+
+                let badgeHtml = '';
+                if (badge && badge !== 'new' && badge !== 'hot') badgeHtml = `<span class="card-badge badge-${badge}">${badge.toUpperCase()}</span>`;
+                else if (badge === 'new') badgeHtml = '<span class="card-badge badge-new">NEW</span>';
+                else if (badge === 'hot') badgeHtml = '<span class="card-badge badge-hot">HOT</span>';
+                else if (rarity === 'ssr') badgeHtml = '<span class="card-badge badge-ssr">SSR</span>';
+                else if (rarity === 'sr') badgeHtml = '<span class="card-badge badge-sr">SR</span>';
+                else if (rarity === 'r') badgeHtml = '<span class="card-badge badge-r">R</span>';
+
+                let imageHtml = '';
+                if (imageUrl) {
+                    imageHtml = `<img src="${imageUrl}" alt="${name}" loading="lazy">`;
+                }
+
+                html += `
+                <div class="card" data-id="${id}" data-tab="${currentTab}">
+                    <div class="card-img">${badgeHtml}${imageHtml}${!imageUrl ? icon : ''}</div>
+                    <div class="card-body">
+                        <div class="card-title">
+                            <span>${name}${subtitle ? ' · ' + subtitle : ''}</span>
+                            <button class="card-star${isFav ? ' active' : ''}" data-id="${id}" data-tab="${currentTab}">${isFav ? '❤️' : '🤍'}</button>
+                        </div>
+                        ${categoryLabel ? `<div class="card-meta"><span>📂 ${categoryLabel}</span></div>` : ''}
+                        ${tags.length ? `<div class="card-tags">${tags.map(t => `<span class="card-tag">${t}</span>`).join('')}</div>` : ''}
+                        <div class="card-desc">${desc}</div>
+                    </div>
+                </div>`;
+            });
+            grid.innerHTML = html;
+        }
+
+        function renderCodes(data) {
+            const grid = document.getElementById('codesGrid');
+            if (!data.length) {
+                grid.innerHTML = '<div class="empty-state"><div class="icon">🎁</div><p>暂无兑换码</p></div>';
+                return;
+            }
+            grid.innerHTML = data.map(c => `
+                <div class="code-card">
+                    <div style="font-size:0.85rem;color:var(--text-secondary);font-weight:600;">${c.description}</div>
+                    <div class="code-value">${c.code}</div>
+                    <div style="font-weight:500;">🎁 ${c.reward}</div>
+                    <div class="code-expiry">⏰ ${c.expiry}</div>
+                    <button class="code-btn" onclick="copyCode('${c.code}', this)">复制</button>
+                </div>
+            `).join('');
+        }
+
+        function renderQuickRef(data) {
+            const grid = document.getElementById('quickRefGrid');
+            if (!data.length) {
+                grid.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>暂无内容</p></div>';
+                return;
+            }
+            grid.innerHTML = data.map(q => {
+                const items = Array.isArray(q.items) ? q.items : [];
+                return `
+                <div class="quick-card">
+                    <h3>${q.icon} ${q.title}</h3>
+                    <ul>${items.map(i => `<li>${i}</li>`).join('')}</ul>
+                </div>`;
+            }).join('');
+        }
+
+        function copyCode(code, btn) {
+            navigator.clipboard.writeText(code).then(() => {
+                const orig = btn.textContent;
+                btn.textContent = '✅ 已复制!';
+                setTimeout(() => { btn.textContent = orig; }, 2000);
+            }).catch(() => {
+                btn.textContent = '复制失败';
+                setTimeout(() => { btn.textContent = '复制'; }, 2000);
+            });
+        }
+
+        function renderFavorites() {
+            const list = document.getElementById('favoritesList');
+            const favs = getFavorites();
+            if (!favs.length) {
+                list.innerHTML = '<p style="color:var(--text-secondary);">暂无收藏</p>';
+                return;
+            }
+            list.innerHTML = favs.map(f => {
+                const data = dataCache[f.tab]?.find(d => d.id === f.id);
+                if (!data) return '';
+                const name = data.name || data.title || '未知';
+                return `
+                <div class="fav-item" onclick="openFromFavorite('${f.tab}', ${f.id})">
+                    <strong>${data.icon || ''} ${name}</strong>
+                    <div style="font-size:0.8rem;color:var(--text-secondary);">${f.tab === 'heroes' ? '英雄' : f.tab === 'resources' ? '资源' : f.tab === 'guides' ? '攻略' : f.tab === 'maps' ? '地图' : f.tab}</div>
+                </div>`;
+            }).join('');
+        }
+
+        async function openFromFavorite(tab, id) {
+            toggleFavoritesSidebar();
+            switchTab(tab);
+            const data = await loadData(tab);
+            const item = data.find(d => d.id === id);
+            if (item) openModal(item, tab);
+        }
+
+        // ============== 弹窗 ==============
+        function openModal(item, tab) {
+            const overlay = document.getElementById('modalOverlay');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            const favBtn = document.getElementById('modalFavBtn');
+
+            title.textContent = item.name || item.title || '';
+            overlay.dataset.itemId = item.id;
+            overlay.dataset.itemTab = tab;
+            favBtn.textContent = isFavorited(item.id) ? '❤️' : '🤍';
+
+            let html = '';
+
+            // 英雄详情
+            if (tab === 'heroes') {
+                const stats = typeof item.stats === 'object' ? item.stats : {};
+                const skills = Array.isArray(item.skills) ? item.skills : [];
+                const tags = Array.isArray(item.tags) ? item.tags : [];
+
+                html += `<div class="modal-section">
+                    <div class="subtitle">📝 简介</div>
+                    <p>${item.description || ''}</p>
+                </div>`;
+
+                if (tags.length) {
+                    html += `<div class="modal-section">
+                        <div class="subtitle">🏷️ 定位</div>
+                        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">${tags.map(t => `<span class="card-tag">${t}</span>`).join('')}</div>
+                    </div>`;
+                }
+
+                if (Object.keys(stats).length) {
+                    const maxVal = Math.max(...Object.values(stats).map(v => {
+                        if (v === 'SS') return 100;
+                        if (v === 'S+') return 95;
+                        if (v === 'S') return 90;
+                        if (v === 'A+') return 80;
+                        if (v === 'A') return 70;
+                        if (v === 'B+') return 60;
+                        if (v === 'B') return 50;
+                        if (v === 'C') return 35;
+                        if (v === 'D') return 20;
+                        return 30;
+                    }));
+                    html += `<div class="modal-section">
+                        <div class="subtitle">📊 属性</div>
+                        <div class="stat-grid">${Object.entries(stats).map(([k, v]) => {
+                            const pct = {
+                                'SS': 100, 'S+': 95, 'S': 90, 'A+': 80, 'A': 70,
+                                'B+': 60, 'B': 50, 'C': 35, 'D': 20
+                            }[v] || 30;
+                            return `<div class="stat-item">
+                                <div class="stat-val">${v}</div>
+                                <div class="stat-label">${k}</div>
+                                <div class="stat-bar"><div class="stat-bar-fill" style="width:${pct}%"></div></div>
+                            </div>`;
+                        }).join('')}</div>
+                    </div>`;
+                }
+
+                if (skills.length) {
+                    html += `<div class="modal-section">
+                        <div class="subtitle">⚡ 技能</div>
+                        ${skills.map((s, i) => `
+                            <div class="skill-item">
+                                <div class="skill-name">${i === 0 ? '被动 · ' : `技能${i} · `}${s.name}</div>
+                                <div class="skill-desc">${s.desc}</div>
+                            </div>
+                        `).join('')}
+                    </div>`;
+                }
+            }
+
+            // 资源详情
+            if (tab === 'resources') {
+                html += `<div class="modal-section">
+                    <div class="subtitle">📝 描述</div>
+                    <p>${item.description || ''}</p>
+                </div>
+                <div class="modal-section">
+                    <div class="subtitle">ℹ️ 详情</div>
+                    <p>${item.details || '暂无详情'}</p>
+                </div>`;
+            }
+
+            // 攻略详情
+            if (tab === 'guides') {
+                html += `<div class="modal-section guide-content">${item.content || item.description || ''}</div>`;
+            }
+
+            // 地图详情
+            if (tab === 'maps') {
+                html += `<div class="modal-section guide-content">${item.content || item.description || ''}</div>`;
+            }
+
+            body.innerHTML = html;
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            const overlay = document.getElementById('modalOverlay');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // ============== 收藏夹 ==============
+        function toggleFavoritesSidebar() {
+            const sidebar = document.getElementById('favoritesSidebar');
+            const overlay = document.getElementById('favoritesOverlay');
+            const isActive = sidebar.classList.toggle('active');
+            if (isActive) overlay.classList.add('active');
+            else overlay.classList.remove('active');
+            if (isActive) renderFavorites();
+        }
+
+        // ============== 主题 ==============
+        function toggleTheme() {
+            const el = document.documentElement;
+            const isLight = el.getAttribute('data-theme') === 'light';
+            el.setAttribute('data-theme', isLight ? 'dark' : 'light');
+            document.getElementById('themeBtn').textContent = isLight ? '🌙' : '☀️';
+            localStorage.setItem(LS_THEME, isLight ? 'dark' : 'light');
+        }
+
+        // ============== 初始化 ==============
+        function init() {
+            // 恢复主题
+            const savedTheme = localStorage.getItem(LS_THEME) || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.getElementById('themeBtn').textContent = savedTheme === 'light' ? '☀️' : '🌙';
+
+            // 导航
+            document.querySelectorAll('.header-nav a').forEach(a => {
+                a.addEventListener('click', () => switchTab(a.dataset.tab));
+            });
+
+            // 搜索
+            document.getElementById('searchInput').addEventListener('input', e => {
+                searchQuery = e.target.value;
+                if (currentTab === 'codes' || currentTab === 'quickref') return;
+                renderCards();
+            });
+
+            // 筛选
+            document.querySelectorAll('#filterSection .filter-tag').forEach(tag => {
+                tag.addEventListener('click', function () {
+                    document.querySelectorAll('#filterSection .filter-tag').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFilter = this.dataset.filter;
+                    renderCards();
+                });
+            });
+
+            // 卡片点击
+            document.getElementById('cardGrid').addEventListener('click', async function (e) {
+                const star = e.target.closest('.card-star');
+                if (star) {
+                    e.stopPropagation();
+                    const id = parseInt(star.dataset.id);
+                    const tab = star.dataset.tab;
+                    toggleFavorite(id);
+                    star.textContent = isFavorited(id) ? '❤️' : '🤍';
+                    star.classList.toggle('active');
+                    return;
+                }
+                const card = e.target.closest('.card');
+                if (card) {
+                    const id = parseInt(card.dataset.id);
+                    const tab = card.dataset.tab;
+                    const data = await loadData(tab);
+                    const item = data.find(d => d.id === id);
+                    if (item) openModal(item, tab);
+                }
+            });
+
+            // 弹窗
+            document.getElementById('modalClose').addEventListener('click', closeModal);
+            document.getElementById('modalOverlay').addEventListener('click', function (e) {
+                if (e.target === this) closeModal();
+            });
+            document.getElementById('modalFavBtn').addEventListener('click', function () {
+                const overlay = document.getElementById('modalOverlay');
+                const id = parseInt(overlay.dataset.itemId);
+                const tab = overlay.dataset.itemTab;
+                if (id) {
+                    currentTab = tab;
+                    toggleFavorite(id);
+                    this.textContent = isFavorited(id) ? '❤️' : '🤍';
+                    renderCards();
+                }
+            });
+            document.getElementById('modalCopyBtn').addEventListener('click', function () {
+                const text = document.getElementById('modalBody').innerText;
+                navigator.clipboard.writeText(text).then(() => {
+                    this.textContent = '✅';
+                    setTimeout(() => { this.textContent = '📋'; }, 2000);
+                });
+            });
+            document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+            // 收藏夹
+            document.getElementById('favBtn').addEventListener('click', toggleFavoritesSidebar);
+            document.getElementById('favClose').addEventListener('click', toggleFavoritesSidebar);
+            document.getElementById('favoritesOverlay').addEventListener('click', toggleFavoritesSidebar);
+
+            // 主题切换
+            document.getElementById('themeBtn').addEventListener('click', toggleTheme);
+
+            // 随机推荐
+            document.getElementById('randomBtn').addEventListener('click', async () => {
+                if (!['heroes', 'resources', 'guides', 'maps', 'codes', 'quickref'].includes(currentTab)) {
+                    switchTab('heroes');
+                }
+                const data = await loadData(currentTab);
+                if (data.length) {
+                    const item = data[Math.floor(Math.random() * data.length)];
+                    openModal(item, currentTab);
+                }
+            });
+
+            // 加载初始数据
+            switchTab('heroes');
+        }
+
+        init();
+    </script>
+</body>
+</html>

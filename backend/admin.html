@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理后台 - 王者荣耀世界攻略站</title>
+    <style>
+        :root {
+            --bg: #0a0e1a;
+            --card: #111827;
+            --card-hover: #1f2937;
+            --text: #f8fafc;
+            --text2: #94a3b8;
+            --accent: #f59e0b;
+            --accent2: #fbbf24;
+            --border: rgba(148,163,184,0.15);
+            --danger: #ef4444;
+            --success: #22c55e;
+            --info: #3b82f6;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
+            background: var(--bg); color: var(--text); min-height:100vh;
+        }
+
+        /* 登录页 */
+        .login-page {
+            display:flex; align-items:center; justify-content:center; min-height:100vh;
+            background: radial-gradient(ellipse at center, #1a1f35 0%, #0a0e1a 70%);
+        }
+        .login-box {
+            background: var(--card); border:1px solid var(--border); border-radius:1.5rem;
+            padding:3rem 2.5rem; width:420px; max-width:90vw; text-align:center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        }
+        .login-box h1 {
+            font-size:1.5rem; margin-bottom:0.5rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+        }
+        .login-box p { color:var(--text2); margin-bottom:2rem; font-size:0.9rem; }
+        .login-box input {
+            width:100%; padding:0.85rem 1rem; margin-bottom:1rem;
+            border-radius:0.75rem; border:1.5px solid var(--border);
+            background:var(--bg); color:var(--text); font-size:0.95rem;
+            outline:none; transition:0.3s;
+        }
+        .login-box input:focus { border-color:var(--accent); }
+        .login-box button {
+            width:100%; padding:0.85rem; border-radius:0.75rem; border:none;
+            background:linear-gradient(135deg,var(--accent),var(--accent2));
+            color:#000; font-weight:700; font-size:1rem; cursor:pointer;
+            transition:0.3s;
+        }
+        .login-box button:hover { transform:translateY(-2px); box-shadow:0 8px 25px rgba(245,158,11,0.3); }
+        .login-error { color:var(--danger); font-size:0.85rem; margin-top:0.75rem; display:none; }
+
+        /* 主面板 */
+        .admin-page { display:none; }
+        .admin-header {
+            background:rgba(17,24,39,0.9); border-bottom:1px solid var(--border);
+            padding:1rem 2rem; display:flex; justify-content:space-between;
+            align-items:center; position:sticky; top:0; z-index:100;
+            backdrop-filter: blur(20px);
+        }
+        .admin-header h2 {
+            background:linear-gradient(135deg,var(--accent),var(--accent2));
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+            font-size:1.2rem;
+        }
+        .admin-nav { display:flex; gap:0.5rem; flex-wrap:wrap; }
+        .admin-nav a {
+            color:var(--text2); text-decoration:none; padding:0.4rem 0.75rem;
+            border-radius:0.5rem; font-size:0.85rem; transition:0.2s; cursor:pointer;
+        }
+        .admin-nav a:hover, .admin-nav a.active { color:var(--text); background:var(--card-hover); }
+        .btn-logout {
+            padding:0.5rem 1rem; border-radius:0.5rem; border:1px solid var(--border);
+            background:transparent; color:var(--text2); cursor:pointer; font-size:0.85rem;
+            transition:0.2s;
+        }
+        .btn-logout:hover { color:var(--danger); border-color:var(--danger); }
+
+        .btn-secondary {
+            padding:0.65rem 1.5rem; border-radius:0.6rem; border:1.5px solid var(--border);
+            background:transparent; color:var(--text2); cursor:pointer; font-size:0.9rem;
+            transition:0.2s; white-space:nowrap;
+        }
+        .btn-secondary:hover { border-color:var(--accent); color:var(--accent); }
+
+        .admin-main { max-width:1400px; margin:0 auto; padding:2rem; }
+
+        .toolbar {
+            display:flex; gap:1rem; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap;
+        }
+        .toolbar input {
+            flex:1; min-width:200px; padding:0.65rem 1rem;
+            border-radius:0.6rem; border:1.5px solid var(--border);
+            background:var(--card); color:var(--text); font-size:0.9rem;
+            outline:none; transition:0.3s;
+        }
+        .toolbar input:focus { border-color:var(--accent); }
+        .btn-primary {
+            padding:0.65rem 1.5rem; border-radius:0.6rem; border:none;
+            background:linear-gradient(135deg,var(--accent),var(--accent2));
+            color:#000; font-weight:600; font-size:0.9rem; cursor:pointer;
+            transition:0.2s; white-space:nowrap;
+        }
+        .btn-primary:hover { transform:translateY(-1px); box-shadow:0 4px 15px rgba(245,158,11,0.25); }
+
+        table {
+            width:100%; border-collapse:collapse; background:var(--card);
+            border-radius:1rem; overflow:hidden; border:1px solid var(--border);
+        }
+        th, td {
+            padding:0.75rem 1rem; text-align:left; border-bottom:1px solid var(--border);
+            font-size:0.88rem;
+        }
+        th { background:var(--card-hover); color:var(--text2); font-weight:600; font-size:0.8rem; text-transform:uppercase; }
+        tr:hover td { background:var(--card-hover); }
+        .td-desc { max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text2); }
+        .td-actions { display:flex; gap:0.4rem; }
+        .btn-sm {
+            padding:0.3rem 0.7rem; border-radius:0.4rem; border:1px solid var(--border);
+            background:transparent; color:var(--text2); cursor:pointer; font-size:0.78rem;
+            transition:0.2s; white-space:nowrap;
+        }
+        .btn-sm:hover { border-color:var(--accent); color:var(--accent); }
+        .btn-sm.danger:hover { border-color:var(--danger); color:var(--danger); }
+
+        .empty { text-align:center; padding:3rem; color:var(--text2); }
+
+        /* 弹窗 */
+        .modal-overlay {
+            position:fixed; top:0;left:0;right:0;bottom:0;
+            background:rgba(0,0,0,0.7); backdrop-filter:blur(8px);
+            display:none; align-items:center; justify-content:center; z-index:1000; padding:1rem;
+        }
+        .modal-overlay.active { display:flex; }
+        .modal {
+            background:var(--card); border-radius:1.5rem; border:1px solid var(--border);
+            max-width:700px; width:100%; max-height:85vh; overflow-y:auto;
+            box-shadow:0 25px 50px rgba(0,0,0,0.4);
+        }
+        .modal-header {
+            padding:1.5rem 2rem; border-bottom:1px solid var(--border);
+            display:flex; justify-content:space-between; align-items:center;
+            position:sticky; top:0; background:rgba(17,24,39,0.95);
+            backdrop-filter:blur(20px); border-radius:1.5rem 1.5rem 0 0; z-index:10;
+        }
+        .modal-header h3 { font-size:1.2rem; }
+        .modal-close {
+            background:none; border:none; color:var(--text2); font-size:1.5rem;
+            cursor:pointer; width:36px; height:36px; border-radius:0.5rem;
+            display:flex; align-items:center; justify-content:center; transition:0.2s;
+        }
+        .modal-close:hover { background:var(--bg); color:var(--danger); }
+        .modal-body { padding:1.5rem 2rem 2rem; }
+        .form-group { margin-bottom:1.25rem; }
+        .form-group label {
+            display:block; margin-bottom:0.4rem; font-weight:600;
+            font-size:0.88rem; color:var(--text2);
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            width:100%; padding:0.7rem 1rem; border-radius:0.6rem;
+            border:1.5px solid var(--border); background:var(--bg);
+            color:var(--text); font-size:0.9rem; outline:none;
+            font-family:inherit; transition:0.3s;
+        }
+        .form-group textarea { min-height:100px; resize:vertical; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            border-color:var(--accent);
+        }
+        .form-group .help { font-size:0.75rem; color:var(--text2); margin-top:0.25rem; }
+        .form-row { display:flex; gap:1rem; }
+        .form-row .form-group { flex:1; }
+        .form-actions { display:flex; gap:0.75rem; justify-content:flex-end; margin-top:0.5rem; }
+        .btn-cancel {
+            padding:0.65rem 1.5rem; border-radius:0.6rem; border:1.5px solid var(--border);
+            background:transparent; color:var(--text2); cursor:pointer; font-size:0.9rem;
+            transition:0.2s;
+        }
+        .btn-cancel:hover { border-color:var(--text); color:var(--text); }
+
+        .tag-row { display:flex; gap:0.35rem; flex-wrap:wrap; margin-top:0.35rem; }
+        .tag-item {
+            padding:0.2rem 0.6rem; border-radius:0.3rem;
+            background:rgba(245,158,11,0.1); color:var(--accent);
+            font-size:0.8rem; display:flex; align-items:center; gap:0.3rem;
+        }
+        .tag-remove { cursor:pointer; color:var(--text2); transition:0.2s; }
+        .tag-remove:hover { color:var(--danger); }
+
+        @media (max-width:768px) {
+            .admin-header { padding:0.75rem 1rem; flex-wrap:wrap; gap:0.75rem; }
+            .admin-main { padding:1rem; }
+            table { display:block; overflow-x:auto; }
+            .form-row { flex-direction:column; gap:0; }
+            .toolbar { flex-direction:column; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 登录页 -->
+    <div class="login-page" id="loginPage">
+        <div class="login-box">
+            <h1>⚔️ 管理后台</h1>
+            <p>王者荣耀世界攻略站 · 内容管理</p>
+            <input type="text" id="loginUser" placeholder="用户名" autocomplete="username">
+            <input type="password" id="loginPass" placeholder="密码" autocomplete="current-password">
+            <button id="loginBtn">登 录</button>
+            <p class="login-error" id="loginError">账号或密码错误</p>
+        </div>
+    </div>
+
+    <!-- 管理面板 -->
+    <div class="admin-page" id="adminPage">
+        <header class="admin-header">
+            <h2>⚔️ 管理后台</h2>
+            <nav class="admin-nav" id="adminNav">
+                <a data-table="heroes" class="active">英雄管理</a>
+                <a data-table="resources">资源管理</a>
+                <a data-table="guides">攻略文章</a>
+                <a data-table="maps">地图探索</a>
+                <a data-table="codes">兑换码</a>
+                <a data-table="quickref">速查表</a>
+            </nav>
+            <div style="display:flex;gap:0.75rem;align-items:center;">
+                <a href="/" style="color:var(--text2);text-decoration:none;font-size:0.85rem;">← 前台</a>
+                <button class="btn-logout" id="logoutBtn">退出</button>
+            </div>
+        </header>
+        <main class="admin-main">
+            <div class="toolbar">
+                <input type="text" id="searchAdmin" placeholder="搜索...">
+                <button class="btn-secondary" id="btnImport">📥 批量导入</button>
+                <button class="btn-primary" id="btnAdd">+ 添加</button>
+            </div>
+            <div id="tableWrap"></div>
+        </main>
+    </div>
+
+    <!-- 编辑弹窗 -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">编辑</h3>
+                <button class="modal-close" id="modalClose">✕</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- 导入弹窗 -->
+    <div class="modal-overlay" id="importModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="importModalTitle">批量导入数据</h3>
+                <button class="modal-close" id="importModalClose">✕</button>
+            </div>
+            <div class="modal-body">
+                <p style="color:var(--text2);margin-bottom:1rem;font-size:0.9rem;">
+                    导入当前选中类型（<strong id="importTableName"></strong>）的数据。
+                    请使用配套的 CSV 模板文件。
+                </p>
+                <div class="form-group">
+                    <label>选择 CSV 文件</label>
+                    <input type="file" id="importFile" accept=".csv" style="padding:0.5rem 0;">
+                </div>
+                <div id="importPreview" style="margin:1rem 0;display:none;">
+                    <label style="font-size:0.85rem;color:var(--text2);display:block;margin-bottom:0.4rem;">预览数据</label>
+                    <div id="importPreviewTable" style="max-height:300px;overflow:auto;border:1px solid var(--border);border-radius:0.5rem;"></div>
+                </div>
+                <div class="form-actions">
+                    <button class="btn-secondary" id="btnDownloadTemplate">📄 下载模板</button>
+                    <button class="btn-cancel" id="importCancel">取消</button>
+                    <button class="btn-primary" id="btnDoImport" style="display:none;">确认导入</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const adminNav = document.getElementById('adminNav');
+        const loginPage = document.getElementById('loginPage');
+        const adminPage = document.getElementById('adminPage');
+        const tableWrap = document.getElementById('tableWrap');
+        const editModal = document.getElementById('editModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
+        const searchAdmin = document.getElementById('searchAdmin');
+
+        let currentTable = 'heroes';
+        let currentData = [];
+        let editingItem = null;
+
+        // 表格配置
+        const TABLE_META = {
+            heroes: {
+                name: '英雄',
+                fields: [
+                    { key: 'name', label: '名称', type: 'text' },
+                    { key: 'subtitle', label: '副标题', type: 'text' },
+                    { key: 'icon', label: '图标(emoji)', type: 'text' },
+                    { key: 'rarity', label: '稀有度', type: 'select', options: ['R','SR','SSR'] },
+                    { key: 'badge', label: '角标', type: 'select', options: ['','new','hot'] },
+                    { key: 'description', label: '简介', type: 'textarea' },
+                    { key: 'tags', label: '标签(逗号分隔)', type: 'tags' },
+                    { key: 'image_url', label: '图片URL', type: 'text' },
+                    { key: 'sort_order', label: '排序', type: 'number' },
+                ],
+                columns: ['id','icon','name','rarity','badge','tags','description']
+            },
+            resources: {
+                name: '资源',
+                fields: [
+                    { key: 'name', label: '名称', type: 'text' },
+                    { key: 'description', label: '描述', type: 'textarea' },
+                    { key: 'icon', label: '图标(emoji)', type: 'text' },
+                    { key: 'rarity', label: '稀有度', type: 'select', options: ['R','SR','SSR'] },
+                    { key: 'category', label: '分类', type: 'select', options: ['currency','material','other'] },
+                    { key: 'tags', label: '标签(逗号分隔)', type: 'tags' },
+                    { key: 'details', label: '详情', type: 'textarea' },
+                    { key: 'sort_order', label: '排序', type: 'number' },
+                ],
+                columns: ['id','icon','name','rarity','category','tags','description']
+            },
+            guides: {
+                name: '攻略',
+                fields: [
+                    { key: 'title', label: '标题', type: 'text' },
+                    { key: 'description', label: '简介', type: 'textarea' },
+                    { key: 'icon', label: '图标(emoji)', type: 'text' },
+                    { key: 'category', label: '分类', type: 'select', options: ['general','beginner','hero','resource','advance'] },
+                    { key: 'tags', label: '标签(逗号分隔)', type: 'tags' },
+                    { key: 'badge', label: '角标', type: 'select', options: ['','new','hot'] },
+                    { key: 'content', label: '攻略内容(HTML)', type: 'textarea' },
+                    { key: 'sort_order', label: '排序', type: 'number' },
+                ],
+                columns: ['id','icon','title','category','badge','tags','description']
+            },
+            maps: {
+                name: '地图',
+                fields: [
+                    { key: 'name', label: '名称', type: 'text' },
+                    { key: 'description', label: '简介', type: 'textarea' },
+                    { key: 'icon', label: '图标(emoji)', type: 'text' },
+                    { key: 'tags', label: '标签(逗号分隔)', type: 'tags' },
+                    { key: 'content', label: '详细内容(HTML)', type: 'textarea' },
+                    { key: 'sort_order', label: '排序', type: 'number' },
+                ],
+                columns: ['id','icon','name','tags','description']
+            },
+            codes: {
+                name: '兑换码',
+                fields: [
+                    { key: 'code', label: '兑换码', type: 'text' },
+                    { key: 'description', label: '描述', type: 'text' },
+                    { key: 'reward', label: '奖励', type: 'text' },
+                    { key: 'expiry', label: '有效期', type: 'text' },
+                    { key: 'is_active', label: '启用', type: 'select', options: [1,0] },
+                    { key: 'sort_order', label: '排序', type: 'number' },
+                ],
+                columns: ['id','code','description','reward','expiry','is_active']
+            },
+            quickref: {
+                name: '速查',
+                fields: [
+                    { key: 'title', label: '标题', type: 'text' },
+                    { key: 'icon', label: '图标(emoji)', type: 'text' },
+                    { key: 'items', label: '条目(每行一个)', type: 'textarea' },
+                    { key: 'sort_order', label: '排序', type: 'number' },
+                ],
+                columns: ['id','icon','title','items']
+            }
+        };
+
+        // ============== 登录 ==============
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+            const u = document.getElementById('loginUser').value;
+            const p = document.getElementById('loginPass').value;
+            const res = await fetch('/api/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: u, password: p })
+            });
+            const data = await res.json();
+            if (data.success) {
+                loginPage.style.display = 'none';
+                adminPage.style.display = 'block';
+                loadTable(currentTable);
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+            }
+        });
+        document.getElementById('loginPass').addEventListener('keydown', e => {
+            if (e.key === 'Enter') document.getElementById('loginBtn').click();
+        });
+
+        // 检查登录状态
+        (async () => {
+            const res = await fetch('/api/admin/check');
+            const data = await res.json();
+            if (data.logged_in) {
+                loginPage.style.display = 'none';
+                adminPage.style.display = 'block';
+                loadTable(currentTable);
+            }
+        })();
+
+        // ============== 导航 ==============
+        adminNav.addEventListener('click', e => {
+            if (e.target.tagName === 'A') {
+                document.querySelectorAll('#adminNav a').forEach(a => a.classList.remove('active'));
+                e.target.classList.add('active');
+                currentTable = e.target.dataset.table;
+                loadTable(currentTable);
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await fetch('/api/admin/logout', { method: 'POST' });
+            loginPage.style.display = 'flex';
+            adminPage.style.display = 'none';
+            document.getElementById('loginPass').value = '';
+        });
+
+        // ============== 搜索 ==============
+        searchAdmin.addEventListener('input', renderTable);
+
+        // ============== 编辑弹窗 ==============
+        document.getElementById('modalClose').addEventListener('click', closeEditModal);
+        editModal.addEventListener('click', e => { if (e.target === editModal) closeEditModal(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeEditModal(); });
+
+        // ============== 添加按钮 ==============
+        document.getElementById('btnAdd').addEventListener('click', () => openEditModal(null));
+
+        // ============== 核心函数 ==============
+        async function loadTable(table) {
+            const res = await fetch(`/api/data/${table}`);
+            currentData = await res.json();
+            renderTable();
+        }
+
+        function renderTable() {
+            const meta = TABLE_META[currentTable];
+            const q = searchAdmin.value.toLowerCase();
+            let rows = currentData;
+            if (q) {
+                rows = rows.filter(item => {
+                    return meta.columns.some(col => {
+                        const val = item[col];
+                        if (Array.isArray(val)) return val.some(v => String(v).toLowerCase().includes(q));
+                        return String(val ?? '').toLowerCase().includes(q);
+                    });
+                });
+            }
+
+            if (!rows.length) {
+                tableWrap.innerHTML = '<div class="empty">暂无数据</div>';
+                return;
+            }
+
+            let html = '<table><thead><tr>';
+            meta.columns.forEach(col => {
+                html += `<th>${col === 'id' ? 'ID' : col}</th>`;
+            });
+            html += '<th>操作</th></tr></thead><tbody>';
+
+            rows.forEach(item => {
+                html += '<tr>';
+                meta.columns.forEach(col => {
+                    let val = item[col];
+                    if (col === 'tags' && Array.isArray(val)) val = val.join(', ');
+                    if (col === 'items' && Array.isArray(val)) val = val.join(' | ');
+                    if (col === 'description' || col === 'content') {
+                        const s = String(val ?? '').replace(/<[^>]*>/g, '').substring(0, 50);
+                        html += `<td class="td-desc" title="${escapeHtml(String(val ?? ''))}">${s || '—'}</td>`;
+                    } else if (col === 'is_active') {
+                        html += `<td>${val ? '✅' : '❌'}</td>`;
+                    } else if (col === 'badge') {
+                        html += `<td>${val || '—'}</td>`;
+                    } else {
+                        html += `<td>${escapeHtml(String(val ?? '—'))}</td>`;
+                    }
+                });
+                html += `<td class="td-actions">
+                    <button class="btn-sm" onclick="openEditModal(${item.id})">编辑</button>
+                    <button class="btn-sm danger" onclick="deleteItem(${item.id})">删除</button>
+                </td></tr>`;
+            });
+            html += '</tbody></table>';
+            tableWrap.innerHTML = html;
+        }
+
+        function openEditModal(id) {
+            editingItem = id;
+            const meta = TABLE_META[currentTable];
+            modalTitle.textContent = id ? `编辑${meta.name}` : `添加${meta.name}`;
+
+            let item = {};
+            if (id) {
+                item = currentData.find(d => d.id === id) || {};
+            }
+
+            let html = '';
+            meta.fields.forEach(f => {
+                let val = item[f.key] ?? '';
+                if (Array.isArray(val) && f.key !== 'items') val = val.join(', ');
+                if (f.key === 'items' && Array.isArray(val)) val = val.join('\n');
+
+                html += `<div class="form-group">`;
+                html += `<label>${f.label}</label>`;
+
+                if (f.type === 'textarea') {
+                    html += `<textarea name="${f.key}" rows="4">${escapeHtml(String(val))}</textarea>`;
+                } else if (f.type === 'select') {
+                    html += `<select name="${f.key}">`;
+                    f.options.forEach(opt => {
+                        const sel = String(val) === String(opt) ? ' selected' : '';
+                        html += `<option value="${opt}"${sel}>${opt || '(无)'}</option>`;
+                    });
+                    html += '</select>';
+                } else {
+                    html += `<input type="${f.type}" name="${f.key}" value="${escapeHtml(String(val))}">`;
+                }
+                html += '</div>';
+            });
+
+            html += '<div class="form-actions">';
+            html += '<button class="btn-cancel" onclick="closeEditModal()">取消</button>';
+            html += '<button class="btn-primary" onclick="saveItem()">保存</button>';
+            html += '</div>';
+
+            modalBody.innerHTML = html;
+            editModal.classList.add('active');
+        }
+
+        function closeEditModal() {
+            editModal.classList.remove('active');
+            editingItem = null;
+        }
+
+        async function saveItem() {
+            const meta = TABLE_META[currentTable];
+            const data = {};
+
+            meta.fields.forEach(f => {
+                const el = modalBody.querySelector(`[name="${f.key}"]`);
+                if (!el) return;
+                let val = el.value;
+
+                // 解析 JSON 字段
+                if (f.key === 'tags') {
+                    val = val ? val.split(/[,，]/).map(s => s.trim()).filter(Boolean) : [];
+                } else if (f.key === 'items') {
+                    val = val ? val.split('\n').map(s => s.trim()).filter(Boolean) : [];
+                } else if (f.key === 'sort_order' || f.key === 'is_active') {
+                    val = Number(val) || 0;
+                }
+
+                // 如果是 JSON 字段，需要序列化
+                if (['tags', 'items'].includes(f.key)) {
+                    data[f.key] = val;
+                } else {
+                    data[f.key] = val;
+                }
+            });
+
+            let res;
+            if (editingItem) {
+                res = await fetch(`/api/admin/${currentTable}/${editingItem}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+            } else {
+                res = await fetch(`/api/admin/${currentTable}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+            }
+
+            if (res.ok) {
+                closeEditModal();
+                await loadTable(currentTable);
+            }
+        }
+
+        async function deleteItem(id) {
+            if (!confirm('确认删除？此操作不可恢复。')) return;
+            const res = await fetch(`/api/admin/${currentTable}/${id}`, { method: 'DELETE' });
+            if (res.ok) await loadTable(currentTable);
+        }
+
+        // ============== 批量导入 ==============
+        const importModal = document.getElementById('importModal');
+        const importFile = document.getElementById('importFile');
+        const importPreview = document.getElementById('importPreview');
+        const importPreviewTable = document.getElementById('importPreviewTable');
+        const btnDoImport = document.getElementById('btnDoImport');
+        const importTableName = document.getElementById('importTableName');
+
+        document.getElementById('btnImport').addEventListener('click', openImportModal);
+        document.getElementById('importModalClose').addEventListener('click', closeImportModal);
+        document.getElementById('importCancel').addEventListener('click', closeImportModal);
+        importModal.addEventListener('click', e => { if (e.target === importModal) closeImportModal(); });
+
+        document.getElementById('btnDownloadTemplate').addEventListener('click', async () => {
+            window.open(`/api/admin/template/${currentTable}`, '_blank');
+        });
+
+        importFile.addEventListener('change', async () => {
+            const file = importFile.files[0];
+            if (!file) return;
+            const text = await file.text();
+            const lines = text.trim().split('\n').filter(l => l.trim());
+            if (lines.length < 2) {
+                importPreview.style.display = 'none';
+                btnDoImport.style.display = 'none';
+                return;
+            }
+            const headers = parseCSVLine(lines[0]);
+            const rows = [];
+            for (let i = 1; i < Math.min(lines.length, 21); i++) {
+                rows.push(parseCSVLine(lines[i]));
+            }
+            importTableName.textContent = TABLE_META[currentTable].name;
+            let html = '<table style="width:100%;font-size:0.78rem;"><thead><tr>';
+            headers.forEach(h => html += `<th style="padding:0.4rem;">${h}</th>`);
+            html += '</tr></thead><tbody>';
+            rows.forEach(row => {
+                html += '<tr>';
+                headers.forEach(h => {
+                    html += `<td style="padding:0.4rem;color:var(--text2);">${escapeHtml(row[h] || '') || '—'}</td>`;
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+            if (lines.length > 21) {
+                html += `<p style="color:var(--text2);font-size:0.8rem;margin-top:0.5rem;">... 共 ${lines.length - 1} 条数据</p>`;
+            }
+            importPreviewTable.innerHTML = html;
+            importPreview.style.display = 'block';
+            btnDoImport.style.display = 'inline-block';
+        });
+
+        document.getElementById('btnDoImport').addEventListener('click', async () => {
+            const file = importFile.files[0];
+            if (!file) return;
+            btnDoImport.disabled = true;
+            btnDoImport.textContent = '导入中...';
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('table', currentTable);
+            try {
+                const res = await fetch('/api/admin/import', { method: 'POST', body: formData });
+                const result = await res.json();
+                if (result.success) {
+                    let msg = `✅ 成功导入 ${result.inserted} 条数据`;
+                    if (result.errors.length > 0) {
+                        msg += `\n⚠️ ${result.errors.length} 条失败:\n${result.errors.join('\n')}`;
+                    }
+                    alert(msg);
+                    closeImportModal();
+                    await loadTable(currentTable);
+                } else {
+                    alert('❌ 导入失败: ' + (result.error || '未知错误'));
+                }
+            } catch (e) {
+                alert('❌ 导入失败: ' + e.message);
+            }
+            btnDoImport.disabled = false;
+            btnDoImport.textContent = '确认导入';
+        });
+
+        function openImportModal() {
+            importFile.value = '';
+            importPreview.style.display = 'none';
+            btnDoImport.style.display = 'none';
+            importTableName.textContent = TABLE_META[currentTable].name;
+            document.getElementById('importModalTitle').textContent = `批量导入 - ${TABLE_META[currentTable].name}`;
+            importModal.classList.add('active');
+        }
+
+        function closeImportModal() {
+            importModal.classList.remove('active');
+        }
+
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            for (let i = 0; i < line.length; i++) {
+                const ch = line[i];
+                if (inQuotes) {
+                    if (ch === '"') {
+                        if (i + 1 < line.length && line[i + 1] === '"') {
+                            current += '"'; i++;
+                        } else {
+                            inQuotes = false;
+                        }
+                    } else {
+                        current += ch;
+                    }
+                } else {
+                    if (ch === '"') {
+                        inQuotes = true;
+                    } else if (ch === ',') {
+                        result.push(current.trim()); current = '';
+                    } else {
+                        current += ch;
+                    }
+                }
+            }
+            result.push(current.trim());
+            return result;
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
