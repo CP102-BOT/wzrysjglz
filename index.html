@@ -66,6 +66,13 @@
             color:#fff; box-shadow:0 4px 15px rgba(245,158,11,0.3);
         }
         .header-actions { display:flex; gap:0.5rem; align-items:center; }
+        .hamburger {
+            display:none; background:none; border:1px solid var(--border);
+            color:var(--text); font-size:1.4rem; cursor:pointer;
+            width:40px; height:40px; border-radius:0.5rem; align-items:center; justify-content:center;
+            transition:0.2s;
+        }
+        .hamburger:hover { border-color:var(--accent); color:var(--accent); }
         .btn-icon {
             width:38px; height:38px; border-radius:0.6rem;
             border:1px solid var(--border); background:var(--card);
@@ -154,9 +161,6 @@
             position:absolute; top:0.75rem; right:0.75rem; padding:0.3rem 0.7rem;
             border-radius:0.4rem; font-size:0.75rem; font-weight:700; z-index:2;
         }
-        .badge-ssr { background:linear-gradient(135deg,#fbbf24,#f59e0b); color:#000; }
-        .badge-sr { background:linear-gradient(135deg,#a78bfa,#8b5cf6); color:#fff; }
-        .badge-r { background:linear-gradient(135deg,#60a5fa,#3b82f6); color:#fff; }
         .badge-new { background:linear-gradient(135deg,#22c55e,#16a34a); color:#fff; }
         .badge-hot { background:linear-gradient(135deg,#ef4444,#dc2626); color:#fff; }
         .card-body { padding:1.25rem 1.5rem 1.5rem; flex:1; display:flex; flex-direction:column; }
@@ -187,28 +191,6 @@
             display:-webkit-box; -webkit-line-clamp:2;
             -webkit-box-orient:vertical; overflow:hidden; margin-top:auto;
         }
-
-        /* Code Cards */
-        .code-card {
-            background:var(--card); border:1.5px solid var(--border);
-            border-radius:1.25rem; padding:1.5rem; transition:0.3s;
-            display:flex; flex-direction:column; gap:0.75rem;
-        }
-        .code-card:hover { border-color:var(--accent); transform:translateY(-2px); }
-        .code-value {
-            font-size:1.4rem; font-weight:800; letter-spacing:0.05em;
-            background:linear-gradient(135deg,var(--accent),var(--accent-hover));
-            -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-            background-clip:text; word-break:break-all;
-        }
-        .code-expiry { color:var(--text-secondary); font-size:0.8rem; }
-        .code-btn {
-            padding:0.65rem; border-radius:0.75rem; border:none;
-            background:linear-gradient(135deg,var(--accent),var(--accent-hover));
-            color:#000; font-weight:700; cursor:pointer; font-size:0.9rem;
-            transition:0.3s; width:100%;
-        }
-        .code-btn:hover { transform:translateY(-1px); box-shadow:0 4px 15px rgba(245,158,11,0.25); }
 
         /* Quick Ref Cards */
         .quick-card {
@@ -338,9 +320,16 @@
         ::-webkit-scrollbar-thumb:hover { background:var(--text-secondary); }
 
         @media (max-width:768px) {
+            .hamburger { display:flex; }
             .header { padding:0.75rem 1rem; }
-            .header-inner { flex-direction:column; }
-            .header-nav { overflow-x:auto; }
+            .header-inner { flex-direction:row; flex-wrap:wrap; }
+            .header-nav {
+                display:none; width:100%; flex-direction:column;
+                order:3; background:var(--card); border-radius:0.75rem;
+                border:1px solid var(--border); padding:0.4rem; margin-top:0.5rem;
+            }
+            .header-nav.open { display:flex; }
+            .header-nav a { padding:0.7rem 1rem; text-align:center; }
             .grid { grid-template-columns:1fr; gap:1rem; }
             .search-wrap { padding:0 1rem; margin:1.5rem auto 1rem; }
             .filter-wrap { padding:0 1rem; }
@@ -355,13 +344,13 @@
     <header class="header">
         <div class="header-inner">
             <div class="logo">王者荣耀世界攻略站</div>
-            <nav class="header-nav">
+            <button class="hamburger" id="hamburgerBtn" aria-label="菜单">☰</button>
+            <nav class="header-nav" id="headerNav">
                 <a data-tab="heroes" class="active">英雄图鉴</a>
                 <a data-tab="resources">养成资源</a>
                 <a data-tab="guides">攻略文章</a>
                 <a data-tab="maps">地图探索</a>
-                <a data-tab="codes">兑换码</a>
-                <a data-tab="quickref">速查表</a>
+                <a data-tab="quickref">解密速查</a>
             </nav>
             <div class="header-actions">
                 <button class="btn-icon" id="randomBtn" title="随机推荐">🎲</button>
@@ -383,11 +372,14 @@
     <div class="filter-wrap" id="filterSection">
         <span class="label">筛选：</span>
         <span class="filter-tag active" data-filter="all">全部</span>
-        <span class="filter-tag" data-filter="ssr">SSR</span>
-        <span class="filter-tag" data-filter="sr">SR</span>
-        <span class="filter-tag" data-filter="r">R</span>
-        <span class="filter-tag" data-filter="new">最新</span>
-        <span class="filter-tag" data-filter="hot">热门</span>
+        <span class="filter-tag" data-filter="战士">战士</span>
+        <span class="filter-tag" data-filter="法师">法师</span>
+        <span class="filter-tag" data-filter="射手">射手</span>
+        <span class="filter-tag" data-filter="辅助">辅助</span>
+        <span class="filter-tag" data-filter="刺客">刺客</span>
+        <span class="filter-tag" data-filter="坦克">坦克</span>
+        <span class="filter-tag" data-filter="new">🔥 最新</span>
+        <span class="filter-tag" data-filter="hot">⭐ 热门</span>
     </div>
 
     <!-- Main Content -->
@@ -397,12 +389,8 @@
             <div class="result-count" id="resultCount"></div>
             <div class="grid" id="cardGrid"></div>
         </div>
-        <div class="page-section" id="pageCodes">
-            <h2 class="section-title">🎁 最新兑换码</h2>
-            <div class="grid" id="codesGrid" style="grid-template-columns:repeat(auto-fill, minmax(280px,1fr));"></div>
-        </div>
         <div class="page-section" id="pageQuickRef">
-            <h2 class="section-title">📋 极简速查</h2>
+            <h2 class="section-title">📋 解密速查</h2>
             <div class="grid" id="quickRefGrid" style="grid-template-columns:repeat(auto-fill, minmax(300px,1fr));"></div>
         </div>
     </main>
@@ -478,11 +466,14 @@
         function getFilteredData(data) {
             let rows = [...data];
             if (currentFilter && currentFilter !== 'all') {
-                rows = rows.filter(item => {
-                    const badge = (item.badge || '').toLowerCase();
-                    const rarity = (item.rarity || '').toLowerCase();
-                    return badge === currentFilter || rarity === currentFilter;
-                });
+                if (currentFilter === 'new' || currentFilter === 'hot') {
+                    rows = rows.filter(item => (item.badge || '').toLowerCase() === currentFilter);
+                } else {
+                    rows = rows.filter(item => {
+                        const tags = Array.isArray(item.tags) ? item.tags.map(t => t.toLowerCase()) : [];
+                        return tags.includes(currentFilter.toLowerCase());
+                    });
+                }
             }
             if (searchQuery) {
                 const q = searchQuery.toLowerCase();
@@ -498,7 +489,7 @@
         // ============== 分页导航 ==============
         function showPage(page) {
             document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
-            const pageEl = document.getElementById(page === 'main' ? 'pageMain' : page === 'codes' ? 'pageCodes' : 'pageQuickRef');
+            const pageEl = document.getElementById(page === 'main' ? 'pageMain' : 'pageQuickRef');
             if (pageEl) pageEl.classList.add('active');
             const searchSec = document.getElementById('searchSection');
             const filterSec = document.getElementById('filterSection');
@@ -519,12 +510,9 @@
             document.querySelectorAll('.header-nav a').forEach(a => a.classList.remove('active'));
             document.querySelector(`.header-nav a[data-tab="${tab}"]`)?.classList.add('active');
 
-            if (['codes', 'quickref'].includes(tab)) {
+            if (tab === 'quickref') {
                 showPage(tab);
-                loadData(tab).then(data => {
-                    if (tab === 'codes') renderCodes(data);
-                    else renderQuickRef(data);
-                });
+                loadData(tab).then(data => renderQuickRef(data));
             } else {
                 showPage('main');
                 renderSection();
@@ -544,7 +532,8 @@
                 heroes: '🎭 英雄图鉴',
                 resources: '💎 养成资源',
                 guides: '📖 攻略文章',
-                maps: '🗺️ 地图探索'
+                maps: '🗺️ 地图探索',
+                quickref: '📋 解密速查'
             };
             document.getElementById('sectionTitle').textContent = titles[currentTab] || currentTab;
         }
@@ -576,12 +565,8 @@
                 const isFav = isFavorited(id);
 
                 let badgeHtml = '';
-                if (badge && badge !== 'new' && badge !== 'hot') badgeHtml = `<span class="card-badge badge-${badge}">${badge.toUpperCase()}</span>`;
-                else if (badge === 'new') badgeHtml = '<span class="card-badge badge-new">NEW</span>';
-                else if (badge === 'hot') badgeHtml = '<span class="card-badge badge-hot">HOT</span>';
-                else if (rarity === 'ssr') badgeHtml = '<span class="card-badge badge-ssr">SSR</span>';
-                else if (rarity === 'sr') badgeHtml = '<span class="card-badge badge-sr">SR</span>';
-                else if (rarity === 'r') badgeHtml = '<span class="card-badge badge-r">R</span>';
+                if (badge === 'new') badgeHtml = '<span class="card-badge badge-new">最新</span>';
+                else if (badge === 'hot') badgeHtml = '<span class="card-badge badge-hot">热门</span>';
 
                 let imageHtml = '';
                 if (imageUrl) {
@@ -605,23 +590,6 @@
             grid.innerHTML = html;
         }
 
-        function renderCodes(data) {
-            const grid = document.getElementById('codesGrid');
-            if (!data.length) {
-                grid.innerHTML = '<div class="empty-state"><div class="icon">🎁</div><p>暂无兑换码</p></div>';
-                return;
-            }
-            grid.innerHTML = data.map(c => `
-                <div class="code-card">
-                    <div style="font-size:0.85rem;color:var(--text-secondary);font-weight:600;">${c.description}</div>
-                    <div class="code-value">${c.code}</div>
-                    <div style="font-weight:500;">🎁 ${c.reward}</div>
-                    <div class="code-expiry">⏰ ${c.expiry}</div>
-                    <button class="code-btn" onclick="copyCode('${c.code}', this)">复制</button>
-                </div>
-            `).join('');
-        }
-
         function renderQuickRef(data) {
             const grid = document.getElementById('quickRefGrid');
             if (!data.length) {
@@ -636,17 +604,6 @@
                     <ul>${items.map(i => `<li>${i}</li>`).join('')}</ul>
                 </div>`;
             }).join('');
-        }
-
-        function copyCode(code, btn) {
-            navigator.clipboard.writeText(code).then(() => {
-                const orig = btn.textContent;
-                btn.textContent = '✅ 已复制!';
-                setTimeout(() => { btn.textContent = orig; }, 2000);
-            }).catch(() => {
-                btn.textContent = '复制失败';
-                setTimeout(() => { btn.textContent = '复制'; }, 2000);
-            });
         }
 
         function renderFavorites() {
@@ -817,7 +774,7 @@
             // 搜索
             document.getElementById('searchInput').addEventListener('input', e => {
                 searchQuery = e.target.value;
-                if (currentTab === 'codes' || currentTab === 'quickref') return;
+                if (currentTab === 'quickref') return;
                 renderCards();
             });
 
@@ -886,9 +843,24 @@
             // 主题切换
             document.getElementById('themeBtn').addEventListener('click', toggleTheme);
 
+            // 汉堡菜单（移动端）
+            document.getElementById('hamburgerBtn').addEventListener('click', () => {
+                document.getElementById('headerNav').classList.toggle('open');
+                const btn = document.getElementById('hamburgerBtn');
+                btn.textContent = document.getElementById('headerNav').classList.contains('open') ? '✕' : '☰';
+            });
+
+            // 点击导航链接关闭菜单（移动端）
+            document.querySelectorAll('.header-nav a').forEach(a => {
+                a.addEventListener('click', () => {
+                    document.getElementById('headerNav').classList.remove('open');
+                    document.getElementById('hamburgerBtn').textContent = '☰';
+                });
+            });
+
             // 随机推荐
             document.getElementById('randomBtn').addEventListener('click', async () => {
-                if (!['heroes', 'resources', 'guides', 'maps', 'codes', 'quickref'].includes(currentTab)) {
+                if (!['heroes', 'resources', 'guides', 'maps', 'quickref'].includes(currentTab)) {
                     switchTab('heroes');
                 }
                 const data = await loadData(currentTab);
