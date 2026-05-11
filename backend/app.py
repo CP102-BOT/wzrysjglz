@@ -467,8 +467,10 @@ def admin():
 
 # ==================== 启动 ====================
 
+# 模块加载时初始化数据库（本地和 Render 都会执行）
+init_db()
+
 if __name__ == '__main__':
-    init_db()
     print("=" * 50)
     print("  王者荣耀世界攻略站 API 已启动")
     print(f"  后台: http://localhost:5000/admin")
