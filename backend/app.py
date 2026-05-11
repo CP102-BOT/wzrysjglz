@@ -8,7 +8,7 @@ import io
 import os
 from datetime import datetime
 from functools import wraps
-from flask import Flask, request, jsonify, session, g, Response
+from flask import Flask, request, jsonify, session, send_from_directory, g, Response
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -452,6 +452,116 @@ def admin_import():
 
     db.commit()
     return jsonify({'success': True, 'inserted': success, 'errors': errors})
+
+# ==================== 批量删除 ====================
+
+@app.route('/api/admin/batch-delete', methods=['POST'])
+@login_required
+def admin_batch_delete():
+    data = request.get_json()
+    table = data.get('table')
+    ids = data.get('ids', [])
+    if table not in ADMIN_TABLES:
+        return jsonify({'error': 'Invalid table'}), 400
+    if not ids or not isinstance(ids, list):
+        return jsonify({'error': 'No ids'}), 400
+    db = get_db()
+    ph = ','.join(['?'] * len(ids))
+    db.execute(f"DELETE FROM {table} WHERE id IN ({ph})", ids)
+    db.commit()
+    return jsonify({'success': True, 'deleted': len(ids)})
+
+# ==================== 文件上传 / 媒体库 ====================
+
+UPLOAD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
+ALLOWED_TYPES = {'png','jpg','jpeg','gif','webp','svg','mp4','webm','mov','mp3','wav'}
+
+def ensure_upload_dir():
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+@app.route('/api/admin/upload', methods=['POST'])
+@login_required
+def admin_upload():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file'}), 400
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No file'}), 400
+    ext = file.filename.rsplit('.', 1)[-1].lower() if '.' in file.filename else ''
+    if ext not in ALLOWED_TYPES:
+        return jsonify({'error': f'不支持: .{ext}'}), 400
+    ensure_upload_dir()
+    import uuid
+    fname = f"{uuid.uuid4().hex}.{ext}"
+    file.save(os.path.join(UPLOAD_DIR, fname))
+    return jsonify({'success': True, 'url': f'/uploads/{fname}', 'filename': fname})
+
+@app.route('/api/admin/media')
+@login_required
+def admin_media():
+    ensure_upload_dir()
+    files = []
+    for f in sorted(os.listdir(UPLOAD_DIR), reverse=True):
+        fp = os.path.join(UPLOAD_DIR, f)
+        if os.path.isfile(fp):
+            ext = f.rsplit('.', 1)[-1].lower() if '.' in f else ''
+            files.append({
+                'filename': f,
+                'url': f'/uploads/{f}',
+                'size': os.path.getsize(fp),
+                'type': 'video' if ext in ('mp4','webm','mov') else 'image'
+            })
+    return jsonify(files)
+
+@app.route('/api/admin/media/<filename>', methods=['DELETE'])
+@login_required
+def admin_media_delete(filename):
+    fp = os.path.join(UPLOAD_DIR, os.path.basename(filename))
+    if os.path.isfile(fp):
+        os.remove(fp)
+    return jsonify({'success': True})
+
+@app.route('/uploads/<path:filename>')
+def uploaded_file(filename):
+    return send_from_directory(UPLOAD_DIR, filename)
+
+# ==================== 数据导出 / 恢复 ====================
+
+@app.route('/api/admin/export')
+@login_required
+def admin_export():
+    db = get_db()
+    backup = {}
+    for t in ADMIN_TABLES:
+        rows = db.execute(f"SELECT * FROM {t} ORDER BY id").fetchall()
+        backup[t] = [dict(r) for r in rows]
+    return jsonify(backup)
+
+@app.route('/api/admin/import-data', methods=['POST'])
+@login_required
+def admin_import_data():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file'}), 400
+    file = request.files['file']
+    try:
+        backup = json.loads(file.read().decode('utf-8'))
+    except Exception as e:
+        return jsonify({'error': f'JSON解析失败: {str(e)}'}), 400
+
+    db = get_db()
+    restored = 0
+    for table, rows in backup.items():
+        if table not in ADMIN_TABLES or not rows:
+            continue
+        db.execute(f"DELETE FROM {table}")
+        for row in rows:
+            item = {k: v for k, v in row.items() if k != 'id' and k != 'created_at'}
+            cols = ','.join(item.keys())
+            ph = ','.join(['?'] * len(item))
+            db.execute(f"INSERT INTO {table} ({cols}) VALUES ({ph})", list(item.values()))
+            restored += 1
+    db.commit()
+    return jsonify({'success': True, 'restored': restored})
 
 # ==================== 静态文件 ====================
 
