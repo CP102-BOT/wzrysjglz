@@ -1,86 +1,50 @@
 # 王者荣耀世界攻略站
 
-## 项目结构（前后端分离）
+FastAPI + Jinja2，开放世界探险攻略 + PVP技巧收录
+
+## 项目结构
 
 ```
-wzrysj/
-├── index.html              # 前台页面 → 部署到 GitHub Pages
-├── backend/                # 后端 → 部署到 Render
-│   ├── app.py              # Flask API + 管理后台
-│   ├── admin.html          # 管理后台页面
-│   └── requirements.txt    # Python 依赖
-└── README.md
+wzrysjglz/
+├── main.py                  # FastAPI 入口
+├── pyproject.toml           # uv 依赖管理
+├── .env                     # 环境变量（不提交）
+├── core/                    # 核心配置、数据库、异常
+├── models/                  # 数据模型 + 种子数据
+└── web/
+    ├── routes/              # API路由 + 页面路由
+    └── templates/           # Jinja2 模板（前台 + 后台）
 ```
 
-## 部署步骤
-
-### 一、部署后端到 Render（免费）
-
-1. 打开 https://dashboard.render.com ，注册/登录（用 GitHub 账号）
-
-2. 点击 **New +** → **Web Service**
-
-3. 连接你的 GitHub 仓库（先把整个 wzrysj 文件夹推到一个 GitHub 仓库）
-
-4. 配置 Render：
-   - **Name**: wzrysj（或自定义）
-   - **Root Directory**: `backend`
-   - **Environment**: Python 3
-   - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `gunicorn app:app`
-   - **Plan**: Free
-
-5. 点击 **Create Web Service**，等待部署完成
-
-6. 部署完成后你会获得一个 URL，类似：
-   ```
-   https://wzrysj.onrender.com
-   ```
-   复制这个 URL。
-
-### 二、部署前端到 GitHub Pages
-
-1. 修改 `index.html` 第 3 行的 API 地址，把占位符换成你的 Render URL：
-   ```javascript
-   const API = 'https://wzrysj.onrender.com/api/data';
-   ```
-
-2. 在你的 GitHub 仓库中，进入 **Settings** → **Pages**
-
-3. **Source**: Deploy from a branch
-4. **Branch**: main，文件夹选 `/ (root)`
-5. 点击 **Save**
-
-6. 等待 1-2 分钟，GitHub Pages 会给你一个 URL：
-   ```
-   https://你的用户名.github.io/仓库名/
-   ```
-   别人访问这个 URL 就能看到你的攻略站了。
-
-### 三、登录后台改内容
-
-访问 `https://wzrysj.onrender.com/admin`（你的 Render URL + /admin）
-
-- **账户**：`site_admin_2026`
-- **密码**：`K9xP!7qR#3zL@2sN$5aM`
-
-在后台可以增删改所有数据（英雄、资源、攻略、地图、兑换码、速查表），还支持批量导入 CSV。
-
-### 四、本地测试（可选）
+## 本地启动
 
 ```bash
-# 启动后端
-cd backend
-pip install -r requirements.txt
-python app.py
-
-# 打开前台（直接用浏览器打开 index.html）
+cd wzrysjglz
+uv venv
+uv run uvicorn main:app --port 8000
 ```
 
-注意：本地测试时 index.html 里 API 地址要改成 `http://localhost:5000/api/data`。
+访问 http://localhost:8000，管理后台 /admin
 
-## 注意事项
+## 部署到 Render
 
-- Render 免费版 15 分钟无访问会休眠，首次访问需等待 30 秒左右唤醒
-- GitHub Pages 免费、无流量限制
-- 数据库放在 Render 磁盘上，如果 Render 重装系统数据会丢失（建议定期在后台导出备份）
+目前 https://wzrysjglz.onrender.com 已经跑着旧版 Flask，需要更新：
+
+1. 打开 [Render Dashboard](https://dashboard.render.com) → 找到 `wzrysjglz` Web Service
+2. 点 **Settings**，修改以下配置：
+   - **Root Directory**: 留空（就是项目根目录）
+   - **Build Command**: `pip install fastapi uvicorn sqlalchemy aiosqlite jinja2 python-multipart loguru pydantic-settings`
+   - **Start Command**: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+3. 点 **Environment**，添加环境变量：
+   - `ADMIN_USERNAME` = `site_admin_2026`
+   - `ADMIN_PASSWORD` = `K9xP!7qR#3zL@2sN$5aM`
+   - `SECRET_KEY` = `wzrysj_admin_2026_secret`
+4. 代码已经 push 到 GitHub，Render 会自动检测并重新部署
+5. 部署完成后访问 https://wzrysjglz.onrender.com
+
+> **注意**：v2.0 不再需要 GitHub Pages，前后端都在 Render 一个服务上跑。
+
+## 管理后台
+
+- 地址: /admin
+- 账号密码: 见 .env（或 Render 环境变量）
