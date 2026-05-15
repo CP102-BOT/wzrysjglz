@@ -10,3 +10,15 @@ Thumbs.db
 # IDE
 .idea/
 .vscode/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Secrets
+.env
+
+# Data
+data.db
+logs/

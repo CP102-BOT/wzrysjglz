@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理后台 - 王者荣耀世界攻略站</title>
+    <style>
+        :root {
+            --bg: #0d1116; --surface: #161b22; --border: #30363d;
+            --text: #e6edf3; --text-dim: #8b949e; --accent: #daa520;
+            --accent-hover: #f0c040; --green: #22c55e; --red: #ef4444;
+        }
+        [data-theme="light"] {
+            --bg: #f6f8fa; --surface: #fff; --border: #d0d7de;
+            --text: #1f2328; --text-dim: #656d76; --accent: #b8860b;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family: -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; background:var(--bg); color:var(--text); }
+        a { color:var(--accent); text-decoration:none; }
+
+        .header { background:var(--surface); border-bottom:1px solid var(--border); padding:0 2rem; }
+        .header-inner { max-width:1200px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; height:56px; }
+        .header-inner h1 { font-size:1.1rem; color:var(--accent); }
+        .header-inner a { font-size:0.9rem; }
+
+        .login-wrap { display:flex; align-items:center; justify-content:center; min-height:60vh; }
+        .login-card {
+            background:var(--surface); border:1px solid var(--border); border-radius:1rem;
+            padding:3rem; width:380px; max-width:90vw;
+        }
+        .login-card h2 { margin-bottom:1.5rem; color:var(--accent); font-size:1.3rem; }
+        .login-card input {
+            width:100%; padding:0.75rem 1rem; border-radius:0.5rem; border:1.5px solid var(--border);
+            background:var(--bg); color:var(--text); font-size:0.95rem; margin-bottom:0.75rem; outline:none;
+        }
+        .login-card input:focus { border-color:var(--accent); }
+        .btn {
+            padding:0.65rem 1.5rem; border-radius:0.5rem; border:none; font-size:0.9rem;
+            font-weight:600; cursor:pointer; transition:0.2s; color:#fff;
+        }
+        .btn-primary { background:var(--accent); }
+        .btn-primary:hover { background:var(--accent-hover); }
+        .btn-danger { background:var(--red); }
+        .btn-danger:hover { opacity:0.85; }
+        .btn-green { background:var(--green); }
+        .btn-green:hover { opacity:0.85; }
+        .btn-sm { padding:0.3rem 0.8rem; font-size:0.8rem; }
+        .btn-block { width:100%; }
+
+        .main-content { max-width:1200px; margin:0 auto; padding:1.5rem 2rem; }
+        .toolbar { display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap; margin-bottom:1.25rem; }
+        .toolbar select, .toolbar input[type="text"] {
+            padding:0.5rem 0.75rem; border-radius:0.5rem; border:1.5px solid var(--border);
+            background:var(--surface); color:var(--text); font-size:0.85rem; outline:none;
+        }
+        .search-input:focus, .toolbar select:focus, .toolbar input:focus { border-color:var(--accent); }
+
+        table { width:100%; border-collapse:collapse; font-size:0.88rem; }
+        th, td { padding:0.6rem 0.75rem; border-bottom:1px solid var(--border); text-align:left; }
+        th { color:var(--text-dim); font-weight:600; font-size:0.8rem; }
+        tr:hover { background:var(--surface); }
+        td.title { max-width:250px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; cursor:pointer; color:var(--accent); }
+
+        .form-overlay {
+            position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px);
+            display:none; align-items:center; justify-content:center; z-index:100; padding:1rem;
+        }
+        .form-overlay.active { display:flex; }
+        .form-panel {
+            background:var(--surface); border-radius:1rem; border:1px solid var(--border);
+            max-width:700px; width:100%; max-height:85vh; overflow-y:auto; padding:2rem;
+        }
+        .form-panel h3 { color:var(--accent); margin-bottom:1.25rem; }
+        .form-panel label { display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem; color:var(--text-dim); }
+        .form-panel input, .form-panel textarea, .form-panel select {
+            width:100%; padding:0.6rem 0.75rem; border-radius:0.5rem; border:1.5px solid var(--border);
+            background:var(--bg); color:var(--text); font-size:0.9rem; margin-bottom:0.75rem; outline:none;
+            font-family:inherit;
+        }
+        .form-panel textarea { min-height:200px; resize:vertical; }
+        .form-panel input:focus, .form-panel textarea:focus, .form-panel select:focus { border-color:var(--accent); }
+        .form-row { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; }
+
+        .toast { position:fixed; top:1rem; right:1rem; padding:0.75rem 1.25rem; border-radius:0.5rem; font-size:0.9rem; z-index:300; transition:0.3s; }
+        .toast-success { background:var(--green); color:#fff; }
+        .toast-error { background:var(--red); color:#fff; }
+
+        @media (max-width:640px) {
+            .main-content { padding:1rem; }
+            .form-row { grid-template-columns:1fr; }
+            th:nth-child(4), td:nth-child(4), th:nth-child(5), td:nth-child(5) { display:none; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <h1>⚙ 管理后台</h1>
+            <div style="display:flex;gap:0.5rem;align-items:center;">
+                <span id="loginStatus" style="font-size:0.85rem;color:var(--text-dim);"></span>
+                <a href="/" style="font-size:0.85rem;">← 返回前台</a>
+                <a href="#" id="logoutBtn" style="font-size:0.85rem;display:none;">退出</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Login -->
+    <div class="login-wrap" id="loginSection">
+        <div class="login-card">
+            <h2>管理员登录</h2>
+            <input type="text" id="loginUsername" placeholder="用户名">
+            <input type="password" id="loginPassword" placeholder="密码">
+            <button class="btn btn-primary btn-block" id="loginBtn">登 录</button>
+        </div>
+    </div>
+
+    <!-- Main -->
+    <div class="main-content" id="adminSection" style="display:none;">
+        <div class="toolbar">
+            <select id="tableSelect">
+                <option value="exploration">🗺️ 探险攻略</option>
+                <option value="pvp">⚔️ PVP技巧</option>
+            </select>
+            <input type="text" id="adminSearch" placeholder="搜索标题..." style="width:200px;">
+            <button class="btn btn-primary btn-sm" id="addBtn">+ 新增</button>
+            <button class="btn btn-danger btn-sm" id="deleteSelectedBtn" style="display:none;">删除选中</button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th><input type="checkbox" id="selectAll"></th>
+                    <th>标题</th>
+                    <th>分类</th>
+                    <th>难度</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="dataTable"></tbody>
+        </table>
+    </div>
+
+    <!-- Form -->
+    <div class="form-overlay" id="formOverlay">
+        <div class="form-panel">
+            <h3 id="formTitle">新增攻略</h3>
+            <input type="hidden" id="formId">
+            <input type="hidden" id="formMode" value="create">
+            <label>标题</label>
+            <input type="text" id="formTitleInput" placeholder="攻略标题">
+            <label>Slug</label>
+            <input type="text" id="formSlug" placeholder="url-friendly-name">
+            <label>描述</label>
+            <textarea id="formDesc" rows="2" placeholder="简短描述"></textarea>
+            <label>内容（HTML）</label>
+            <textarea id="formContent" rows="8" placeholder="<h3>标题</h3><p>正文...</p>"></textarea>
+            <div class="form-row">
+                <div>
+                    <label>分类</label>
+                    <select id="formCategory"></select>
+                </div>
+                <div>
+                    <label>难度</label>
+                    <select id="formDifficulty">
+                        {% for d in difficulty_levels %}
+                        <option value="{{ d }}">{{ d }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <label>标签（逗号分隔）</label>
+            <input type="text" id="formTags" placeholder="新手, 入门, 技巧">
+            <div class="form-row">
+                <div>
+                    <label>热门</label>
+                    <select id="formHot"><option value="0">否</option><option value="1">是</option></select>
+                </div>
+                <div>
+                    <label>最新</label>
+                    <select id="formNew"><option value="0">否</option><option value="1">是</option></select>
+                </div>
+                <div>
+                    <label>排序</label>
+                    <input type="number" id="formSort" value="0">
+                </div>
+            </div>
+            <div style="display:flex;gap:0.5rem;justify-content:flex-end;margin-top:1.25rem;">
+                <button class="btn btn-danger btn-sm" id="formCancel">取消</button>
+                <button class="btn btn-primary btn-sm" id="formSave">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const DIFFICULTY_LEVELS = {{ difficulty_levels | tojson }};
+        const EXPLORATION_CATEGORIES = {{ exploration_categories | tojson }};
+        const PVP_CATEGORIES = {{ pvp_categories | tojson }};
+
+        let currentTable = 'exploration';
+        let editingId = null;
+
+        // Toast
+        function toast(msg, type) {
+            const t = document.createElement('div');
+            t.className = `toast toast-${type}`;
+            t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 2500);
+        }
+
+        // Auth
+        async function checkAuth() {
+            try {
+                const res = await fetch('/api/admin/check');
+                const data = await res.json();
+                if (data.logged_in) showAdmin();
+                else showLogin();
+            } catch(e) { showLogin(); }
+        }
+
+        function showLogin() {
+            document.getElementById('loginSection').style.display = 'flex';
+            document.getElementById('adminSection').style.display = 'none';
+        }
+
+        function showAdmin() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('adminSection').style.display = 'block';
+            document.getElementById('logoutBtn').style.display = 'inline';
+            document.getElementById('loginStatus').textContent = '已登录';
+            loadData();
+        }
+
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            const res = await fetch('/api/admin/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username, password})
+            });
+            const data = await res.json();
+            if (data.success) { showAdmin(); toast('登录成功', 'success'); }
+            else { toast('账号或密码错误', 'error'); }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await fetch('/api/admin/logout', {method: 'POST'});
+            showLogin();
+            toast('已退出', 'success');
+        });
+
+        // Enter to login
+        document.getElementById('loginPassword').addEventListener('keydown', e => {
+            if (e.key === 'Enter') document.getElementById('loginBtn').click();
+        });
+
+        // Load data
+        async function loadData() {
+            const search = document.getElementById('adminSearch').value;
+            const params = new URLSearchParams({_ : Date.now()});
+            if (search) params.set('search', search);
+            const res = await fetch(`/api/${currentTable}?${params}`);
+            const data = await res.json();
+            renderTable(data);
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('dataTable');
+            if (!data.length) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text-dim);">暂无数据</td></tr>';
+                return;
+            }
+            tbody.innerHTML = data.map(item => `
+                <tr>
+                    <td><input type="checkbox" class="row-check" data-id="${item.id}"></td>
+                    <td class="title" onclick="editItem(${item.id})">${item.title}</td>
+                    <td><span class="card-tag" style="padding:0.15rem 0.5rem;border-radius:0.3rem;background:var(--accent-bg, rgba(218,165,32,0.08));color:var(--accent);font-size:0.8rem;">${item.category}</span></td>
+                    <td>${item.difficulty}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" onclick="editItem(${item.id})">编辑</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteItem(${item.id})">删除</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Table switch
+        document.getElementById('tableSelect').addEventListener('change', function() {
+            currentTable = this.value;
+            updateCategorySelect();
+            loadData();
+        });
+
+        document.getElementById('adminSearch').addEventListener('input', function() {
+            clearTimeout(this._timer);
+            this._timer = setTimeout(loadData, 300);
+        });
+
+        // Select all
+        document.getElementById('selectAll').addEventListener('change', function() {
+            document.querySelectorAll('.row-check').forEach(c => c.checked = this.checked);
+        });
+
+        document.getElementById('deleteSelectedBtn').addEventListener('click', async () => {
+            const ids = [...document.querySelectorAll('.row-check:checked')].map(c => parseInt(c.dataset.id));
+            if (!ids.length) return;
+            if (!confirm(`确定删除 ${ids.length} 条记录？`)) return;
+            for (const id of ids) await deleteItem(id, false);
+            loadData();
+            toast(`已删除 ${ids.length} 条`, 'success');
+        });
+
+        // CRUD
+        function updateCategorySelect() {
+            const cats = currentTable === 'exploration' ? EXPLORATION_CATEGORIES : PVP_CATEGORIES;
+            document.getElementById('formCategory').innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+
+        document.getElementById('addBtn').addEventListener('click', () => {
+            editingId = null;
+            document.getElementById('formMode').value = 'create';
+            document.getElementById('formTitle').textContent = '新增攻略';
+            document.getElementById('formTitleInput').value = '';
+            document.getElementById('formSlug').value = '';
+            document.getElementById('formDesc').value = '';
+            document.getElementById('formContent').value = '';
+            document.getElementById('formTags').value = '';
+            document.getElementById('formHot').value = '0';
+            document.getElementById('formNew').value = '0';
+            document.getElementById('formSort').value = '0';
+            updateCategorySelect();
+            document.getElementById('formOverlay').classList.add('active');
+        });
+
+        async function editItem(id) {
+            const res = await fetch(`/api/${currentTable}?search=&_=${Date.now()}`);
+            const data = await res.json();
+            const item = data.find(d => d.id === id);
+            if (!item) return;
+
+            editingId = id;
+            document.getElementById('formMode').value = 'edit';
+            document.getElementById('formTitle').textContent = '编辑攻略';
+            document.getElementById('formTitleInput').value = item.title;
+            document.getElementById('formSlug').value = item.slug;
+            document.getElementById('formDesc').value = item.description;
+            document.getElementById('formContent').value = item.content;
+            document.getElementById('formTags').value = (item.tags || []).join(', ');
+            document.getElementById('formHot').value = item.is_hot ? '1' : '0';
+            document.getElementById('formNew').value = item.is_new ? '1' : '0';
+            document.getElementById('formSort').value = item.sort_order;
+            updateCategorySelect();
+            document.getElementById('formCategory').value = item.category;
+            document.getElementById('formDifficulty').value = item.difficulty;
+            document.getElementById('formOverlay').classList.add('active');
+        }
+
+        document.getElementById('formSave').addEventListener('click', async () => {
+            const body = {
+                title: document.getElementById('formTitleInput').value.trim(),
+                slug: document.getElementById('formSlug').value.trim() || document.getElementById('formTitleInput').value.trim().toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]+/g, '-').replace(/(^-|-$)/g, '') || 'untitled',
+                description: document.getElementById('formDesc').value.trim(),
+                content: document.getElementById('formContent').value.trim(),
+                category: document.getElementById('formCategory').value,
+                difficulty: document.getElementById('formDifficulty').value,
+                tags: document.getElementById('formTags').value.split(/[,，]/).map(t => t.trim()).filter(Boolean),
+                is_hot: parseInt(document.getElementById('formHot').value),
+                is_new: parseInt(document.getElementById('formNew').value),
+                sort_order: parseInt(document.getElementById('formSort').value) || 0,
+            };
+
+            const mode = document.getElementById('formMode').value;
+            const url = mode === 'create' ? `/api/admin/${currentTable}` : `/api/admin/${currentTable}/${editingId}`;
+            const method = mode === 'create' ? 'POST' : 'PUT';
+
+            const res = await fetch(url, {
+                method,
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(body)
+            });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('formOverlay').classList.remove('active');
+                loadData();
+                toast(mode === 'create' ? '新增成功' : '更新成功', 'success');
+            } else {
+                toast(data.detail || '操作失败', 'error');
+            }
+        });
+
+        document.getElementById('formCancel').addEventListener('click', () => {
+            document.getElementById('formOverlay').classList.remove('active');
+        });
+
+        document.getElementById('formOverlay').addEventListener('click', function(e) {
+            if (e.target === this) document.getElementById('formOverlay').classList.remove('active');
+        });
+
+        async function deleteItem(id, reload = true) {
+            if (!confirm(`确定删除？`)) return;
+            await fetch(`/api/admin/${currentTable}/${id}`, {method: 'DELETE'});
+            if (reload) { loadData(); toast('已删除', 'success'); }
+        }
+
+        // Generate slug from title
+        document.getElementById('formTitleInput').addEventListener('input', function() {
+            if (document.getElementById('formMode').value === 'create') {
+                document.getElementById('formSlug').value = this.value.toLowerCase()
+                    .replace(/[^a-z0-9\u4e00-\u9fff]+/g, '-').replace(/(^-|-$)/g, '')
+                    || 'untitled';
+            }
+        });
+
+        // Init
+        checkAuth();
+    </script>
+</body>
+</html>
