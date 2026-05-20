@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }} - 王者荣耀世界攻略站</title>
+    <style>
+        :root {
+            --bg: #0d1116; --surface: #161b22; --surface-hover: #1c2333;
+            --border: #30363d; --text: #e6edf3; --text-dim: #8b949e;
+            --accent: #daa520; --accent-hover: #f0c040;
+            --accent-bg: rgba(218,165,32,0.08); --accent-border: rgba(218,165,32,0.2);
+            --green: #22c55e; --red: #ef4444; --blue: #3b82f6;
+            --radius: 0.75rem; --radius-lg: 1rem;
+        }
+        [data-theme="light"] {
+            --bg: #f6f8fa; --surface: #fff; --surface-hover: #f0f2f5;
+            --border: #d0d7de; --text: #1f2328; --text-dim: #656d76;
+            --accent: #b8860b; --accent-hover: #9a6d0a;
+            --accent-bg: rgba(184,134,11,0.06); --accent-border: rgba(184,134,11,0.2);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+            background:var(--bg); color:var(--text); line-height:1.7; min-height:100vh;
+        }
+        a { color:var(--accent); text-decoration:none; }
+        a:hover { color:var(--accent-hover); }
+
+        .header {
+            background:var(--surface); border-bottom:1px solid var(--border);
+            padding:0 2rem; position:sticky; top:0; z-index:100;
+            backdrop-filter:blur(12px);
+        }
+        .header-inner {
+            max-width:1200px; margin:0 auto; display:flex;
+            justify-content:space-between; align-items:center; height:60px;
+        }
+        .logo { font-size:1.2rem; font-weight:800; color:var(--accent); letter-spacing:-0.02em; }
+        .header-nav { display:flex; gap:0.25rem; }
+        .header-nav a {
+            padding:0.45rem 1.25rem; border-radius:0.5rem; color:var(--text-dim);
+            font-size:0.9rem; font-weight:500; transition:0.2s;
+        }
+        .header-nav a:hover, .header-nav a.active { color:var(--text); background:var(--accent-bg); }
+        .header-nav a.active { color:var(--accent); }
+        .header-actions { display:flex; gap:0.5rem; align-items:center; }
+        .btn-icon {
+            width:36px; height:36px; border-radius:0.5rem; border:1px solid var(--border);
+            background:var(--surface); color:var(--text-dim); cursor:pointer;
+            font-size:1rem; display:flex; align-items:center; justify-content:center; transition:0.2s;
+        }
+        .btn-icon:hover { color:var(--accent); border-color:var(--accent-border); }
+
+        .container { max-width:1200px; margin:0 auto; padding:2rem; }
+
+        .hero {
+            text-align:center; padding:2.5rem 0 1.5rem;
+            border-bottom:1px solid var(--border); margin-bottom:1.5rem;
+        }
+        .hero h1 { font-size:2rem; font-weight:800; margin-bottom:0.5rem; }
+        .hero p { color:var(--text-dim); font-size:1rem; max-width:600px; margin:0 auto; }
+
+        .filter-bar {
+            display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;
+            margin-bottom:1.5rem; padding:1rem; background:var(--surface);
+            border:1px solid var(--border); border-radius:var(--radius-lg);
+        }
+        .filter-bar input, .filter-bar select {
+            padding:0.5rem 0.75rem; border-radius:0.5rem; border:1.5px solid var(--border);
+            background:var(--bg); color:var(--text); font-size:0.88rem; outline:none;
+        }
+        .filter-bar input:focus, .filter-bar select:focus { border-color:var(--accent); }
+        .filter-bar input { flex:1; min-width:200px; }
+        .filter-bar .filter-tags { display:flex; gap:0.35rem; flex-wrap:wrap; }
+        .filter-tag {
+            padding:0.3rem 0.85rem; border-radius:2rem; cursor:pointer;
+            border:1.5px solid var(--border); background:var(--surface);
+            color:var(--text-dim); font-size:0.82rem; transition:0.2s; user-select:none;
+            display:inline-block;
+        }
+        .filter-tag:hover { border-color:var(--accent); color:var(--accent); }
+        .filter-tag.active {
+            background:var(--accent); color:#fff; border-color:var(--accent);
+        }
+        a.filter-tag { text-decoration:none; }
+
+        .result-count { color:var(--text-dim); font-size:0.85rem; margin-bottom:1rem; }
+
+        .article-list { display:flex; flex-direction:column; gap:1rem; }
+
+        .article-item {
+            background:var(--surface); border:1.5px solid var(--border);
+            border-radius:var(--radius-lg); padding:1.5rem;
+            transition:0.25s; display:block; text-decoration:none; color:inherit;
+        }
+        .article-item:hover { border-color:var(--accent-border); transform:translateY(-2px); }
+
+        .article-item-header {
+            display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.5rem;
+        }
+        .article-item-title {
+            font-size:1.1rem; font-weight:700; color:var(--text); line-height:1.4;
+            transition:0.2s;
+        }
+        .article-item:hover .article-item-title { color:var(--accent); }
+        .article-item-badges { display:flex; gap:0.3rem; flex-shrink:0; margin-left:0.75rem; }
+        .badge {
+            padding:0.15rem 0.5rem; border-radius:0.3rem; font-size:0.72rem; font-weight:700;
+        }
+        .badge-hot { background:rgba(239,68,68,0.15); color:var(--red); }
+        .badge-new { background:rgba(34,197,94,0.15); color:var(--green); }
+        .badge-video { background:rgba(59,130,246,0.15); color:var(--blue); }
+
+        .article-item-meta {
+            display:flex; gap:1rem; color:var(--text-dim); font-size:0.82rem; margin-bottom:0.5rem;
+            flex-wrap:wrap;
+        }
+        .article-item-desc { color:var(--text-dim); font-size:0.9rem; line-height:1.7; }
+        .article-item-footer {
+            display:flex; justify-content:space-between; align-items:center;
+            margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid var(--border);
+        }
+        .article-item-tags { display:flex; gap:0.35rem; flex-wrap:wrap; }
+        .card-tag {
+            padding:0.15rem 0.5rem; border-radius:0.3rem;
+            background:var(--accent-bg); color:var(--accent);
+            font-size:0.75rem; font-weight:500; border:1px solid var(--accent-border);
+        }
+        .article-item-views { color:var(--text-dim); font-size:0.78rem; white-space:nowrap; }
+        .diff-beginner { color:var(--green); }
+        .diff-intermediate { color:var(--blue); }
+        .diff-advanced { color:var(--red); }
+
+        .empty-state { text-align:center; padding:4rem 2rem; color:var(--text-dim); }
+        .empty-state .icon { font-size:3rem; margin-bottom:1rem; opacity:0.6; }
+
+        ::-webkit-scrollbar { width:6px; }
+        ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+
+        @media (max-width:640px) {
+            .header { padding:0 1rem; }
+            .container { padding:1rem; }
+            .hero h1 { font-size:1.5rem; }
+            .filter-bar { flex-direction:column; align-items:stretch; }
+            .filter-bar input { min-width:0; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <a href="/" class="logo">王者荣耀世界攻略站</a>
+            <nav class="header-nav">
+                <a href="/" class="{{ 'active' if active_tab == 'all' else '' }}">首页</a>
+                <a href="/exploration" class="{{ 'active' if active_tab == 'exploration' else '' }}">🌍 探险攻略</a>
+                <a href="/pvp" class="{{ 'active' if active_tab == 'pvp' else '' }}">⚔️ PVP技巧</a>
+            </nav>
+            <div class="header-actions">
+                <button class="btn-icon" id="themeBtn" title="切换主题">🌙</button>
+                <a class="btn-icon" href="/admin" title="管理后台" style="font-size:0.85rem;">⚙</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="hero">
+            <h1>{{ page_title }}</h1>
+            <p>{{ page_subtitle }}</p>
+        </div>
+
+        {% if active_tab != 'all' %}
+        <form class="filter-bar" method="GET">
+            <input type="text" name="search" placeholder="搜索攻略..." value="{{ current_search }}" onchange="this.form.submit()">
+            <select name="sort" onchange="this.form.submit()">
+                <option value="newest" {{ 'selected' if current_sort == 'newest' else '' }}>最新</option>
+                <option value="hot" {{ 'selected' if current_sort == 'hot' else '' }}>最热</option>
+                <option value="oldest" {{ 'selected' if current_sort == 'oldest' else '' }}>最早</option>
+            </select>
+            <div class="filter-tags">
+                <a href="?category=all&sort={{ current_sort }}&search={{ current_search }}" class="filter-tag {{ 'active' if current_category == 'all' else '' }}">全部</a>
+                {% set cats = exploration_categories if active_tab == 'exploration' else pvp_categories %}
+                {% for cat in cats %}
+                <a href="?category={{ cat }}&sort={{ current_sort }}&search={{ current_search }}" class="filter-tag {{ 'active' if current_category == cat else '' }}">{{ cat }}</a>
+                {% endfor %}
+            </div>
+        </form>
+        {% endif %}
+
+        <div class="result-count">共 {{ items|length }} 篇{{ '探险攻略' if active_tab == 'exploration' else 'PVP技巧' if active_tab == 'pvp' else '攻略' }}</div>
+
+        <div class="article-list">
+            {% if items %}
+            {% for item in items %}
+            <a href="/{{ 'exploration' if item.category not in pvp_categories else 'pvp' }}/{{ item.slug }}" class="article-item">
+                <div class="article-item-header">
+                    <span class="article-item-title">{{ item.title }}</span>
+                    <div class="article-item-badges">
+                        {% if item.is_hot %}<span class="badge badge-hot">热门</span>{% endif %}
+                        {% if item.is_new %}<span class="badge badge-new">最新</span>{% endif %}
+                        {% if item.video_url %}<span class="badge badge-video">🎬 视频</span>{% endif %}
+                    </div>
+                </div>
+                <div class="article-item-meta">
+                    <span>📂 {{ item.category }}</span>
+                    <span>{{ '🗺️ 探险攻略' if item.category not in pvp_categories else '⚔️ PVP技巧' }}</span>
+                    <span>难度：<span class="diff-{{ 'beginner' if item.difficulty == '入门' else 'intermediate' if item.difficulty == '进阶' else 'advanced' }}">{{ item.difficulty }}</span></span>
+                    {% if item.created_at %}
+                    <span>📅 {{ item.created_at[:10] }}</span>
+                    {% endif %}
+                </div>
+                <div class="article-item-desc">{{ item.description }}</div>
+                <div class="article-item-footer">
+                    <div class="article-item-tags">
+                        {% if item.tags %}
+                        {% for tag in item.tags[:3] %}
+                        <span class="card-tag">{{ tag }}</span>
+                        {% endfor %}
+                        {% endif %}
+                    </div>
+                    <span class="article-item-views">👁 {{ item.view_count }} 次阅读</span>
+                </div>
+            </a>
+            {% endfor %}
+            {% else %}
+            <div class="empty-state">
+                <div class="icon">{{ '🗺️' if active_tab == 'exploration' else '⚔️' if active_tab == 'pvp' else '📝' }}</div>
+                <p>暂无相关攻略内容</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const saved = localStorage.getItem('wzry_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', saved);
+            document.getElementById('themeBtn').textContent = saved === 'light' ? '☀️' : '🌙';
+        })();
+        document.getElementById('themeBtn').addEventListener('click', () => {
+            const el = document.documentElement;
+            const isLight = el.getAttribute('data-theme') === 'light';
+            el.setAttribute('data-theme', isLight ? 'dark' : 'light');
+            document.getElementById('themeBtn').textContent = isLight ? '🌙' : '☀️';
+            localStorage.setItem('wzry_theme', isLight ? 'dark' : 'light');
+        });
+    </script>
+</body>
+</html>
