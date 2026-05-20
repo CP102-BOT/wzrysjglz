@@ -1,16 +1,10 @@
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+from jinja2 import Environment, FileSystemLoader
 
 from models.guide import EXPLORATION_CATEGORIES, PVP_CATEGORIES, DIFFICULTY_LEVELS
 
 import pathlib
-
-from fastapi import APIRouter, Request
-from fastapi.responses import HTMLResponse
-from jinja2 import Environment, FileSystemLoader
-
-from models.guide import EXPLORATION_CATEGORIES, PVP_CATEGORIES, DIFFICULTY_LEVELS
 
 pages = APIRouter()
 _tpl_dir = pathlib.Path(__file__).parent.parent / "templates"

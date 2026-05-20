@@ -24,6 +24,7 @@ class ExplorationGuide(Base):
     tags: Mapped[str] = mapped_column(Text, default="[]")
     difficulty: Mapped[str] = mapped_column(String(20), default="入门")
     cover_image: Mapped[str] = mapped_column(String(500), default="")
+    video_url: Mapped[str] = mapped_column(String(500), default="")
     view_count: Mapped[int] = mapped_column(Integer, default=0)
     is_hot: Mapped[int] = mapped_column(Integer, default=0)
     is_new: Mapped[int] = mapped_column(Integer, default=0)
@@ -42,6 +43,7 @@ class ExplorationGuide(Base):
             "tags": json.loads(self.tags) if self.tags else [],
             "difficulty": self.difficulty,
             "cover_image": self.cover_image,
+            "video_url": self.video_url,
             "view_count": self.view_count,
             "is_hot": bool(self.is_hot),
             "is_new": bool(self.is_new),
@@ -63,6 +65,7 @@ class PvpTip(Base):
     tags: Mapped[str] = mapped_column(Text, default="[]")
     difficulty: Mapped[str] = mapped_column(String(20), default="入门")
     cover_image: Mapped[str] = mapped_column(String(500), default="")
+    video_url: Mapped[str] = mapped_column(String(500), default="")
     view_count: Mapped[int] = mapped_column(Integer, default=0)
     is_hot: Mapped[int] = mapped_column(Integer, default=0)
     is_new: Mapped[int] = mapped_column(Integer, default=0)
@@ -81,6 +84,7 @@ class PvpTip(Base):
             "tags": json.loads(self.tags) if self.tags else [],
             "difficulty": self.difficulty,
             "cover_image": self.cover_image,
+            "video_url": self.video_url,
             "view_count": self.view_count,
             "is_hot": bool(self.is_hot),
             "is_new": bool(self.is_new),

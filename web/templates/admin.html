@@ -153,6 +153,12 @@
             <textarea id="formDesc" rows="2" placeholder="简短描述"></textarea>
             <label>内容（HTML）</label>
             <textarea id="formContent" rows="8" placeholder="<h3>标题</h3><p>正文...</p>"></textarea>
+            <label>视频地址</label>
+            <div style="display:flex;gap:0.5rem;margin-bottom:0.75rem;">
+                <input type="text" id="formVideoUrl" placeholder="/uploads/videos/xxx.mp4 或 https://www.bilibili.com/...">
+                <button class="btn btn-green btn-sm" id="uploadVideoBtn" style="flex-shrink:0;">上传视频</button>
+            </div>
+            <input type="file" id="videoFileInput" accept="video/*" style="display:none;">
             <div class="form-row">
                 <div>
                     <label>分类</label>
@@ -324,6 +330,7 @@
             document.getElementById('formSlug').value = '';
             document.getElementById('formDesc').value = '';
             document.getElementById('formContent').value = '';
+            document.getElementById('formVideoUrl').value = '';
             document.getElementById('formTags').value = '';
             document.getElementById('formHot').value = '0';
             document.getElementById('formNew').value = '0';
@@ -345,6 +352,7 @@
             document.getElementById('formSlug').value = item.slug;
             document.getElementById('formDesc').value = item.description;
             document.getElementById('formContent').value = item.content;
+            document.getElementById('formVideoUrl').value = item.video_url || '';
             document.getElementById('formTags').value = (item.tags || []).join(', ');
             document.getElementById('formHot').value = item.is_hot ? '1' : '0';
             document.getElementById('formNew').value = item.is_new ? '1' : '0';
@@ -359,6 +367,7 @@
             const body = {
                 title: document.getElementById('formTitleInput').value.trim(),
                 slug: document.getElementById('formSlug').value.trim() || document.getElementById('formTitleInput').value.trim().toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]+/g, '-').replace(/(^-|-$)/g, '') || 'untitled',
+                video_url: document.getElementById('formVideoUrl').value.trim(),
                 description: document.getElementById('formDesc').value.trim(),
                 content: document.getElementById('formContent').value.trim(),
                 category: document.getElementById('formCategory').value,
@@ -401,6 +410,35 @@
             await fetch(`/api/admin/${currentTable}/${id}`, {method: 'DELETE'});
             if (reload) { loadData(); toast('已删除', 'success'); }
         }
+
+        // Video upload
+        document.getElementById('uploadVideoBtn').addEventListener('click', () => {
+            document.getElementById('videoFileInput').click();
+        });
+
+        document.getElementById('videoFileInput').addEventListener('change', async function() {
+            const file = this.files?.[0];
+            if (!file) return;
+            if (file.size > 200 * 1024 * 1024) {
+                toast('视频超过 200MB 限制', 'error');
+                return;
+            }
+            const formData = new FormData();
+            formData.append('file', file);
+            try {
+                const res = await fetch('/api/admin/upload-video', {method: 'POST', body: formData});
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('formVideoUrl').value = data.url;
+                    toast('上传成功', 'success');
+                } else {
+                    toast(data.detail || '上传失败', 'error');
+                }
+            } catch(e) {
+                toast('上传失败', 'error');
+            }
+            this.value = '';
+        });
 
         // Generate slug from title
         document.getElementById('formTitleInput').addEventListener('input', function() {

@@ -1,3 +1,4 @@
+import pathlib
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -34,6 +35,7 @@ async def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
 app.include_router(api_router)
 app.include_router(page_router)
 app.mount("/static", StaticFiles(directory="web/static"), name="static")
+app.mount("/uploads", StaticFiles(directory=(pathlib.Path(__file__).parent / "uploads")), name="uploads")
 
 logger.add("logs/wzrysj.log", rotation="10 MB", retention="7 days", level="INFO")
 

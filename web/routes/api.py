@@ -1,7 +1,9 @@
 import json
+import os
+import uuid
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File
 from fastapi.responses import JSONResponse
 from loguru import logger
 from sqlalchemy import select, text, func
@@ -106,6 +108,19 @@ async def list_pvp(
     return JSONResponse(data)
 
 
+@api.get("/pvp/{slug}")
+async def get_pvp(slug: str, db: AsyncSession = Depends(get_db)) -> JSONResponse:
+    result = await db.execute(select(PvpTip).where(PvpTip.slug == slug))
+    item = result.scalar_one_or_none()
+    if not item:
+        raise HTTPException(status_code=404, detail="攻略不存在")
+    item.view_count += 1
+    await db.commit()
+    await db.refresh(item)
+    data = item.to_dict()
+    return JSONResponse(data)
+
+
 @api.get("/meta")
 async def get_meta() -> JSONResponse:
     return JSONResponse({
@@ -160,6 +175,26 @@ def _jsonify_dict(d: dict[str, Any]) -> dict[str, Any]:
         if key in d and isinstance(d[key], list):
             d[key] = json.dumps(d[key], ensure_ascii=False)
     return d
+
+
+@api.post("/admin/upload-video")
+async def upload_video(file: UploadFile = File(...)) -> JSONResponse:
+    allowed_types = {"video/mp4", "video/webm", "video/ogg", "video/x-msvideo", "video/quicktime"}
+    if file.content_type not in allowed_types:
+        raise HTTPException(status_code=400, detail="仅支持 mp4/webm/ogg/avi/mov 格式")
+    ext = os.path.splitext(file.filename or "video.mp4")[1] or ".mp4"
+    filename = f"{uuid.uuid4().hex}{ext}"
+    save_dir = os.path.join(os.path.dirname(__file__), "..", "..", "uploads", "videos")
+    os.makedirs(save_dir, exist_ok=True)
+    save_path = os.path.join(save_dir, filename)
+    content = await file.read()
+    if len(content) > 200 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="文件超过 200MB 限制")
+    with open(save_path, "wb") as f:
+        f.write(content)
+    url = f"/uploads/videos/{filename}"
+    logger.info(f"[admin] 上传视频: {filename} ({len(content)} bytes)")
+    return JSONResponse({"success": True, "url": url})
 
 
 @api.post("/admin/exploration")
