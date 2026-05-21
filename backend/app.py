@@ -6,7 +6,7 @@ import sqlite3
 import csv
 import io
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import wraps
 from flask import Flask, request, jsonify, session, send_from_directory, g, Response
 from flask_cors import CORS
@@ -21,8 +21,11 @@ if os.environ.get('RENDER'):
     DATABASE = os.path.join(RENDER_DATA, 'data.db')
 else:
     DATABASE = 'data.db'
-ADMIN_USERNAME = 'site_admin_2026'
-ADMIN_PASSWORD = 'K9xP!7qR#3zL@2sN$5aM'
+ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'site_admin_2026')
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'K9xP!7qR#3zL@2sN$5aM')
+
+# 登录失败限制
+login_attempts = {}  # {ip: [attempts, lock_until]}
 
 # ==================== 数据库 ====================
 
@@ -107,6 +110,12 @@ def init_db():
             icon TEXT DEFAULT '📌',
             items TEXT DEFAULT '[]',
             sort_order INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS op_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            action TEXT NOT NULL,
+            detail TEXT DEFAULT '',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     ''')
@@ -289,10 +298,30 @@ def api_get_data(table):
 
 @app.route('/api/admin/login', methods=['POST'])
 def admin_login():
+    ip = request.remote_addr
+    now = datetime.now()
+
+    # 检查是否被锁定
+    if ip in login_attempts:
+        attempts, lock_until = login_attempts[ip]
+        if lock_until and now < lock_until:
+            remaining = int((lock_until - now).total_seconds())
+            return jsonify({'success': False, 'error': f'登录过于频繁，请{remaining}秒后重试'}), 429
+
     data = request.get_json()
     if data.get('username') == ADMIN_USERNAME and data.get('password') == ADMIN_PASSWORD:
+        login_attempts.pop(ip, None)
         session['logged_in'] = True
+        op_log('login', f'管理员登录')
         return jsonify({'success': True})
+
+    # 记录失败次数
+    attempts, _ = login_attempts.get(ip, [0, None])
+    attempts += 1
+    if attempts >= 5:
+        login_attempts[ip] = [attempts, now + timedelta(minutes=5)]
+        return jsonify({'success': False, 'error': '登录失败次数过多，请5分钟后再试'}), 429
+    login_attempts[ip] = [attempts, None]
     return jsonify({'success': False, 'error': '账号或密码错误'}), 401
 
 @app.route('/api/admin/logout', methods=['POST'])
@@ -562,6 +591,92 @@ def admin_import_data():
             restored += 1
     db.commit()
     return jsonify({'success': True, 'restored': restored})
+
+# ==================== 操作日志 ====================
+
+def op_log(action, detail=''):
+    try:
+        db = get_db()
+        db.execute("INSERT INTO op_log (action, detail) VALUES (?, ?)", [action, detail])
+        db.commit()
+    except:
+        pass
+
+# ==================== 统计 API ====================
+
+@app.route('/api/admin/stats')
+@login_required
+def admin_stats():
+    db = get_db()
+    stats = {}
+    for t in ADMIN_TABLES:
+        row = db.execute(f"SELECT COUNT(*) as cnt, MAX(created_at) as latest FROM {t}").fetchone()
+        stats[t] = {'count': row['cnt'], 'latest': row['latest']}
+    logs = db.execute("SELECT * FROM op_log ORDER BY id DESC LIMIT 20").fetchall()
+    stats['logs'] = [dict(r) for r in logs]
+    return jsonify(stats)
+
+# ==================== 复制条目 ====================
+
+@app.route('/api/admin/<table>/<int:id>/duplicate', methods=['POST'])
+@login_required
+def admin_duplicate(table, id):
+    if table not in ADMIN_TABLES:
+        return jsonify({'error': 'Invalid table'}), 400
+    db = get_db()
+    row = db.execute(f"SELECT * FROM {table} WHERE id=?", [id]).fetchone()
+    if not row:
+        return jsonify({'error': 'Not found'}), 404
+    item = dict(row)
+    # 去掉 id 和 created_at
+    item.pop('id', None)
+    item.pop('created_at', None)
+    # 名称加副本后缀
+    for name_field in ['name', 'title', 'code']:
+        if name_field in item and item[name_field]:
+            item[name_field] = str(item[name_field]) + ' (副本)'
+            break
+    columns = list(item.keys())
+    placeholders = ','.join(['?'] * len(columns))
+    cols_sql = ','.join(columns)
+    vals = [item[k] for k in columns]
+    cur = db.execute(f"INSERT INTO {table} ({cols_sql}) VALUES ({placeholders})", vals)
+    db.commit()
+    op_log('duplicate', f'{table} id={id} → {cur.lastrowid}')
+    return jsonify({'success': True, 'id': cur.lastrowid})
+
+# ==================== 批量排序 ====================
+
+@app.route('/api/admin/<table>/sort', methods=['POST'])
+@login_required
+def admin_batch_sort(table):
+    if table not in ADMIN_TABLES:
+        return jsonify({'error': 'Invalid table'}), 400
+    data = request.get_json()
+    items = data.get('items', [])  # [{id: 1, sort_order: 0}, ...]
+    db = get_db()
+    for item in items:
+        db.execute(f"UPDATE {table} SET sort_order=? WHERE id=?", [item['sort_order'], item['id']])
+    db.commit()
+    op_log('sort', f'{table} 排序更新 ({len(items)}条)')
+    return jsonify({'success': True})
+
+# ==================== 置顶/取消置顶 ====================
+
+@app.route('/api/admin/<table>/<int:id>/toggle-top', methods=['POST'])
+@login_required
+def admin_toggle_top(table, id):
+    if table not in ADMIN_TABLES:
+        return jsonify({'error': 'Invalid table'}), 400
+    db = get_db()
+    row = db.execute(f"SELECT sort_order FROM {table} WHERE id=?", [id]).fetchone()
+    if not row:
+        return jsonify({'error': 'Not found'}), 404
+    new_val = 0 if row['sort_order'] else 9999
+    db.execute(f"UPDATE {table} SET sort_order=? WHERE id=?", [new_val, id])
+    db.commit()
+    op_log('toggle_top', f'{table} id={id} sort_order={new_val}')
+    return jsonify({'success': True, 'sort_order': new_val})
 
 # ==================== 静态文件 ====================
 
