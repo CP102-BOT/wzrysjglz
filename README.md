@@ -1,86 +1,75 @@
-# 王者荣耀世界攻略站
+# 王者荣耀世界攻略站 — PVP + 自由探索
 
-## 项目结构（前后端分离）
+> 王者荣耀世界（Honor of Kings: World）开放世界RPG攻略站。PVP 为主界面，自由世界探索为辅。
+
+## 两大板块
+
+| 板块 | 内容 |
+|------|------|
+| **PVP攻略** | 武道对决(1v1)、孤身论决(1v1公平)、协战争魁(4v4)、PK模式(1v1/3v3/5v5)、通用战斗技巧 |
+| **探索攻略** | 稷下学院、观星群山、奇门秘境、秘禁之地、织梦原野、地下世界、春溪漫滩、唤灵系统、武器锻造 |
+
+## 项目结构
 
 ```
-wzrysj/
-├── index.html              # 前台页面 → 部署到 GitHub Pages
-├── backend/                # 后端 → 部署到 Render
+wzrysjglz/
+├── index.html              # 前台页面 → GitHub Pages
+├── backend/                # 后端 → Render
 │   ├── app.py              # Flask API + 管理后台
 │   ├── admin.html          # 管理后台页面
-│   └── requirements.txt    # Python 依赖
+│   ├── requirements.txt    # Python 依赖
+│   └── uploads/            # 上传的图片/视频
 └── README.md
 ```
 
 ## 部署步骤
 
-### 一、部署后端到 Render（免费）
+### 一、后端部署到 Render
 
-1. 打开 https://dashboard.render.com ，注册/登录（用 GitHub 账号）
-
+1. 打开 https://dashboard.render.com 注册/登录
 2. 点击 **New +** → **Web Service**
-
-3. 连接你的 GitHub 仓库（先把整个 wzrysj 文件夹推到一个 GitHub 仓库）
-
-4. 配置 Render：
-   - **Name**: wzrysj（或自定义）
+3. 连接 GitHub 仓库
+4. 配置：
    - **Root Directory**: `backend`
    - **Environment**: Python 3
    - **Build Command**: `pip install -r requirements.txt`
    - **Start Command**: `gunicorn app:app`
-   - **Plan**: Free
+5. 部署后获得 URL，如：`https://wzrysjglz.onrender.com`
 
-5. 点击 **Create Web Service**，等待部署完成
+### 二、前端部署到 GitHub Pages
 
-6. 部署完成后你会获得一个 URL，类似：
-   ```
-   https://wzrysj.onrender.com
-   ```
-   复制这个 URL。
+1. 修改 `index.html` 中 API 地址为你的 Render URL
+2. GitHub 仓库 **Settings** → **Pages** → Source: `main` branch, root `/`
+3. 访问 `https://你的用户名.github.io/wzrysjglz/`
 
-### 二、部署前端到 GitHub Pages
+### 三、管理后台
 
-1. 修改 `index.html` 第 3 行的 API 地址，把占位符换成你的 Render URL：
-   ```javascript
-   const API = 'https://wzrysj.onrender.com/api/data';
-   ```
+访问 `https://你的域名/admin`
 
-2. 在你的 GitHub 仓库中，进入 **Settings** → **Pages**
+- 账号：`site_admin_2026`
+- 密码：`K9xP!7qR#3zL@2sN$5aM`
 
-3. **Source**: Deploy from a branch
-4. **Branch**: main，文件夹选 `/ (root)`
-5. 点击 **Save**
+### 后台功能
 
-6. 等待 1-2 分钟，GitHub Pages 会给你一个 URL：
-   ```
-   https://你的用户名.github.io/仓库名/
-   ```
-   别人访问这个 URL 就能看到你的攻略站了。
+- **发布/编辑/删除** PVP攻略和探索攻略
+- **视频嵌入**：支持 YouTube、B站、mp4直链，编辑器内置一键插入
+- **媒体库**：上传图片/视频，复制链接直接使用
+- **CSV批量导入**：下载模板 → 填入数据 → 一键导入
+- **拖拽排序**、置顶、复制、批量删除
+- **数据导出/恢复** JSON备份
 
-### 三、登录后台改内容
-
-访问 `https://wzrysj.onrender.com/admin`（你的 Render URL + /admin）
-
-- **账户**：`site_admin_2026`
-- **密码**：`K9xP!7qR#3zL@2sN$5aM`
-
-在后台可以增删改所有数据（英雄、资源、攻略、地图、兑换码、速查表），还支持批量导入 CSV。
-
-### 四、本地测试（可选）
+## 本地测试
 
 ```bash
-# 启动后端
 cd backend
 pip install -r requirements.txt
 python app.py
-
-# 打开前台（直接用浏览器打开 index.html）
+# 前台用浏览器打开 index.html
+# 本地测试时 API 改为 http://localhost:5000/api/data
 ```
-
-注意：本地测试时 index.html 里 API 地址要改成 `http://localhost:5000/api/data`。
 
 ## 注意事项
 
-- Render 免费版 15 分钟无访问会休眠，首次访问需等待 30 秒左右唤醒
-- GitHub Pages 免费、无流量限制
-- 数据库放在 Render 磁盘上，如果 Render 重装系统数据会丢失（建议定期在后台导出备份）
+- Render 免费版 15 分钟无访问会休眠
+- 数据库在 Render 磁盘上，建议定期导出备份
+- 视频支持上传到媒体库（mp4/webm/mov），也可直接贴外部视频链接

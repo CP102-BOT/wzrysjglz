@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""王者荣耀世界攻略站 - 后端 + 管理后台"""
+"""王者荣耀世界攻略站 - 后端 + 管理后台（PVP + 自由探索）"""
 
 import json
 import sqlite3
@@ -24,8 +24,7 @@ else:
 ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'site_admin_2026')
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'K9xP!7qR#3zL@2sN$5aM')
 
-# 登录失败限制
-login_attempts = {}  # {ip: [attempts, lock_until]}
+login_attempts = {}
 
 # ==================== 数据库 ====================
 
@@ -45,52 +44,29 @@ def init_db():
     db = sqlite3.connect(DATABASE)
     cur = db.cursor()
     cur.executescript('''
-        CREATE TABLE IF NOT EXISTS heroes (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            subtitle TEXT DEFAULT '',
-            icon TEXT DEFAULT '🗡️',
-            rarity TEXT DEFAULT 'R',
-            badge TEXT DEFAULT '',
-            description TEXT DEFAULT '',
-            image_url TEXT DEFAULT '',
-            tags TEXT DEFAULT '[]',
-            stats TEXT DEFAULT '{}',
-            skills TEXT DEFAULT '[]',
-            sort_order INTEGER DEFAULT 0,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-        CREATE TABLE IF NOT EXISTS resources (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            description TEXT DEFAULT '',
-            icon TEXT DEFAULT '📦',
-            rarity TEXT DEFAULT 'R',
-            category TEXT DEFAULT 'material',
-            tags TEXT DEFAULT '[]',
-            details TEXT DEFAULT '',
-            sort_order INTEGER DEFAULT 0,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-        CREATE TABLE IF NOT EXISTS guides (
+        CREATE TABLE IF NOT EXISTS pvp_guides (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
             description TEXT DEFAULT '',
             content TEXT DEFAULT '',
-            icon TEXT DEFAULT '📖',
+            icon TEXT DEFAULT '⚔️',
             category TEXT DEFAULT 'general',
             tags TEXT DEFAULT '[]',
             badge TEXT DEFAULT '',
+            video_url TEXT DEFAULT '',
             sort_order INTEGER DEFAULT 0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
-        CREATE TABLE IF NOT EXISTS maps (
+        CREATE TABLE IF NOT EXISTS explore_guides (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
+            title TEXT NOT NULL,
             description TEXT DEFAULT '',
             content TEXT DEFAULT '',
             icon TEXT DEFAULT '🗺️',
+            category TEXT DEFAULT 'map',
             tags TEXT DEFAULT '[]',
+            badge TEXT DEFAULT '',
+            video_url TEXT DEFAULT '',
             sort_order INTEGER DEFAULT 0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
@@ -121,139 +97,120 @@ def init_db():
     ''')
     db.commit()
 
-    # 种子数据
-    if cur.execute("SELECT COUNT(*) FROM heroes").fetchone()[0] == 0:
+    if cur.execute("SELECT COUNT(*) FROM pvp_guides").fetchone()[0] == 0:
         seed_data(db)
     db.close()
 
 def seed_data(db):
     cur = db.cursor()
-    heroes = [
-        ('赵云', '龙胆将军', '🗡️', 'SSR', 'new',
-         '常山赵子龙，枪出如龙。赵云的技能组合兼具位移与爆发，是战场上最灵活的战士之一。',
-         json.dumps(['战士', '突进', '爆发'], ensure_ascii=False),
-         json.dumps({'生命': 'A+', '攻击': 'S', '防御': 'B', '速度': 'S', '难度': 'A'}, ensure_ascii=False),
-         json.dumps([
-             {'name': '龙胆', 'desc': '被动：赵云每次释放技能后提升10%移动速度，持续2秒，可叠加2层。'},
-             {'name': '惊雷之龙', 'desc': '赵云向前突刺，对路径上的敌人造成物理伤害，命中后减少该技能1秒冷却。'},
-             {'name': '破云之龙', 'desc': '赵云连续刺击前方区域4次，每次造成物理伤害，最后一击附带击飞效果。'},
-             {'name': '天翔之龙', 'desc': '赵云跃向空中，短暂延迟后轰击目标区域，造成大量物理伤害并击飞敌人。'}
-         ], ensure_ascii=False)),
-        ('孙尚香', '千金射手', '🏹', 'SSR', 'hot',
-         '江东大小姐，火炮在手天下我有。远程物理输出天花板，拥有极强的单体爆发能力。',
-         json.dumps(['射手', '爆发', '远程'], ensure_ascii=False),
-         json.dumps({'生命': 'C', '攻击': 'SS', '防御': 'C', '速度': 'B', '难度': 'B'}, ensure_ascii=False),
-         json.dumps([
-             {'name': '千金弩', 'desc': '被动：孙尚香脱离战斗后，下一次普通攻击造成额外伤害并附带减速。'},
-             {'name': '翻滚突袭', 'desc': '向前翻滚一段距离，强化下次普攻，增加射程和伤害。'},
-             {'name': '红莲爆弹', 'desc': '投掷一枚爆弹，对目标区域敌人造成伤害并减速。'},
-             {'name': '究极弩炮', 'desc': '蓄力后发射一枚超远程炮弹，对直线上的所有敌人造成巨额伤害。'}
-         ], ensure_ascii=False)),
-        ('李白', '青莲剑仙', '⚔️', 'SSR', '',
-         '大河之剑天上来。李白拥有多段位移和高额爆发，是最具操作感的刺客英雄。',
-         json.dumps(['刺客', '位移', '爆发'], ensure_ascii=False),
-         json.dumps({'生命': 'C', '攻击': 'SS', '防御': 'D', '速度': 'SS', '难度': 'SS'}, ensure_ascii=False),
-         json.dumps([
-             {'name': '侠客行', 'desc': '被动：李白每4次普攻后进入侠客行状态，提升攻击力5秒。'},
-             {'name': '将进酒', 'desc': '向指定方向突进两次，第三次回到原地。每次突进对路径敌人造成伤害。'},
-             {'name': '神来之笔', 'desc': '以自身为中心释放剑气，对周围敌人造成伤害并减速。'},
-             {'name': '青莲剑歌', 'desc': '化身剑气穿梭于战场，对范围内所有敌人造成5次伤害，期间不可选中。'}
-         ], ensure_ascii=False)),
-        ('貂蝉', '绝世舞姬', '💃', 'SR', '',
-         '闭月羞花之貌，舞动倾城之姿。法术型辅助，拥有强大的控制能力和治疗能力。',
-         json.dumps(['法师', '辅助', '控制'], ensure_ascii=False),
-         json.dumps({'生命': 'B', '攻击': 'A', '防御': 'B', '速度': 'A', '难度': 'A'}, ensure_ascii=False),
-         json.dumps([
-             {'name': '闭月', 'desc': '被动：貂蝉对敌人造成法术伤害时，在敌人身上留下印记，队友攻击该敌人回复生命。'},
-             {'name': '落雁', 'desc': '向指定方向抛出花瓣，对命中的第一个敌人造成伤害并魅惑。'},
-             {'name': '沉鱼', 'desc': '在目标区域制造幻境，区域内敌人减速，队友加速。'},
-             {'name': '羞花', 'desc': '翩翩起舞，持续为周围队友回复生命值，结束时对周围敌人造成伤害。'}
-         ], ensure_ascii=False)),
-        ('吕布', '无双战神', '🔱', 'SR', '',
-         '马中赤兔，人中吕布。近战坦克型战士，拥有极高的生存能力和不俗的伤害。',
-         json.dumps(['坦克', '战士', '生存'], ensure_ascii=False),
-         json.dumps({'生命': 'SS', '攻击': 'A', '防御': 'S', '速度': 'D', '难度': 'B'}, ensure_ascii=False),
-         json.dumps([
-             {'name': '饕餮血统', 'desc': '被动：吕布生命值低于50%时，攻击力提升20%，并获得10%吸血。'},
-             {'name': '方天画斩', 'desc': '挥动方天画戟横扫前方，造成物理伤害，命中回复生命。'},
-             {'name': '无双之盾', 'desc': '获得一个吸收伤害的护盾，持续3秒，护盾结束时对周围敌人造成伤害。'},
-             {'name': '魔神降世', 'desc': '跃向目标区域，落地造成范围伤害并击飞，自身获得伤害减免。'}
-         ], ensure_ascii=False)),
-        ('小乔', '恋之微风', '🌸', 'R', '',
-         '江东二乔之一，温柔可人。法术远程输出，拥有极强的范围伤害能力。',
-         json.dumps(['法师', '远程', '爆发'], ensure_ascii=False),
-         json.dumps({'生命': 'D', '攻击': 'S', '防御': 'D', '速度': 'B', '难度': 'C'}, ensure_ascii=False),
-         json.dumps([
-             {'name': '治愈微笑', 'desc': '被动：小乔技能命中敌人后，提升自身2%移动速度，可叠加5层。'},
-             {'name': '绽放之舞', 'desc': '向前方扇形区域释放飞舞的花瓣，造成法术伤害。'},
-             {'name': '甜蜜恋风', 'desc': '在指定位置召唤旋风，对范围内敌人造成持续伤害。'},
-             {'name': '星华缭乱', 'desc': '召唤流星雨攻击大范围区域内的敌人，连续降落5波。'}
-         ], ensure_ascii=False)),
-    ]
-    for h in heroes:
-        cur.execute("INSERT INTO heroes (name,subtitle,icon,rarity,badge,description,tags,stats,skills) VALUES (?,?,?,?,?,?,?,?,?)", h)
 
-    guides = [
-        ('新手入门指南', '从零开始的王者之旅', '📖', 'beginner', json.dumps(['新手', '入门', '必读'], ensure_ascii=False), '',
-         '<h3>欢迎来到王者荣耀世界！</h3><p>这篇指南将帮助你快速上手游戏。</p><h3>一、选择你的第一个英雄</h3><p>建议新手优先选择操作难度较低的英雄，如<strong>小乔</strong>或<strong>吕布</strong>。</p><h3>二、熟悉基本操作</h3><p>移动、普攻和技能释放是游戏的核心操作，建议在训练模式中多加练习。</p><h3>三、了解装备系统</h3><p>合理出装是获胜的关键，前期优先发育，中期补输出，后期补防御。</p>'),
-        ('赵云深度攻略', '七进七出的龙胆将军', '📖', 'hero', json.dumps(['赵云', '战士', '进阶'], ensure_ascii=False), 'hot',
-         '<h3>赵云 — 战场上的常胜将军</h3><p>赵云是游戏中最为灵活的战士英雄，拥有极高的操作上限。</p><h3>技能解析</h3><p><strong>核心技能：惊雷之龙</strong> — 赵云的核心位移技能，可用于追击、逃生和躲避关键技能。</p><h3>连招技巧</h3><p>基础连招：1技能突进 → 2技能输出 → 1技能二段追击 → 大招收割</p><p>进阶连招：1技能穿越 → 大招开团 → 2技能输出 → 1技能调整位置</p><h3>装备推荐</h3><p>核心装备：暗影战斧 + 宗师之力 + 破军</p>'),
-        ('资源获取全攻略', '快速养成你的英雄', '📖', 'resource', json.dumps(['养成', '资源', '必读'], ensure_ascii=False), '',
-         '<h3>资源获取途径大全</h3><p>合理规划资源获取是快速提升战力的关键。</p><h3>每日必做</h3><p>1. 日常任务：每天完成所有日常任务，获取金币和经验。</p><p>2. 活动副本：每日限时活动副本必刷，掉落稀有材料。</p><h3>周常必做</h3><p>1. 排位赛：每周完成足够的排位场次获取赛季奖励。</p><p>2. 公会战：参与公会战获取大量公会贡献。</p>'),
+    pvp_guides = [
+        ('武道对决上分指南', '1v1排位赛上分全攻略，从青铜到巅峰', '⚔️', '1v1',
+         json.dumps(['武道对决','1v1','排位','上分'], ensure_ascii=False), 'hot',
+         '<h3>武道对决 — 1v1排位赛</h3><p>武道对决是带自身装备铭文的1v1排位模式，有完整段位系统，最高段位可获得<strong>限定皮肤</strong>。</p><h3>核心机制</h3><p>1. 装备和铭文带入对局，赛前配装至关重要</p><p>2. 段位从青铜到巅峰，每赛季结算奖励</p><p>3. 地图小，节奏快，考验个人操作</p><h3>推荐英雄</h3><p><strong>铠</strong> — 魔铠继承者，近战爆发高，对线压制力强</p><p><strong>花木兰</strong> — 双形态切换，灵活多变</p><p><strong>东方曜</strong> — 星辰之力，多段位移，操作上限极高</p><h3>配装思路</h3><p>核心输出装 + 韧性鞋 + 保命装（复活甲/名刀），根据对手灵活调整。</p>',
+         ''),
+        ('孤身论决 — 公平1v1竞技', '统一配置纯操作对决，真正的技术较量', '🤺', '1v1',
+         json.dumps(['孤身论决','1v1','公平竞技','操作'], ensure_ascii=False), 'new',
+         '<h3>孤身论决 — 公平1v1</h3><p>孤身论决是真正的公平竞技，所有玩家<strong>统一配置</strong>，纯靠操作和意识取胜。</p><h3>与武道对决的区别</h3><p>1. 无装备差异，无铭文差异</p><p>2. 所有英雄属性平衡</p><p>3. 纯粹的技术较量</p><h3>核心技巧</h3><p><strong>走位</strong> — 利用地形和距离控制，躲避关键技能</p><p><strong>时机</strong> — 抓住对手技能CD空档期反击</p><p><strong>心理</strong> — 预判对手走位和技能释放</p><h3>推荐练习英雄</h3><p>铠、花木兰等操作上限高的英雄在公平模式下更能发挥技术优势。</p>',
+         ''),
+        ('协战争魁 — 4v4团队攻略', '四人组队争夺中立资源，摧毁对方基地', '🛡️', '4v4',
+         json.dumps(['协战争魁','4v4','团队','配合'], ensure_ascii=False), '',
+         '<h3>协战争魁 — 4v4团队竞技</h3><p>4v4模式核心是<strong>中立资源争夺</strong>和团队配合，最终摧毁对方基地获胜。</p><h3>阵容搭配</h3><p>推荐阵容：1对抗（前排）+ 2强攻（输出）+ 1辅助（治疗/控制）</p><p>对抗类：铠、花木兰 — 前线承伤，嘲讽控制</p><p>强攻类：东方曜、伽罗 — 高爆发输出</p><p>辅助类：冷春 — 增益、治疗</p><h3>战术要点</h3><p>1. 开局抢占中立资源点</p><p>2. 辅助保护输出位，对抗位吸引火力</p><p>3. 控制技能链配合，打出控制衔接</p><p>4. 注意小地图，防止被偷家</p>',
+         ''),
+        ('PK模式全解析', '1v1/3v3/5v5多种规模对战', '🏟️', 'general',
+         json.dumps(['PK模式','1v1','3v3','5v5'], ensure_ascii=False), '',
+         '<h3>PK模式 — 多种规模对战</h3><p>PK模式支持<strong>1v1、3v3、5v5</strong>三种规模，节奏紧凑以摧毁水晶定胜负。</p><h3>1v1 PK</h3><p>快速单挑，考验个人操作，适合练习英雄和热身</p><h3>3v3 PK</h3><p>小规模团队战，需要基本的配合意识</p><h3>5v5 PK</h3><p>完整团队对抗，需要明确分工和战术执行</p><h3>通用技巧</h3><p>1. 熟悉所有英雄技能，知己知彼</p><p>2. 元素反应（冰+火+雷）可触发额外伤害</p><p>3. 格挡反击和精准闪避是高手分水岭</p>',
+         ''),
+        ('PVP通用战斗技巧', '从基础到进阶的PVP操作指南', '💡', 'general',
+         json.dumps(['通用','战斗','技巧','进阶'], ensure_ascii=False), 'hot',
+         '<h3>PVP通用战斗技巧</h3><h3>基础操作</h3><p><strong>浮空连击</strong>：轻攻击接重击触发浮空，空中接技能打出完整连段</p><p><strong>格挡反击</strong>：在对手攻击瞬间格挡，反击造成额外伤害</p><p><strong>精准闪避</strong>：闪避时机正确可触发完美闪避，获得短暂无敌帧</p><h3>进阶技巧</h3><p><strong>破势连招</strong>：连续攻击积累破势值，满值触发处决终结</p><p><strong>牵云索</strong>：空中位移工具，用于规避范围伤害和调整位置</p><p><strong>元素反应</strong>：冰+火=融化（增伤），火+雷=超载（AOE），冰+雷=超导（减防）</p><h3>意识提升</h3><p>1. 时刻关注小地图</p><p>2. 记住对手关键技能CD</p><p>3. 控制视野和资源点</p>',
+         ''),
     ]
-    for g in guides:
-        cur.execute("INSERT INTO guides (title,description,icon,category,tags,badge,content) VALUES (?,?,?,?,?,?,?)", g)
+    for g in pvp_guides:
+        cur.execute("INSERT INTO pvp_guides (title,description,icon,category,tags,badge,content,video_url) VALUES (?,?,?,?,?,?,?,?)", g)
 
-    resources = [
-        ('金币', '游戏中的通用货币，可用于购买英雄和基础装备', '🪙', 'R', 'currency', json.dumps(['货币', '通用'], ensure_ascii=False), '获取途径：日常任务、对战奖励、活动赠送'),
-        ('钻石', '稀有货币，可用于购买特殊道具和皮肤', '💎', 'SR', 'currency', json.dumps(['货币', '稀有'], ensure_ascii=False), '获取途径：排位奖励、成就系统、活动赠送'),
-        ('经验书', '用于提升英雄等级的基础道具', '📘', 'R', 'material', json.dumps(['养成', '基础'], ensure_ascii=False), '获取途径：副本掉落、日常任务'),
-        ('进阶石', '英雄突破等级上限的必需材料', '💠', 'SR', 'material', json.dumps(['养成', '进阶'], ensure_ascii=False), '获取途径：精英副本、活动兑换'),
-        ('皮肤精华', '兑换限定皮肤的珍贵材料', '✨', 'SSR', 'material', json.dumps(['皮肤', '珍贵'], ensure_ascii=False), '获取途径：活动赠送、排位商店兑换'),
+    explore_guides = [
+        ('稷下学院全探索指南', '稷下新生必读，学院区域完整攻略', '🏫', 'map',
+         json.dumps(['稷下','学院','新手','入门'], ensure_ascii=False), 'hot',
+         '<h3>稷下学院 — 王者大陆核心区域</h3><p>稷下是三大学院环<strong>通天塔</strong>而建的核心求学圣地，也是玩家初入王者大陆的第一站。</p><h3>重要地点</h3><p><strong>通天塔</strong> — 学院地标，顶楼有观景台和隐藏宝箱</p><p><strong>三大学院</strong> — 武道院、墨家院、阴阳院，各有专属任务和收集品</p><p><strong>学院广场</strong> — 每日任务接取点，NPC商人聚集地</p><h3>收集要点</h3><p>1. 通天塔每层都有隐藏宝箱，需要牵云索到达高层</p><p>2. 三大学院图书馆各有古籍残卷</p><p>3. 学院后山有秘密洞穴，需要完成前置任务开启</p>',
+         ''),
+        ('观星群山解密攻略', '观星台星象解密，隐藏宝箱位置', '🌟', 'map',
+         json.dumps(['观星群山','解密','宝箱','星象'], ensure_ascii=False), 'new',
+         '<h3>观星群山 — 星象解密区域</h3><p>观星台是诸葛亮的修行之地，月升时星象最为清晰。</p><h3>星象解密</h3><p>1. 观星台顶部有星象盘，需要按照特定顺序点亮星位</p><p>2. 星象线索散落在群山各处石碑上</p><p>3. 完成解密可获得隐藏共鸣英雄和稀有武器</p><h3>关键位置</h3><p><strong>观星台顶层</strong> — 星象盘所在地</p><p><strong>星陨谷</strong> — 三块星象石碑</p><p><strong>月隐潭</strong> — 水下洞穴藏有宝箱</p>',
+         ''),
+        ('奇门秘境 — 奇门水榭攻略', '诸葛亮毕业大作，机关解密全流程', '🏯', 'map',
+         json.dumps(['奇门秘境','奇门水榭','解密','机关'], ensure_ascii=False), '',
+         '<h3>奇门秘境 — 诸葛亮的毕业大作</h3><p>奇门水榭是诸葛亮在稷下的毕业作品，藏于溪谷深处，布满机关和谜题。</p><h3>核心机关</h3><p>1. <strong>水门机关</strong> — 需要按照水位高低依次开启</p><p>2. <strong>八卦阵</strong> — 八个方位的石台需按正确顺序激活</p><p>3. <strong>水镜谜题</strong> — 利用水面反射找到隐藏通道</p><h3>奖励</h3><p>通关获得<strong>奇门武器图纸</strong>和大量环金</p>',
+         ''),
+        ('秘禁之地BOSS攻略', '秘禁阁精英怪与BOSS打法详解', '💀', 'boss',
+         json.dumps(['秘禁之地','BOSS','战斗','组队'], ensure_ascii=False), 'hot',
+         '<h3>秘禁之地 — 高难度战斗区域</h3><p>秘禁阁所在的神秘危险之地，盘踞着强大的精英怪和BOSS。</p><h3>主要BOSS</h3><p><strong>禁阁守卫</strong> — 拥有韧性条和可破坏部位，优先攻击头部弱点</p><p><strong>深渊魔将</strong> — 二阶段狂暴，需要辅助及时给盾</p><h3>组队配置建议</h3><p>1对抗（拉仇恨）+ 2强攻（输出）+ 1辅助（治疗解控）</p><h3>机制要点</h3><p>1. BOSS韧性条打空前免疫控制，用破势连招快速削减</p><p>2. 可破坏部位破坏后BOSS进入虚弱状态</p><p>3. 注意躲避范围AOE，牵云索可规避</p>',
+         ''),
+        ('织梦原野探索路线', '丰云野→织梦原→界北→梦语湖最优路线', '🌾', 'map',
+         json.dumps(['织梦原野','路线','收集','探索'], ensure_ascii=False), '',
+         '<h3>织梦原野 — 田园牧歌与商业枢纽</h3><p>织梦原野包含丰云野、织梦原、界北、梦语湖四个子区域，是稷下的商业中心和交通枢纽。</p><h3>推荐路线</h3><p><strong>丰云野</strong>（起点）→ 完成商人支线 → <strong>织梦原</strong>（商业区补给）→ <strong>梦语湖</strong>（湖底宝箱）→ <strong>界北</strong>（边境探索）</p><h3>不可错过</h3><p>1. 丰云野的风车顶宝箱（牵云索上去）</p><p>2. 织梦原市集有稀有材料商人</p><p>3. 梦语湖水下有隐藏洞穴</p>',
+         ''),
+        ('地下世界 — 沧渊迷踪', '天柱墟与沧渊迷踪全探索', '🕳️', 'map',
+         json.dumps(['地下世界','天柱墟','沧渊迷踪','遗迹'], ensure_ascii=False), '',
+         '<h3>地下世界 — 埋藏于地下的秘密</h3><p>地下世界分为<strong>天柱墟</strong>和<strong>沧渊迷踪</strong>两大区域，遍布溶洞与青铜遗迹。</p><h3>天柱墟</h3><p>巨大的地下溶洞群，天柱石支撑穹顶。关键收集：青铜器碎片（5片合成古器）</p><h3>沧渊迷踪</h3><p>更深层的青铜遗迹，机关和谜题难度更高。需要完成天柱墟前置任务才能进入。</p><h3>注意事项</h3><p>1. 带足照明道具（部分区域漆黑）</p><p>2. 地下敌人等级较高，建议满级后探索</p><p>3. 沧渊深处有隐藏BOSS</p>',
+         ''),
+        ('春溪漫滩探索指南', '春溪原与古战场试炼攻略', '🌿', 'map',
+         json.dumps(['春溪漫滩','试炼','新手','入门'], ensure_ascii=False), '',
+         '<h3>春溪漫滩 — 稷下门户</h3><p>春溪漫滩是稷下的入口区域，包含<strong>春溪原</strong>和<strong>春溪古战场</strong>，是学子入学试炼之地。</p><h3>入学试炼</h3><p>1. 基础战斗试炼 — 通过后解锁共鸣系统</p><p>2. 探索试炼 — 在春溪原找到三件遗失的古物</p><p>3. 古战场试炼 — 击败试炼傀儡</p><h3>收集</h3><p>春溪原的花海中有隐藏的唤灵生物可捕捉</p>',
+         ''),
+        ('唤灵系统捕获指南', '野外唤灵生物位置与捕捉技巧', '🐉', 'collection',
+         json.dumps(['唤灵','捕捉','伙伴','收集'], ensure_ascii=False), 'new',
+         '<h3>唤灵系统 — 野外生物伙伴</h3><p>玩家可在野外捕捉生物作为战斗伙伴，提供护盾、治疗等辅助效果。</p><h3>可捕捉唤灵</h3><p><strong>春溪狐</strong>（春溪原）— 提供移速加成</p><p><strong>星陨灵</strong>（观星群山）— 提供护盾</p><p><strong>水镜蝶</strong>（梦语湖）— 提供治疗</p><p><strong>岩甲龟</strong>（地下世界）— 提供减伤</p><h3>捕捉技巧</h3><p>1. 先削弱目标生物（不能击杀）</p><p>2. 使用唤灵索进行捕捉</p><p>3. 稀有唤灵有刷新时间，需要等待</p>',
+         ''),
+        ('武器锻造与配装攻略', '枪剑锤弓四类武器深度解析', '🔨', 'collection',
+         json.dumps(['武器','锻造','配装','装备'], ensure_ascii=False), 'hot',
+         '<h3>武器系统 — 四类武器深度解析</h3><p>武器分为<strong>枪、剑、锤、弓</strong>四类，各有独立打法路线。</p><h3>枪</h3><p>中距离，突刺和位移能力强，适合灵活打法。推荐英雄：东方曜</p><h3>剑</h3><p>近战均衡，连招流畅，适用面最广。推荐英雄：铠、花木兰</p><h3>锤</h3><p>重武器，高伤害低攻速，附带击飞和破防。适合对抗类英雄</p><h3>弓</h3><p>远程物理，高爆发低防御，需要走位。推荐英雄：伽罗</p><h3>锻造建议</h3><p>优先升级主武器到当前等级上限，材料优先投入主力英雄的武器。</p>',
+         ''),
     ]
-    for r in resources:
-        cur.execute("INSERT INTO resources (name,description,icon,rarity,category,tags,details) VALUES (?,?,?,?,?,?,?)", r)
-
-    maps_data = [
-        ('王者峡谷', '最经典的5v5对战地图，三条兵线加野区', '🗺️', json.dumps(['PVP', '经典'], ensure_ascii=False), '<h3>地图概览</h3><p>王者峡谷是游戏中最核心的对战地图，分为三条主路和四片野区。</p><h3>上路（对抗路）</h3><p>适合战士/坦克英雄，主要任务是稳住兵线和支援团战。</p><h3>中路</h3><p>适合法师英雄，兵线最短，便于快速清线后支援两路。</p><h3>下路（发育路）</h3><p>适合射手英雄，有额外金币加成，是团队的核心输出位置。</p><h3>野区</h3><p>适合刺客/打野英雄，通过击杀野怪获取经验和buff。</p>'),
-        ('长平攻防战', '非对称攻城地图，守城与攻城的较量', '🏰', json.dumps(['PVP', '攻城'], ensure_ascii=False), '<h3>地图概览</h3><p>长平攻防战是攻城模式专属地图，分为攻方和守方。</p><h3>攻城方</h3><p>目标：在规定时间内摧毁守方城堡。策略：集中火力突破防线，利用攻城器械。</p><h3>守城方</h3><p>目标：坚守至时间结束。策略：合理分配防守力量，利用城墙优势消耗敌人。</p>'),
-    ]
-    for m in maps_data:
-        cur.execute("INSERT INTO maps (name,description,icon,tags,content) VALUES (?,?,?,?,?)", m)
+    for g in explore_guides:
+        cur.execute("INSERT INTO explore_guides (title,description,icon,category,tags,badge,content,video_url) VALUES (?,?,?,?,?,?,?,?)", g)
 
     codes_data = [
-        ('WZRY2025', '周年庆礼包', '金币*500 + 钻石*100 + 经验书*10', '2025年12月31日'),
-        ('VIP666', '新手专属礼包', '英雄体验卡*3 + 金币*200', '长期有效'),
-        ('SVIP888', '超值礼包', '钻石*300 + 皮肤精华*5', '2025年6月30日'),
+        ('WZRY2026', '开服庆典礼包', '环金*500 + 云游金*100 + 进阶石*5', '2026年12月31日'),
+        ('YS666', '新手专属礼包', '共鸣英雄体验卡*3 + 环金*200', '长期有效'),
+        ('YS888', '探索助力礼包', '云游金*300 + 唤灵索*10', '2026年8月31日'),
+        ('SVIP999', '豪华开服礼', '晶珀*300 + 环金*1000 + 武器强化石*20', '2026年6月30日'),
     ]
     for c in codes_data:
         cur.execute("INSERT INTO codes (code,description,reward,expiry) VALUES (?,?,?,?)", c)
 
     quickref_data = [
-        ('日常必做清单', '📋', json.dumps([
-            '完成所有日常任务（金币+经验）',
-            '刷3次精英副本（进阶石）',
-            '参加1场排位赛（赛季积分）',
-            '领取免费宝箱（随机奖励）',
-            '公会签到（公会贡献）'
+        ('每日必做清单', '📋', json.dumps([
+            '完成所有日常任务（环金+经验）',
+            '挑战秘禁之地BOSS（装备材料）',
+            '参加1场武道对决（段位积分）',
+            '探索一个区域收集品（云游金）',
+            '唤灵喂食（提升唤灵等级）',
+            '查看商店刷新（稀有材料）'
         ], ensure_ascii=False)),
-        ('装备优先级', '⚡', json.dumps([
-            '第一件：核心输出装（根据英雄定位）',
-            '第二件：鞋子（增加移速）',
-            '第三件：补充输出或防御',
-            '第四件：破甲/法穿装备',
-            '第五件：保命装备（复活甲/名刀）',
-            '第六件：根据局势灵活选择'
+        ('PVP段位等级', '🏆', json.dumps([
+            '青铜 → 白银 → 黄金 → 铂金 → 钻石 → 星耀 → 巅峰',
+            '每个大段位分3个小段',
+            '赛季结算按最高段位发放奖励',
+            '巅峰段位获得限定皮肤'
         ], ensure_ascii=False)),
-        ('常见术语', '💬', json.dumps([
-            'Gank - 游走抓人',
-            'AD - 物理输出',
-            'AP - 法术输出',
-            'CD - 技能冷却时间',
-            'CC - 控制技能',
-            'DPS - 每秒伤害输出',
-            'Buff - 增益效果',
-            'Debuff - 减益效果'
+        ('元素反应表', '🔥', json.dumps([
+            '冰 + 火 = 融化（额外50%伤害）',
+            '火 + 雷 = 超载（范围爆炸）',
+            '冰 + 雷 = 超导（降低防御30%）',
+            '水 + 雷 = 感电（持续伤害）',
+            '水 + 冰 = 冻结（控制敌人）'
+        ], ensure_ascii=False)),
+        ('常用术语', '💬', json.dumps([
+            '共鸣 — 切换操控英雄的系统',
+            '唤灵 — 野外捕捉的战斗伙伴',
+            '牵云索 — 空中位移工具',
+            '破势 — 连续攻击积累的终结技',
+            '韧性条 — 精英/BOSS的控制免疫条',
+            '环金 — 养成通用货币',
+            '云游金 — 养成通用货币',
+            '晶珀 — 外观货币（免费获取）',
+            '璇晶 — 外观货币（仅付费）'
         ], ensure_ascii=False)),
     ]
     for q in quickref_data:
@@ -277,7 +234,7 @@ def login_required(f):
 
 @app.route('/api/data/<table>')
 def api_get_data(table):
-    allowed = ['heroes', 'resources', 'guides', 'maps', 'codes', 'quickref']
+    allowed = ['pvp_guides', 'explore_guides', 'codes', 'quickref']
     if table not in allowed:
         return jsonify({'error': 'Invalid table'}), 400
     db = get_db()
@@ -285,7 +242,7 @@ def api_get_data(table):
     result = []
     for row in rows:
         item = dict(row)
-        for key in ['tags', 'stats', 'skills', 'items']:
+        for key in ['tags', 'items']:
             if key in item and item[key] and isinstance(item[key], str):
                 try:
                     item[key] = json.loads(item[key])
@@ -300,22 +257,17 @@ def api_get_data(table):
 def admin_login():
     ip = request.remote_addr
     now = datetime.now()
-
-    # 检查是否被锁定
     if ip in login_attempts:
         attempts, lock_until = login_attempts[ip]
         if lock_until and now < lock_until:
             remaining = int((lock_until - now).total_seconds())
             return jsonify({'success': False, 'error': f'登录过于频繁，请{remaining}秒后重试'}), 429
-
     data = request.get_json()
     if data.get('username') == ADMIN_USERNAME and data.get('password') == ADMIN_PASSWORD:
         login_attempts.pop(ip, None)
         session['logged_in'] = True
-        op_log('login', f'管理员登录')
+        op_log('login', '管理员登录')
         return jsonify({'success': True})
-
-    # 记录失败次数
     attempts, _ = login_attempts.get(ip, [0, None])
     attempts += 1
     if attempts >= 5:
@@ -335,8 +287,8 @@ def admin_check():
 
 # ==================== 管理后台 CRUD ====================
 
-ADMIN_TABLES = ['heroes', 'resources', 'guides', 'maps', 'codes', 'quickref']
-JSON_FIELDS = ['tags', 'stats', 'skills', 'items']
+ADMIN_TABLES = ['pvp_guides', 'explore_guides', 'codes', 'quickref']
+JSON_FIELDS = ['tags', 'items']
 
 @app.route('/api/admin/<table>', methods=['POST'])
 @login_required
@@ -354,6 +306,7 @@ def admin_create(table):
     vals = [data[k] for k in columns]
     cur = db.execute(f"INSERT INTO {table} ({cols_sql}) VALUES ({placeholders})", vals)
     db.commit()
+    op_log('create', f'{table}: {data.get("title", data.get("code", data.get("name", "")))}')
     return jsonify({'success': True, 'id': cur.lastrowid})
 
 @app.route('/api/admin/<table>/<int:id>', methods=['PUT'])
@@ -370,6 +323,7 @@ def admin_update(table, id):
     vals = list(data.values())
     db.execute(f"UPDATE {table} SET {sets} WHERE id=?", vals + [id])
     db.commit()
+    op_log('update', f'{table} id={id}')
     return jsonify({'success': True})
 
 @app.route('/api/admin/<table>/<int:id>', methods=['DELETE'])
@@ -380,31 +334,26 @@ def admin_delete(table, id):
     db = get_db()
     db.execute(f"DELETE FROM {table} WHERE id=?", [id])
     db.commit()
+    op_log('delete', f'{table} id={id}')
     return jsonify({'success': True})
 
 # ==================== 批量导入 ====================
 
 IMPORT_FIELDS = {
-    'heroes': ['name', 'subtitle', 'icon', 'rarity', 'badge', 'description', 'image_url', 'tags', 'stats', 'skills', 'sort_order'],
-    'resources': ['name', 'description', 'icon', 'rarity', 'category', 'tags', 'details', 'sort_order'],
-    'guides': ['title', 'description', 'content', 'icon', 'category', 'tags', 'badge', 'sort_order'],
-    'maps': ['name', 'description', 'content', 'icon', 'tags', 'sort_order'],
+    'pvp_guides': ['title', 'description', 'content', 'icon', 'category', 'tags', 'badge', 'video_url', 'sort_order'],
+    'explore_guides': ['title', 'description', 'content', 'icon', 'category', 'tags', 'badge', 'video_url', 'sort_order'],
     'codes': ['code', 'description', 'reward', 'expiry', 'is_active', 'sort_order'],
     'quickref': ['title', 'icon', 'items', 'sort_order'],
 }
 
 TEMPLATE_EXAMPLES = {
-    'heroes': ['赵云', '龙胆将军', '🗡️', 'SSR', 'new', '常山赵子龙，枪出如龙。', '', '战士|突进|爆发', '生命:A+|攻击:S|防御:B|速度:S|难度:A', '龙胆::被动描述|惊雷之龙::向前突刺', '0'],
-    'resources': ['金币', '通用货币，可用于购买英雄和基础装备', '🪙', 'R', 'currency', '货币|通用', '获取途径：日常任务、对战奖励', '0'],
-    'guides': ['新手入门指南', '从零开始的王者之旅', '<h3>内容</h3>', '📖', 'beginner', '新手|入门|必读', '', '0'],
-    'maps': ['王者峡谷', '最经典的5v5对战地图', '<h3>地图详情</h3>', '🗺️', 'PVP|经典', '0'],
-    'codes': ['WZRY2025', '周年庆礼包', '金币*500', '2025-12-31', '1', '0'],
-    'quickref': ['日常必做', '📋', '完成日常任务|刷副本|公会签到', '0'],
+    'pvp_guides': ['攻略标题', '简介描述', '<h3>内容</h3>', '⚔️', 'general', 'PVP|技巧', '', '', '0'],
+    'explore_guides': ['探索标题', '简介描述', '<h3>内容</h3>', '🗺️', 'map', '探索|收集', '', '', '0'],
+    'codes': ['CODE123', '兑换码描述', '奖励内容', '2026-12-31', '1', '0'],
+    'quickref': ['速查标题', '📋', '条目1|条目2|条目3', '0'],
 }
 
 JSON_ARRAYS = ['tags', 'items']
-JSON_OBJECTS = ['stats']
-JSON_SKILLS = ['skills']
 
 @app.route('/api/admin/template/<table>')
 @login_required
@@ -434,7 +383,6 @@ def admin_import():
     file = request.files['file']
     if file.filename == '':
         return jsonify({'error': 'No file'}), 400
-
     try:
         content = file.read().decode('utf-8-sig')
         reader = csv.DictReader(io.StringIO(content))
@@ -452,33 +400,15 @@ def admin_import():
                 val = (row.get(field, '') or '').strip()
                 if field in JSON_ARRAYS:
                     val = json.dumps([v.strip() for v in val.split('|') if v.strip()], ensure_ascii=False) if val else '[]'
-                elif field in JSON_OBJECTS:
-                    obj = {}
-                    for pair in val.split(';'):
-                        pair = pair.strip()
-                        if ':' in pair:
-                            k, v = pair.split(':', 1)
-                            obj[k.strip()] = v.strip()
-                    val = json.dumps(obj, ensure_ascii=False) if obj else '{}'
-                elif field in JSON_SKILLS:
-                    arr = []
-                    for item in val.split('|'):
-                        item = item.strip()
-                        if '::' in item:
-                            name, desc = item.split('::', 1)
-                            arr.append({'name': name.strip(), 'desc': desc.strip()})
-                    val = json.dumps(arr, ensure_ascii=False) if arr else '[]'
                 elif field in ('sort_order', 'is_active'):
                     val = int(val) if val else 0
                 data[field] = val
-
             cols = ','.join(data.keys())
             placeholders = ','.join(['?'] * len(data))
             db.execute(f"INSERT INTO {table} ({cols}) VALUES ({placeholders})", list(data.values()))
             success += 1
         except Exception as e:
             errors.append(f'第{i+1}行: {str(e)}')
-
     db.commit()
     return jsonify({'success': True, 'inserted': success, 'errors': errors})
 
@@ -498,12 +428,13 @@ def admin_batch_delete():
     ph = ','.join(['?'] * len(ids))
     db.execute(f"DELETE FROM {table} WHERE id IN ({ph})", ids)
     db.commit()
+    op_log('batch_delete', f'{table} ({len(ids)}条)')
     return jsonify({'success': True, 'deleted': len(ids)})
 
 # ==================== 文件上传 / 媒体库 ====================
 
 UPLOAD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
-ALLOWED_TYPES = {'png','jpg','jpeg','gif','webp','svg','mp4','webm','mov','mp3','wav'}
+ALLOWED_TYPES = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'mp4', 'webm', 'mov', 'mp3', 'wav'}
 
 def ensure_upload_dir():
     os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -538,7 +469,7 @@ def admin_media():
                 'filename': f,
                 'url': f'/uploads/{f}',
                 'size': os.path.getsize(fp),
-                'type': 'video' if ext in ('mp4','webm','mov') else 'image'
+                'type': 'video' if ext in ('mp4', 'webm', 'mov') else 'image'
             })
     return jsonify(files)
 
@@ -576,7 +507,6 @@ def admin_import_data():
         backup = json.loads(file.read().decode('utf-8'))
     except Exception as e:
         return jsonify({'error': f'JSON解析失败: {str(e)}'}), 400
-
     db = get_db()
     restored = 0
     for table, rows in backup.items():
@@ -628,11 +558,9 @@ def admin_duplicate(table, id):
     if not row:
         return jsonify({'error': 'Not found'}), 404
     item = dict(row)
-    # 去掉 id 和 created_at
     item.pop('id', None)
     item.pop('created_at', None)
-    # 名称加副本后缀
-    for name_field in ['name', 'title', 'code']:
+    for name_field in ['title', 'code']:
         if name_field in item and item[name_field]:
             item[name_field] = str(item[name_field]) + ' (副本)'
             break
@@ -653,7 +581,7 @@ def admin_batch_sort(table):
     if table not in ADMIN_TABLES:
         return jsonify({'error': 'Invalid table'}), 400
     data = request.get_json()
-    items = data.get('items', [])  # [{id: 1, sort_order: 0}, ...]
+    items = data.get('items', [])
     db = get_db()
     for item in items:
         db.execute(f"UPDATE {table} SET sort_order=? WHERE id=?", [item['sort_order'], item['id']])
@@ -682,7 +610,6 @@ def admin_toggle_top(table, id):
 
 @app.route('/')
 def index():
-    # 前台页面在 GitHub Pages，这里可选跳转
     return '<h2>API 服务运行中</h2><p>前台页面请访问 GitHub Pages。后台管理：<a href="/admin">/admin</a></p>'
 
 @app.route('/admin')
@@ -692,7 +619,6 @@ def admin():
 
 # ==================== 启动 ====================
 
-# 模块加载时初始化数据库（本地和 Render 都会执行）
 init_db()
 
 if __name__ == '__main__':
@@ -701,6 +627,5 @@ if __name__ == '__main__':
     print(f"  后台: http://localhost:5000/admin")
     print(f"  账号: {ADMIN_USERNAME}")
     print("=" * 50)
-    # Render 用 gunicorn app:app，本地用 Flask 内置服务器
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=False)

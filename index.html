@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>王者荣耀世界 - 攻略站</title>
+    <title>王者荣耀世界 - PVP攻略站</title>
     <style>
         :root {
             --bg: #0c0f17;
@@ -17,9 +17,8 @@
             --cyan2: #26a5da;
             --gold: #c88a2c;
             --gold2: #e2a834;
-            --purple: #7b1fa2;
-            --purple2: #9c27b0;
-            --blue2: #1565c0;
+            --green: #2e7d32;
+            --green2: #43a047;
             --border: rgba(136,146,164,0.12);
             --radius: 0.5rem;
         }
@@ -41,10 +40,7 @@
             display:flex; justify-content:space-between; align-items:center;
             flex-wrap:wrap; gap:0.75rem;
         }
-        .logo {
-            font-size:1.15rem; font-weight:700; color:var(--red2);
-            display:flex; align-items:center; gap:0.5rem;
-        }
+        .logo { font-size:1.15rem; font-weight:700; color:var(--red2); display:flex; align-items:center; gap:0.5rem; }
         .logo i { font-style:normal; font-size:1.3rem; }
         .header-nav { display:flex; gap:0.15rem; flex-wrap:wrap; }
         .header-nav a {
@@ -53,16 +49,13 @@
             font-weight:500; transition:0.15s;
         }
         .header-nav a:hover { color:var(--text); background:var(--card2); }
-        .header-nav a.active {
-            color:var(--red2); background:rgba(198,40,40,0.08);
-        }
+        .header-nav a.active { color:var(--red2); background:rgba(198,40,40,0.08); }
         .header-actions { display:flex; gap:0.35rem; align-items:center; }
         .btn-icon {
             width:34px; height:34px; border-radius:0.35rem;
             border:1px solid var(--border); background:var(--card);
             color:var(--text2); cursor:pointer; font-size:1rem;
-            display:flex; align-items:center; justify-content:center;
-            transition:0.15s;
+            display:flex; align-items:center; justify-content:center; transition:0.15s;
         }
         .btn-icon:hover { color:var(--red2); border-color:var(--red); }
         .hamburger {
@@ -74,53 +67,44 @@
         .hamburger:hover { border-color:var(--red); color:var(--red2); }
 
         /* Hero Banner */
-        .hero-banner {
-            max-width:1280px; margin:1.5rem auto; padding:0 1.5rem;
-        }
+        .hero-banner { max-width:1280px; margin:1.5rem auto; padding:0 1.5rem; }
         .hero-slider {
             background: linear-gradient(135deg, #1a1520 0%, #141824 50%, #0f1a25 100%);
-            border:1px solid var(--border); border-radius:0.6rem;
-            overflow:hidden; position:relative;
+            border:1px solid var(--border); border-radius:0.6rem; overflow:hidden; position:relative;
         }
         .hero-slide {
-            display:none; padding:2rem 2.5rem; align-items:center; gap:2rem;
-            min-height:220px;
+            display:none; padding:2rem 2.5rem; align-items:center; gap:2rem; min-height:200px;
         }
         .hero-slide.active { display:flex; }
         .hero-slide .hero-avatar {
-            width:120px; height:120px; border-radius:0.5rem;
+            width:110px; height:110px; border-radius:0.5rem;
             background:var(--card2); display:flex; align-items:center;
-            justify-content:center; font-size:3.5rem; flex-shrink:0;
-            border:2px solid var(--border);
+            justify-content:center; font-size:3rem; flex-shrink:0; border:2px solid var(--border);
         }
-        .hero-slide .hero-info h2 { font-size:1.4rem; font-weight:700; margin-bottom:0.4rem; }
-        .hero-slide .hero-info .sub { color:var(--text2); font-size:0.9rem; margin-bottom:0.6rem; }
+        .hero-slide .hero-info h2 { font-size:1.3rem; font-weight:700; margin-bottom:0.35rem; }
+        .hero-slide .hero-info .sub { color:var(--text2); font-size:0.88rem; margin-bottom:0.5rem; }
         .hero-slide .hero-info .desc { color:var(--text2); font-size:0.85rem; line-height:1.7; }
         .hero-slide .hero-tags { display:flex; gap:0.35rem; margin-top:0.75rem; flex-wrap:wrap; }
         .hero-tag {
             padding:0.2rem 0.6rem; border-radius:0.25rem; font-size:0.75rem;
-            font-weight:600; border:1px solid;
+            font-weight:600; border:1px solid; color:var(--red2);
+            border-color:rgba(198,40,40,0.3); background:rgba(198,40,40,0.08);
         }
-        .hero-tag.ssr { color:var(--gold2); border-color:rgba(200,138,44,0.3); background:rgba(200,138,44,0.08); }
-        .hero-tag.sr { color:var(--purple2); border-color:rgba(156,39,176,0.25); background:rgba(156,39,176,0.06); }
         .hero-dots { display:flex; gap:0.4rem; justify-content:center; padding:0.75rem; }
         .hero-dot { width:8px; height:8px; border-radius:50%; background:var(--border); cursor:pointer; transition:0.2s; }
         .hero-dot.active { background:var(--red2); width:20px; border-radius:4px; }
 
         @media (max-width:768px) {
             .hero-slide { flex-direction:column; text-align:center; padding:1.5rem; }
-            .hero-slide .hero-avatar { width:90px; height:90px; font-size:2.5rem; }
+            .hero-slide .hero-avatar { width:80px; height:80px; font-size:2.2rem; }
         }
 
         /* Code Banner */
-        .code-banner {
-            max-width:1280px; margin:0 auto 1.5rem; padding:0 1.5rem;
-        }
+        .code-banner { max-width:1280px; margin:0 auto 1.5rem; padding:0 1.5rem; }
         .code-banner-inner {
             background: linear-gradient(135deg, rgba(198,40,40,0.12) 0%, rgba(26,143,196,0.08) 100%);
             border:1px solid rgba(198,40,40,0.2); border-radius:0.6rem;
-            padding:1.25rem 1.5rem; display:flex; align-items:center; gap:1.5rem;
-            flex-wrap:wrap;
+            padding:1.25rem 1.5rem; display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap;
         }
         .code-banner-inner .cb-icon { font-size:2rem; flex-shrink:0; }
         .code-banner-inner .cb-info { flex:1; min-width:200px; }
@@ -129,15 +113,13 @@
         .code-tag {
             background:rgba(198,40,40,0.15); border:1px solid rgba(198,40,40,0.3);
             padding:0.35rem 0.8rem; border-radius:0.3rem; font-family:monospace;
-            font-size:0.9rem; color:var(--red2); cursor:pointer; transition:0.15s;
-            font-weight:600; letter-spacing:0.03em;
+            font-size:0.9rem; color:var(--red2); cursor:pointer; transition:0.15s; font-weight:600;
         }
         .code-tag:hover { background:rgba(198,40,40,0.25); }
-        .code-tag .reward { display:block; font-size:0.7rem; color:var(--text2); font-weight:400; margin-top:0.1rem; font-family:inherit; letter-spacing:0; }
+        .code-tag .reward { display:block; font-size:0.7rem; color:var(--text2); font-weight:400; margin-top:0.1rem; font-family:inherit; }
         .cb-copied { position:fixed; top:1rem; left:50%; transform:translateX(-50%);
-            background:var(--success); color:#fff; padding:0.5rem 1.5rem; border-radius:0.35rem;
-            font-size:0.85rem; z-index:999; pointer-events:none; transition:0.3s; opacity:0;
-        }
+            background:var(--green); color:#fff; padding:0.5rem 1.5rem; border-radius:0.35rem;
+            font-size:0.85rem; z-index:999; pointer-events:none; transition:0.3s; opacity:0; }
 
         /* Search */
         .search-wrap { max-width:1280px; margin:0 auto 1rem; padding:0 1.5rem; }
@@ -149,7 +131,7 @@
             outline:none; transition:border-color 0.2s;
         }
         .search-input:focus { border-color:var(--cyan); }
-        .search-icon { position:absolute; left:0.85rem; top:50%; transform:translateY(-50%); color:var(--text2); font-size:0.95rem; }
+        .search-icon { position:absolute; left:0.85rem; top:50%; transform:translateY(-50%); color:var(--text2); }
 
         /* Filters */
         .filter-wrap {
@@ -167,10 +149,7 @@
 
         /* Main Content */
         .main-content { max-width:1280px; margin:0 auto 3rem; padding:0 1.5rem; }
-        .section-header {
-            display:flex; justify-content:space-between; align-items:baseline;
-            margin-bottom:1.25rem;
-        }
+        .section-header { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:1.25rem; }
         .section-title { font-size:1.15rem; font-weight:700; color:var(--text); }
         .section-count { color:var(--text2); font-size:0.82rem; }
 
@@ -187,6 +166,17 @@
         .hscroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
         .hscroll .card { min-width:300px; scroll-snap-align:start; }
 
+        /* Section tabs on home */
+        .home-sections { max-width:1280px; margin:0 auto; padding:0 1.5rem; }
+        .home-section-tabs { display:flex; gap:0.15rem; margin-bottom:1.25rem; }
+        .home-section-tab {
+            padding:0.55rem 1.4rem; border-radius:0.35rem 0.35rem 0 0; cursor:pointer;
+            color:var(--text2); font-size:0.95rem; font-weight:600;
+            border-bottom:2px solid transparent; transition:0.15s;
+        }
+        .home-section-tab:hover { color:var(--text); }
+        .home-section-tab.active { color:var(--red2); border-bottom-color:var(--red2); }
+
         /* Card */
         .card {
             background:var(--card); border:1px solid var(--border);
@@ -194,29 +184,24 @@
             overflow:hidden; display:flex; flex-direction:column;
         }
         .card:hover { transform:translateY(-2px); border-color:rgba(136,146,164,0.25); }
-        .card.rarity-ssr { border-color:rgba(200,138,44,0.2); }
-        .card.rarity-ssr:hover { border-color:rgba(200,138,44,0.4); }
-        .card.rarity-sr { border-color:rgba(156,39,176,0.18); }
-        .card.rarity-sr:hover { border-color:rgba(156,39,176,0.35); }
         .card-img {
             height:160px; background:var(--card2);
             display:flex; align-items:center; justify-content:center;
             font-size:3rem; position:relative; overflow:hidden;
         }
         .card-img img { width:100%; height:100%; object-fit:cover; }
+        .card-img video { width:100%; height:100%; object-fit:cover; }
         .card-badge {
             position:absolute; top:0.5rem; right:0.5rem; padding:0.2rem 0.5rem;
             border-radius:0.25rem; font-size:0.7rem; font-weight:700; z-index:2;
         }
-        .badge-new { background:var(--success); color:#fff; }
+        .badge-new { background:var(--green); color:#fff; }
         .badge-hot { background:var(--red); color:#fff; }
-        .card-rarelabel {
-            position:absolute; top:0.5rem; left:0.5rem; padding:0.2rem 0.5rem;
-            border-radius:0.25rem; font-size:0.7rem; font-weight:700; z-index:2;
+        .badge-vid {
+            position:absolute; bottom:0.5rem; right:0.5rem; padding:0.2rem 0.45rem;
+            border-radius:0.25rem; font-size:0.7rem; font-weight:600; z-index:2;
+            background:rgba(0,0,0,0.7); color:#fff;
         }
-        .rarelabel-ssr { background:rgba(200,138,44,0.85); color:#000; }
-        .rarelabel-sr { background:rgba(156,39,176,0.85); color:#fff; }
-        .rarelabel-r { background:rgba(26,143,196,0.85); color:#fff; }
         .card-body { padding:1rem 1.25rem 1.25rem; flex:1; display:flex; flex-direction:column; }
         .card-title {
             font-size:1rem; font-weight:700; margin-bottom:0.35rem;
@@ -235,10 +220,9 @@
             font-size:0.72rem; font-weight:500; border:1px solid rgba(26,143,196,0.15);
         }
         .card-desc { color:var(--text2); font-size:0.84rem; line-height:1.55; margin-top:auto;
-            display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
-        }
+            display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
 
-        /* Quick Ref Accordion */
+        /* Accordion */
         .accordion { display:flex; flex-direction:column; gap:0.6rem; }
         .accordion-item {
             background:var(--card); border:1px solid var(--border);
@@ -261,7 +245,7 @@
         }
         .accordion-body li:last-child { border-bottom:none; }
 
-        /* Detail Modal */
+        /* Modal */
         .modal-overlay {
             position:fixed; top:0;left:0;right:0;bottom:0;
             background:rgba(0,0,0,0.6); display:none;
@@ -270,7 +254,7 @@
         .modal-overlay.active { display:flex; }
         .modal {
             background:var(--card); border-radius:0.6rem; border:1px solid var(--border);
-            max-width:750px; width:100%; max-height:85vh; overflow-y:auto;
+            max-width:800px; width:100%; max-height:85vh; overflow-y:auto;
             box-shadow:0 20px 60px rgba(0,0,0,0.5);
         }
         .modal-header {
@@ -279,7 +263,7 @@
             position:sticky; top:0; background:var(--card); z-index:10;
             border-radius:0.6rem 0.6rem 0 0;
         }
-        .modal-header h3 { font-size:1.2rem; font-weight:700; }
+        .modal-header h3 { font-size:1.1rem; font-weight:700; }
         .modal-close {
             background:none; border:none; color:var(--text2); font-size:1.3rem;
             cursor:pointer; width:32px; height:32px; border-radius:0.35rem;
@@ -288,31 +272,22 @@
         .modal-close:hover { background:var(--card2); color:var(--red2); }
         .modal-actions { display:flex; gap:0.4rem; }
         .modal-body { padding:1.5rem; }
-        .modal-section { margin-bottom:1.5rem; }
-        .modal-section:last-child { margin-bottom:0; }
-        .modal-section h4 {
-            font-size:0.9rem; font-weight:700; color:var(--cyan2);
-            margin-bottom:0.75rem; padding-bottom:0.35rem;
-            border-bottom:1px solid var(--border);
+        .modal-video-wrap {
+            position:relative; padding-bottom:56.25%; height:0; overflow:hidden;
+            border-radius:0.4rem; margin-bottom:1.25rem; background:#000;
         }
-        .modal-section p { color:var(--text2); line-height:1.8; font-size:0.9rem; }
-        .modal-section p strong { color:var(--text); font-weight:600; }
-        .stat-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(100px,1fr)); gap:0.6rem; }
-        .stat-item { background:var(--bg); padding:0.75rem; border-radius:0.4rem; text-align:center; border:1px solid var(--border); }
-        .stat-val { font-size:1.3rem; font-weight:700; color:var(--cyan2); }
-        .stat-label { font-size:0.72rem; color:var(--text2); margin-top:0.15rem; }
-        .stat-bar { height:3px; background:var(--border); border-radius:2px; margin-top:0.35rem; overflow:hidden; }
-        .stat-bar-fill { height:100%; border-radius:2px; background:var(--cyan); }
-        .skill-item {
-            background:var(--bg); border-radius:0.4rem; padding:0.75rem 1rem;
-            margin-bottom:0.5rem; border:1px solid var(--border);
+        .modal-video-wrap iframe {
+            position:absolute; top:0; left:0; width:100%; height:100%; border:0;
         }
-        .skill-name { font-weight:700; color:var(--cyan2); font-size:0.88rem; margin-bottom:0.2rem; }
-        .skill-desc { color:var(--text2); font-size:0.83rem; line-height:1.55; }
-        .guide-content h3 { color:var(--text); font-size:1rem; margin:1.25rem 0 0.6rem; font-weight:700; }
+        .modal-video-wrap video {
+            position:absolute; top:0; left:0; width:100%; height:100%;
+        }
+        .guide-content { color:var(--text2); line-height:1.8; font-size:0.9rem; }
+        .guide-content h3 { color:var(--text); font-size:1.05rem; margin:1.25rem 0 0.6rem; font-weight:700; }
+        .guide-content h3:first-child { margin-top:0; }
         .guide-content p { margin-bottom:0.6rem; }
         .guide-content strong { color:var(--text); }
-        .guide-content ul { margin:0.4rem 0 0.4rem 1.5rem; color:var(--text2); }
+        .guide-content ul { margin:0.4rem 0 0.4rem 1.5rem; }
         .guide-content li { margin-bottom:0.3rem; }
         .empty-state { text-align:center; padding:4rem 2rem; color:var(--text2); }
         .empty-state .icon { font-size:3rem; margin-bottom:1rem; opacity:0.5; }
@@ -364,25 +339,24 @@
             .header-nav.open { display:flex; }
             .header-nav a { padding:0.6rem 0.75rem; }
             .grid { grid-template-columns:1fr; gap:0.75rem; }
-            .hero-banner, .code-banner, .search-wrap, .filter-wrap, .main-content { padding:0 1rem; }
+            .hero-banner, .code-banner, .search-wrap, .filter-wrap, .main-content, .home-sections { padding:0 1rem; }
             .sidebar { width:100%; right:-100%; }
             .modal-body { padding:1rem; }
             .hscroll .card { min-width:260px; }
+            .home-section-tab { font-size:0.85rem; padding:0.45rem 1rem; }
         }
     </style>
 </head>
 <body>
     <header class="header">
         <div class="header-inner">
-            <div class="logo"><i>⚔</i> 王者荣耀世界攻略站</div>
+            <div class="logo"><i>⚔</i> 王者荣耀世界 · PVP攻略站</div>
             <button class="hamburger" id="hamburgerBtn" aria-label="菜单">☰</button>
             <nav class="header-nav" id="headerNav">
                 <a data-tab="home" class="active">首页</a>
-                <a data-tab="heroes">英雄图鉴</a>
-                <a data-tab="resources">养成资源</a>
-                <a data-tab="guides">攻略文章</a>
-                <a data-tab="maps">地图探索</a>
-                <a data-tab="quickref">解密速查</a>
+                <a data-tab="pvp">PVP攻略</a>
+                <a data-tab="explore">探索攻略</a>
+                <a data-tab="quickref">速查</a>
             </nav>
             <div class="header-actions">
                 <button class="btn-icon" id="favBtn" title="收藏夹">★</button>
@@ -390,16 +364,22 @@
         </div>
     </header>
 
-    <!-- Home page sections: banner + codes + hot guides -->
+    <!-- Home -->
     <div class="page-section active" id="pageHome">
         <div class="hero-banner">
             <div class="hero-slider" id="heroSlider"></div>
             <div class="hero-dots" id="heroDots"></div>
         </div>
         <div class="code-banner" id="codeBannerSection"></div>
-        <div class="main-content hscroll-wrap" id="hotGuidesSection">
-            <div class="section-header"><h2 class="section-title">热门攻略</h2></div>
-            <div class="hscroll" id="hotGuidesScroll"></div>
+        <div class="home-sections">
+            <div class="home-section-tabs" id="homeSectionTabs">
+                <span class="home-section-tab active" data-hometab="pvp">PVP热门</span>
+                <span class="home-section-tab" data-hometab="explore">探索热门</span>
+            </div>
+            <div class="section-header">
+                <h2 class="section-title" id="homeSectionTitle">PVP热门攻略</h2>
+            </div>
+            <div class="grid" id="homeGrid"></div>
         </div>
     </div>
 
@@ -408,7 +388,7 @@
         <div class="search-wrap">
             <div class="search-box">
                 <span class="search-icon">🔍</span>
-                <input type="text" class="search-input" id="searchInput" placeholder="搜索...">
+                <input type="text" class="search-input" id="searchInput" placeholder="搜索攻略...">
             </div>
         </div>
         <div class="filter-wrap" id="filterSection"></div>
@@ -421,10 +401,10 @@
         </main>
     </div>
 
-    <!-- QuickRef page -->
+    <!-- QuickRef -->
     <div class="page-section" id="pageQuickRef">
         <main class="main-content">
-            <div class="section-header"><h2 class="section-title">解密速查</h2></div>
+            <div class="section-header"><h2 class="section-title">速查手册</h2></div>
             <div class="accordion" id="quickRefAccordion"></div>
         </main>
     </div>
@@ -445,7 +425,7 @@
     </div>
 
     <!-- Copied toast -->
-    <div class="cb-copied" id="copiedToast">已复制到剪贴板</div>
+    <div class="cb-copied" id="copiedToast">已复制</div>
 
     <!-- Favorites Sidebar -->
     <div class="overlay" id="favoritesOverlay"></div>
@@ -459,12 +439,13 @@
 
     <script>
         const API = 'https://wzrysjglz.onrender.com/api/data';
-        const LS_FAV = 'wzry_favs';
+        const LS_FAV = 'wzry_favs_v2';
         let dataCache = {};
         let currentTab = 'home';
         let currentFilter = 'all';
         let searchQuery = '';
         let heroBannerTimer = null;
+        let homeCurrentTab = 'pvp';
 
         function getFavorites() {
             try { return JSON.parse(localStorage.getItem(LS_FAV) || '[]'); } catch { return []; }
@@ -490,17 +471,23 @@
             } catch(e) { return []; }
         }
 
+        function getApiTable(tab) {
+            if (tab === 'pvp') return 'pvp_guides';
+            if (tab === 'explore') return 'explore_guides';
+            if (tab === 'quickref') return 'quickref';
+            return tab;
+        }
+
         function switchTab(tab) {
             currentTab = tab;
             currentFilter = 'all';
             searchQuery = '';
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput) searchInput.value = '';
+            const si = document.getElementById('searchInput');
+            if (si) si.value = '';
             document.querySelectorAll('.header-nav a').forEach(a => a.classList.remove('active'));
             const navLink = document.querySelector(`.header-nav a[data-tab="${tab}"]`);
             if (navLink) navLink.classList.add('active');
 
-            // Show/hide page sections
             document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
 
             if (tab === 'home') {
@@ -508,10 +495,10 @@
                 loadHomePage();
             } else if (tab === 'quickref') {
                 document.getElementById('pageQuickRef').classList.add('active');
-                loadData(tab).then(renderQuickRef);
+                loadData('quickref').then(renderQuickRef);
             } else {
                 document.getElementById('pageList').classList.add('active');
-                loadData(tab).then(() => {
+                loadData(getApiTable(tab)).then(() => {
                     renderSectionTitle();
                     renderFilters();
                     renderCards();
@@ -521,39 +508,37 @@
 
         // ========== Home Page ==========
         async function loadHomePage() {
-            const heroes = await loadData('heroes');
-            renderHeroBanner(heroes);
+            const pvp = await loadData('pvp_guides');
+            renderHeroBanner(pvp);
             const codes = await loadData('codes');
             renderCodeBanner(codes);
-            const guides = await loadData('guides');
-            renderHotGuides(guides);
+            const explore = await loadData('explore_guides');
+            renderHomeGrid(pvp, explore);
+            bindHomeTabs(pvp, explore);
         }
 
-        function renderHeroBanner(heroes) {
+        function renderHeroBanner(guides) {
             const slider = document.getElementById('heroSlider');
             const dots = document.getElementById('heroDots');
-            const featured = heroes.filter(h => h.badge === 'hot' || h.badge === 'new').slice(0, 3);
+            const featured = guides.filter(g => g.badge === 'hot' || g.badge === 'new').slice(0, 4);
             if (!featured.length) {
                 document.querySelector('.hero-banner').style.display = 'none';
                 return;
             }
-
             if (heroBannerTimer) clearInterval(heroBannerTimer);
-
             let currentIdx = 0;
             const show = (idx) => {
                 currentIdx = idx;
-                const h = featured[idx];
-                const rarity = (h.rarity || '').toUpperCase();
-                const tags = Array.isArray(h.tags) ? h.tags : [];
+                const g = featured[idx];
+                const tags = Array.isArray(g.tags) ? g.tags : [];
                 slider.innerHTML = `
                     <div class="hero-slide active">
-                        <div class="hero-avatar">${h.icon || '🗡️'}</div>
+                        <div class="hero-avatar">${g.icon || '⚔️'}</div>
                         <div class="hero-info">
-                            <h2>${h.name}${h.subtitle ? ' · ' + h.subtitle : ''}</h2>
-                            <p class="sub">${rarity} 级英雄</p>
-                            <p class="desc">${h.description || ''}</p>
-                            <div class="hero-tags">${tags.map(t => `<span class="hero-tag ${rarity === 'SSR' ? 'ssr' : rarity === 'SR' ? 'sr' : ''}">${t}</span>`).join('')}</div>
+                            <h2>${g.title}${g.badge === 'new' ? ' <small style="color:var(--green2);">NEW</small>' : g.badge === 'hot' ? ' <small style="color:var(--red2);">HOT</small>' : ''}</h2>
+                            <p class="sub">${g.category === '1v1' ? '1v1竞技' : g.category === '4v4' ? '4v4团队' : g.category === 'general' ? '通用技巧' : g.category}</p>
+                            <p class="desc">${g.description || ''}</p>
+                            <div class="hero-tags">${tags.map(t => `<span class="hero-tag">${t}</span>`).join('')}</div>
                         </div>
                     </div>`;
                 dots.innerHTML = featured.map((_, i) => `<span class="hero-dot${i === idx ? ' active' : ''}" data-idx="${i}"></span>`).join('');
@@ -586,32 +571,81 @@
                 </div>`;
         }
 
-        function renderHotGuides(guides) {
-            const hot = guides.filter(g => g.badge === 'hot' || g.badge === 'new').slice(0, 8);
-            if (!hot.length) { document.getElementById('hotGuidesSection').style.display = 'none'; return; }
-            const scroll = document.getElementById('hotGuidesScroll');
-            scroll.innerHTML = hot.map(g => {
-                const tags = Array.isArray(g.tags) ? g.tags : [];
-                const badge = g.badge === 'new' ? '<span class="card-badge badge-new">最新</span>' :
-                              g.badge === 'hot' ? '<span class="card-badge badge-hot">热门</span>' : '';
-                return `<div class="card" onclick="openModalById('guides', ${g.id})">
-                    <div class="card-img">${badge}${g.icon || '📖'}</div>
-                    <div class="card-body">
-                        <div class="card-title">${g.title}</div>
-                        ${tags.length ? `<div class="card-tags">${tags.map(t => `<span class="card-tag">${t}</span>`).join('')}</div>` : ''}
-                        <div class="card-desc">${g.description || ''}</div>
+        function renderHomeGrid(pvp, explore) {
+            const grid = document.getElementById('homeGrid');
+            const data = homeCurrentTab === 'pvp' ? pvp : explore;
+            document.getElementById('homeSectionTitle').textContent = homeCurrentTab === 'pvp' ? 'PVP热门攻略' : '探索热门攻略';
+            const items = data.filter(g => g.badge === 'hot' || g.badge === 'new').slice(0, 6);
+            if (!items.length) {
+                grid.innerHTML = '<div class="empty-state"><div class="icon">📖</div><p>暂无内容</p></div>';
+                return;
+            }
+            grid.innerHTML = items.map(g => renderCard(g, 'pvp_guides')).join('');
+        }
+
+        function bindHomeTabs(pvp, explore) {
+            document.getElementById('homeSectionTabs').addEventListener('click', e => {
+                const tab = e.target.closest('.home-section-tab');
+                if (!tab) return;
+                homeCurrentTab = tab.dataset.hometab;
+                document.querySelectorAll('.home-section-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                renderHomeGrid(pvp, explore);
+            });
+        }
+
+        function renderCard(item, apiTable) {
+            const id = item.id;
+            const name = item.title || item.name || item.code || '';
+            const badge = (item.badge || '').toLowerCase();
+            const desc = item.description || '';
+            const tags = Array.isArray(item.tags) ? item.tags : [];
+            const catLabel = item.category || '';
+            const imageUrl = item.image_url || '';
+            const videoUrl = item.video_url || '';
+            const isFav = isFavorited(id, apiTable);
+
+            let badgeHtml = '';
+            if (badge === 'new') badgeHtml = '<span class="card-badge badge-new">最新</span>';
+            else if (badge === 'hot') badgeHtml = '<span class="card-badge badge-hot">热门</span>';
+
+            let vidBadge = '';
+            if (videoUrl) vidBadge = '<span class="badge-vid">▶ 视频</span>';
+
+            const imageHtml = imageUrl ? `<img src="${imageUrl}" alt="${name}" loading="lazy">` : '';
+            const iconHtml = !imageUrl ? item.icon || '📖' : '';
+
+            return `<div class="card" data-id="${id}" data-tab="${apiTable}">
+                <div class="card-img">${badgeHtml}${vidBadge}${imageHtml}${iconHtml}</div>
+                <div class="card-body">
+                    <div class="card-title">
+                        <span>${name}</span>
+                        <button class="card-fav${isFav ? ' active' : ''}" data-id="${id}" data-tab="${apiTable}" onclick="event.stopPropagation();toggleFavCard(this, '${apiTable}', ${id})">${isFav ? '♥' : '☆'}</button>
                     </div>
-                </div>`;
-            }).join('');
+                    ${catLabel ? `<div class="card-meta">${catLabel === '1v1' ? '1v1竞技' : catLabel === '4v4' ? '4v4团队' : catLabel === 'general' ? '通用技巧' : catLabel === 'map' ? '地图探索' : catLabel === 'boss' ? 'BOSS攻略' : catLabel === 'collection' ? '收集养成' : catLabel}</div>` : ''}
+                    ${tags.length ? `<div class="card-tags">${tags.slice(0,3).map(t => `<span class="card-tag">${t}</span>`).join('')}</div>` : ''}
+                    <div class="card-desc">${desc}</div>
+                </div>
+            </div>`;
+        }
+
+        function toggleFavCard(el, tab, id) {
+            toggleFavorite(id, tab);
+            const isFav = isFavorited(id, tab);
+            el.textContent = isFav ? '♥' : '☆';
+            el.classList.toggle('active', isFav);
         }
 
         // ========== List Pages ==========
-        const TAB_TITLES = { heroes:'英雄图鉴', resources:'养成资源', guides:'攻略文章', maps:'地图探索' };
+        const TAB_TITLES = { pvp:'PVP攻略', explore:'探索攻略' };
+        const TAB_API = { pvp:'pvp_guides', explore:'explore_guides' };
         const TAB_FILTERS = {
-            heroes: ['战士','法师','射手','辅助','刺客','坦克'],
-            resources: ['currency','material','other'],
-            guides: ['beginner','hero','resource','advance','general'],
-            maps: ['PVP','攻城','经典']
+            pvp: ['1v1','4v4','general'],
+            explore: ['map','boss','collection']
+        };
+        const FILTER_LABELS = {
+            pvp: { '1v1':'1v1竞技', '4v4':'4v4团队', 'general':'通用技巧' },
+            explore: { 'map':'地图探索', 'boss':'BOSS攻略', 'collection':'收集养成' }
         };
 
         function renderSectionTitle() {
@@ -621,10 +655,13 @@
         function renderFilters() {
             const section = document.getElementById('filterSection');
             const filters = TAB_FILTERS[currentTab] || [];
-            const badgeFilters = (currentTab === 'heroes' || currentTab === 'guides') ? ['new','hot'] : [];
+            const badgeFilters = ['new', 'hot'];
             let html = '<span class="filter-label">筛选：</span>';
             html += `<span class="filter-tag active" data-filter="all">全部</span>`;
-            filters.forEach(f => html += `<span class="filter-tag" data-filter="${f}">${f}</span>`);
+            filters.forEach(f => {
+                const label = (FILTER_LABELS[currentTab] || {})[f] || f;
+                html += `<span class="filter-tag" data-filter="${f}">${label}</span>`;
+            });
             badgeFilters.forEach(f => html += `<span class="filter-tag" data-filter="${f}">${f === 'new' ? '最新' : '热门'}</span>`);
             section.innerHTML = html;
             section.querySelectorAll('.filter-tag').forEach(tag => {
@@ -644,25 +681,25 @@
                     rows = rows.filter(item => (item.badge || '').toLowerCase() === currentFilter);
                 } else {
                     rows = rows.filter(item => {
-                        const tags = Array.isArray(item.tags) ? item.tags.map(t => t.toLowerCase()) : [];
                         const cat = (item.category || '').toLowerCase();
-                        return tags.includes(currentFilter.toLowerCase()) || cat === currentFilter.toLowerCase();
+                        return cat === currentFilter.toLowerCase();
                     });
                 }
             }
             if (searchQuery) {
                 const q = searchQuery.toLowerCase();
                 rows = rows.filter(item =>
-                    ['name','title','subtitle','description','code'].some(k =>
+                    ['title', 'description', 'category'].some(k =>
                         String(item[k] || '').toLowerCase().includes(q)
-                    )
+                    ) || (Array.isArray(item.tags) && item.tags.some(t => String(t).toLowerCase().includes(q)))
                 );
             }
             return rows;
         }
 
         async function renderCards() {
-            const data = await loadData(currentTab);
+            const apiTable = TAB_API[currentTab] || currentTab;
+            const data = await loadData(apiTable);
             const filtered = getFilteredData(data);
             const grid = document.getElementById('cardGrid');
             document.getElementById('resultCount').textContent = `共 ${filtered.length} 条`;
@@ -672,58 +709,14 @@
                 return;
             }
 
-            grid.innerHTML = filtered.map(item => {
-                const id = item.id;
-                const icon = item.icon || '🗡️';
-                const name = item.name || item.title || '';
-                const subtitle = item.subtitle || '';
-                const rarity = (item.rarity || '').toUpperCase();
-                const badge = (item.badge || '').toLowerCase();
-                const desc = item.description || '';
-                const tags = Array.isArray(item.tags) ? item.tags : [];
-                const catLabel = item.category || '';
-                const imageUrl = item.image_url || '';
-                const isFav = isFavorited(id, currentTab);
-
-                let badgeHtml = '';
-                if (badge === 'new') badgeHtml = '<span class="card-badge badge-new">最新</span>';
-                else if (badge === 'hot') badgeHtml = '<span class="card-badge badge-hot">热门</span>';
-
-                let rareHtml = '';
-                if (rarity && currentTab === 'heroes') {
-                    rareHtml = `<span class="card-rarelabel rarelabel-${rarity.toLowerCase()}">${rarity}</span>`;
-                }
-
-                const imageHtml = imageUrl ? `<img src="${imageUrl}" alt="${name}" loading="lazy">` : '';
-                const rarityClass = currentTab === 'heroes' ? ` rarity-${rarity.toLowerCase()}` : '';
-
-                return `<div class="card${rarityClass}" data-id="${id}" data-tab="${currentTab}">
-                    <div class="card-img">${badgeHtml}${rareHtml}${imageHtml}${!imageUrl ? icon : ''}</div>
-                    <div class="card-body">
-                        <div class="card-title">
-                            <span>${name}${subtitle ? ' · ' + subtitle : ''}</span>
-                            <button class="card-fav${isFav ? ' active' : ''}" data-id="${id}" data-tab="${currentTab}" onclick="event.stopPropagation();toggleFavCard(this, '${currentTab}', ${id})">${isFav ? '♥' : '☆'}</button>
-                        </div>
-                        ${catLabel ? `<div class="card-meta">${catLabel}</div>` : ''}
-                        ${tags.length ? `<div class="card-tags">${tags.map(t => `<span class="card-tag">${t}</span>`).join('')}</div>` : ''}
-                        <div class="card-desc">${desc}</div>
-                    </div>
-                </div>`;
-            }).join('');
-        }
-
-        function toggleFavCard(el, tab, id) {
-            toggleFavorite(id, tab);
-            const isFav = isFavorited(id, tab);
-            el.textContent = isFav ? '♥' : '☆';
-            el.classList.toggle('active', isFav);
+            grid.innerHTML = filtered.map(item => renderCard(item, apiTable)).join('');
         }
 
         // Card click → modal
         document.addEventListener('click', async function(e) {
             const card = e.target.closest('.card[data-id]');
             if (!card) return;
-            if (e.target.closest('.card-fav') || e.target.closest('.card-star')) return;
+            if (e.target.closest('.card-fav')) return;
             const id = parseInt(card.dataset.id);
             const tab = card.dataset.tab;
             const data = await loadData(tab);
@@ -731,40 +724,48 @@
             if (item) openModal(item, tab);
         });
 
-        // ========== Modal ==========
+        // Modal
         function openModal(item, tab) {
             const overlay = document.getElementById('modalOverlay');
-            document.getElementById('modalTitle').textContent = item.name || item.title || '';
+            document.getElementById('modalTitle').textContent = item.title || item.name || '';
             overlay.dataset.itemId = item.id;
             overlay.dataset.itemTab = tab;
             const favBtn = document.getElementById('modalFavBtn');
             favBtn.textContent = isFavorited(item.id, tab) ? '♥' : '☆';
 
             let html = '';
-            if (tab === 'heroes') {
-                const stats = typeof item.stats === 'object' && item.stats !== null ? item.stats : {};
-                const skills = Array.isArray(item.skills) ? item.skills : [];
-                const tags = Array.isArray(item.tags) ? item.tags : [];
-                html += `<div class="modal-section"><h4>简介</h4><p>${item.description || ''}</p></div>`;
-                if (tags.length) {
-                    html += `<div class="modal-section"><h4>定位</h4><div style="display:flex;gap:0.4rem;flex-wrap:wrap;">${tags.map(t => `<span class="card-tag">${t}</span>`).join('')}</div></div>`;
+
+            // Video embed
+            const videoUrl = item.video_url || '';
+            if (videoUrl) {
+                const ytMatch = videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/);
+                const biliMatch = videoUrl.match(/bilibili\.com\/video\/(BV[a-zA-Z0-9]+)/);
+                if (ytMatch) {
+                    html += `<div class="modal-video-wrap"><iframe src="https://www.youtube.com/embed/${ytMatch[1]}" allowfullscreen></iframe></div>`;
+                } else if (biliMatch) {
+                    html += `<div class="modal-video-wrap"><iframe src="https://player.bilibili.com/player.html?bvid=${biliMatch[1]}&page=1" allowfullscreen></iframe></div>`;
+                } else if (videoUrl.match(/\.(mp4|webm|mov)/i)) {
+                    html += `<div class="modal-video-wrap"><video controls src="${videoUrl}"></video></div>`;
+                } else {
+                    html += `<div class="modal-video-wrap"><iframe src="${videoUrl}" allowfullscreen></iframe></div>`;
                 }
-                if (Object.keys(stats).length) {
-                    html += `<div class="modal-section"><h4>属性</h4><div class="stat-grid">${Object.entries(stats).map(([k, v]) => {
-                        const pct = { 'SS':100,'S+':95,'S':90,'A+':80,'A':70,'B+':60,'B':50,'C':35,'D':20 }[v] || 30;
-                        return `<div class="stat-item"><div class="stat-val">${v}</div><div class="stat-label">${k}</div><div class="stat-bar"><div class="stat-bar-fill" style="width:${pct}%"></div></div></div>`;
-                    }).join('')}</div></div>`;
-                }
-                if (skills.length) {
-                    html += `<div class="modal-section"><h4>技能</h4>${skills.map((s, i) => `
-                        <div class="skill-item"><div class="skill-name">${i === 0 ? '被动 · ' : `技能${i} · `}${s.name}</div><div class="skill-desc">${s.desc}</div></div>
-                    `).join('')}</div>`;
-                }
-            } else if (tab === 'resources') {
-                html += `<div class="modal-section"><h4>描述</h4><p>${item.description || ''}</p></div>`;
-                html += `<div class="modal-section"><h4>详情</h4><p>${item.details || '暂无详情'}</p></div>`;
-            } else if (tab === 'guides' || tab === 'maps') {
-                html += `<div class="modal-section guide-content">${item.content || item.description || ''}</div>`;
+            }
+
+            // Content
+            if (item.content) {
+                html += `<div class="guide-content">${item.content}</div>`;
+            } else if (item.description) {
+                html += `<div class="guide-content"><p>${item.description}</p></div>`;
+            }
+
+            // Tags & meta
+            const tags = Array.isArray(item.tags) ? item.tags : [];
+            if (tags.length) {
+                const cat = item.category || '';
+                html += `<div style="margin-top:1.25rem;display:flex;gap:0.4rem;flex-wrap:wrap;align-items:center;">
+                    ${cat ? `<span style="color:var(--text2);font-size:0.8rem;">分类：${cat}</span>` : ''}
+                    ${tags.map(t => `<span class="card-tag">${t}</span>`).join('')}
+                </div>`;
             }
 
             document.getElementById('modalBody').innerHTML = html;
@@ -772,19 +773,12 @@
             document.body.style.overflow = 'hidden';
         }
 
-        async function openModalById(tab, id) {
-            switchTab(tab);
-            const data = await loadData(tab);
-            const item = data.find(d => d.id === id);
-            if (item) openModal(item, tab);
-        }
-
         function closeModal() {
             document.getElementById('modalOverlay').classList.remove('active');
             document.body.style.overflow = '';
         }
 
-        // ========== QuickRef Accordion ==========
+        // QuickRef
         function renderQuickRef(data) {
             const accordion = document.getElementById('quickRefAccordion');
             if (!data.length) {
@@ -795,17 +789,15 @@
                 const items = Array.isArray(q.items) ? q.items : [];
                 return `<div class="accordion-item${i === 0 ? ' open' : ''}">
                     <div class="accordion-header" onclick="this.parentElement.classList.toggle('open')">
-                        <span>${q.title}</span>
+                        <span>${q.icon || ''} ${q.title}</span>
                         <span class="arr">▾</span>
                     </div>
-                    <div class="accordion-body">
-                        <ul>${items.map(it => `<li>${it}</li>`).join('')}</ul>
-                    </div>
+                    <div class="accordion-body"><ul>${items.map(it => `<li>${it}</li>`).join('')}</ul></div>
                 </div>`;
             }).join('');
         }
 
-        // ========== Favorites ==========
+        // Favorites
         function renderFavorites() {
             const list = document.getElementById('favoritesList');
             const favs = getFavorites();
@@ -816,8 +808,8 @@
             list.innerHTML = favs.map(f => {
                 const data = (dataCache[f.tab] || []).find(d => d.id === f.id);
                 if (!data) return '';
-                const name = data.name || data.title || '未知';
-                const tabNames = { heroes:'英雄', resources:'资源', guides:'攻略', maps:'地图', quickref:'速查' };
+                const name = data.title || data.name || data.code || '未知';
+                const tabNames = { pvp_guides:'PVP攻略', explore_guides:'探索攻略', codes:'兑换码', quickref:'速查' };
                 return `<div class="fav-item" data-tab="${f.tab}" data-id="${f.id}">
                     <strong>${name}</strong>
                     <div style="font-size:0.78rem;color:var(--text2);">${tabNames[f.tab] || f.tab}</div>
@@ -833,7 +825,7 @@
             if (isActive) renderFavorites();
         }
 
-        // ========== Copy Code ==========
+        // Copy
         function copyCode(code, el) {
             navigator.clipboard.writeText(code).then(() => {
                 const toast = document.getElementById('copiedToast');
@@ -843,7 +835,7 @@
             }).catch(() => {});
         }
 
-        // ========== Events ==========
+        // Events
         document.querySelectorAll('.header-nav a').forEach(a => {
             a.addEventListener('click', () => switchTab(a.dataset.tab));
         });
@@ -862,7 +854,6 @@
             const tab = overlay.dataset.itemTab;
             toggleFavorite(id, tab);
             this.textContent = isFavorited(id, tab) ? '♥' : '☆';
-            if (currentTab === tab && currentTab !== 'home' && currentTab !== 'quickref') renderCards();
         });
         document.getElementById('modalCopyBtn').addEventListener('click', async () => {
             const overlay = document.getElementById('modalOverlay');
@@ -871,16 +862,8 @@
             const data = await loadData(tab);
             const item = data.find(d => d.id === id);
             if (!item) return;
-            let text = '';
-            if (tab === 'heroes') {
-                text = `${item.name}${item.subtitle ? ' · ' + item.subtitle : ''}\n${item.description || ''}`;
-                if (Array.isArray(item.skills)) {
-                    text += '\n\n技能：\n' + item.skills.map(s => `${s.name}: ${s.desc}`).join('\n');
-                }
-            } else {
-                text = `${item.name || item.title || ''}\n${item.description || item.content || ''}`;
-            }
-            navigator.clipboard.writeText(text.replace(/<[^>]*>/g, '')).then(() => {
+            const text = `【${item.title || ''}】\n${(item.content || item.description || '').replace(/<[^>]*>/g, '')}`;
+            navigator.clipboard.writeText(text).then(() => {
                 const toast = document.getElementById('copiedToast');
                 toast.textContent = '内容已复制';
                 toast.style.opacity = '1';
@@ -897,7 +880,8 @@
             const tab = item.dataset.tab;
             const id = parseInt(item.dataset.id);
             toggleFavoritesSidebar();
-            switchTab(tab);
+            const frontTab = tab === 'pvp_guides' ? 'pvp' : tab === 'explore_guides' ? 'explore' : tab === 'quickref' ? 'quickref' : 'home';
+            switchTab(frontTab);
             const data = await loadData(tab);
             const found = data.find(d => d.id === id);
             if (found) openModal(found, tab);
@@ -907,7 +891,7 @@
             document.getElementById('headerNav').classList.toggle('open');
         });
 
-        // ========== Init ==========
+        // Init
         switchTab('home');
     </script>
 </body>

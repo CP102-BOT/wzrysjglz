@@ -6,23 +6,11 @@
     <title>管理后台 - 王者荣耀世界攻略站</title>
     <style>
         :root {
-            --bg: #0c0f17;
-            --card: #141824;
-            --card2: #1a1f2e;
-            --text: #e8eaed;
-            --text2: #8892a4;
-            --red: #c62828;
-            --red2: #e53935;
-            --cyan: #1a8fc4;
-            --cyan2: #26a5da;
-            --gold: #c88a2c;
-            --gold2: #e2a834;
-            --border: rgba(136,146,164,0.12);
-            --danger: #e53935;
-            --success: #2e7d32;
-            --success2: #43a047;
-            --radius: 0.5rem;
-            --shadow: 0 1px 3px rgba(0,0,0,0.3);
+            --bg: #0c0f17; --card: #141824; --card2: #1a1f2e;
+            --text: #e8eaed; --text2: #8892a4; --red: #c62828; --red2: #e53935;
+            --cyan: #1a8fc4; --cyan2: #26a5da; --gold: #c88a2c; --gold2: #e2a834;
+            --border: rgba(136,146,164,0.12); --danger: #e53935;
+            --success: #2e7d32; --success2: #43a047; --radius: 0.5rem;
         }
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
@@ -31,7 +19,6 @@
         }
         a { color: var(--cyan); text-decoration:none; }
 
-        /* Login */
         .login-page {
             display:flex; align-items:center; justify-content:center; min-height:100vh;
             background: linear-gradient(135deg, #0c0f17 0%, #1a1520 50%, #0f141d 100%);
@@ -46,55 +33,48 @@
         .login-box input {
             width:100%; padding:0.8rem 1rem; margin-bottom:0.85rem;
             border-radius:0.4rem; border:1px solid var(--border);
-            background:var(--bg); color:var(--text); font-size:0.9rem;
-            outline:none; transition:border-color 0.2s;
+            background:var(--bg); color:var(--text); font-size:0.9rem; outline:none;
         }
         .login-box input:focus { border-color:var(--cyan); }
         .login-box button {
             width:100%; padding:0.8rem; border-radius:0.4rem; border:none;
-            background: var(--red); color:#fff; font-weight:600; font-size:0.95rem;
-            cursor:pointer; transition:0.2s; letter-spacing:0.05em;
+            background: var(--red); color:#fff; font-weight:600; font-size:0.95rem; cursor:pointer;
         }
         .login-box button:hover { background:var(--red2); }
         .login-error { color:var(--danger); font-size:0.82rem; margin-top:0.5rem; display:none; }
 
-        /* Header */
         .admin-page { display:none; }
         .topbar {
             background: var(--card); border-bottom:1px solid var(--border);
             padding:0.7rem 1.5rem; display:flex; justify-content:space-between;
-            align-items:center; position:sticky; top:0; z-index:100;
-            flex-wrap:wrap; gap:0.5rem;
+            align-items:center; position:sticky; top:0; z-index:100; flex-wrap:wrap; gap:0.5rem;
         }
-        .topbar-brand { font-weight:700; color:var(--red2); font-size:1.05rem; white-space:nowrap; }
+        .topbar-brand { font-weight:700; color:var(--red2); font-size:1.05rem; }
         .topbar-nav { display:flex; gap:0.15rem; flex-wrap:wrap; }
         .topbar-nav a {
             color:var(--text2); text-decoration:none; padding:0.35rem 0.7rem;
-            border-radius:0.35rem; font-size:0.83rem; transition:0.15s; cursor:pointer; white-space:nowrap;
+            border-radius:0.35rem; font-size:0.83rem; transition:0.15s; cursor:pointer;
         }
         .topbar-nav a:hover { color:var(--text); background:var(--card2); }
         .topbar-nav a.active { color:var(--red2); background:rgba(198,40,40,0.08); }
         .topbar-actions { display:flex; gap:0.5rem; align-items:center; }
         .btn-outline {
             padding:0.4rem 0.9rem; border-radius:0.35rem; border:1px solid var(--border);
-            background:transparent; color:var(--text2); cursor:pointer; font-size:0.82rem;
-            transition:0.15s; white-space:nowrap;
+            background:transparent; color:var(--text2); cursor:pointer; font-size:0.82rem; transition:0.15s;
         }
         .btn-outline:hover { border-color:var(--text2); color:var(--text); }
         .btn-outline.danger { border-color:rgba(229,57,53,0.3); color:var(--danger); }
         .btn-outline.danger:hover { border-color:var(--danger); background:rgba(229,57,53,0.08); }
         .btn-solid {
             padding:0.4rem 0.9rem; border-radius:0.35rem; border:none;
-            background:var(--red); color:#fff; cursor:pointer; font-size:0.82rem;
-            font-weight:500; transition:0.15s; white-space:nowrap;
+            background:var(--red); color:#fff; cursor:pointer; font-size:0.82rem; font-weight:500; transition:0.15s;
         }
         .btn-solid:hover { background:var(--red2); }
         .btn-solid.cyan { background:var(--cyan); }
         .btn-solid.cyan:hover { background:var(--cyan2); }
 
-        /* Dashboard */
         .dash-grid {
-            display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr));
+            display:grid; grid-template-columns:repeat(auto-fill, minmax(180px,1fr));
             gap:1rem; margin-bottom:1.5rem;
         }
         .dash-card {
@@ -111,28 +91,22 @@
         .log-item .log-action { color:var(--text); font-weight:500; }
         .log-item .log-time { font-size:0.72rem; opacity:0.6; white-space:nowrap; margin-left:1rem; }
 
-        /* Main */
         .admin-main { max-width:1400px; margin:0 auto; padding:1.5rem; }
-        .toolbar {
-            display:flex; gap:0.6rem; align-items:center; margin-bottom:1rem; flex-wrap:wrap;
-        }
+        .toolbar { display:flex; gap:0.6rem; align-items:center; margin-bottom:1rem; flex-wrap:wrap; }
         .toolbar input {
             flex:1; min-width:180px; padding:0.55rem 0.75rem;
             border-radius:0.35rem; border:1px solid var(--border);
-            background:var(--card); color:var(--text); font-size:0.85rem;
-            outline:none; transition:border-color 0.2s;
+            background:var(--card); color:var(--text); font-size:0.85rem; outline:none;
         }
         .toolbar input:focus { border-color:var(--cyan); }
         .sep { width:1px; height:24px; background:var(--border); margin:0 0.25rem; }
 
-        /* Table */
         .table-wrap { overflow-x:auto; background:var(--card); border:1px solid var(--border); border-radius:0.5rem; }
         table { width:100%; border-collapse:collapse; min-width:700px; }
         th, td {
-            padding:0.6rem 0.75rem; text-align:left; border-bottom:1px solid var(--border);
-            font-size:0.85rem;
+            padding:0.6rem 0.75rem; text-align:left; border-bottom:1px solid var(--border); font-size:0.85rem;
         }
-        th { background:var(--card2); color:var(--text2); font-weight:600; font-size:0.78rem; letter-spacing:0.02em; position:sticky; top:0; }
+        th { background:var(--card2); color:var(--text2); font-weight:600; font-size:0.78rem; position:sticky; top:0; }
         tr:last-child td { border-bottom:none; }
         tr:hover td { background:rgba(26,143,196,0.03); }
         td.sort-cell { cursor:grab; color:var(--text2); width:30px; text-align:center; user-select:none; }
@@ -142,28 +116,25 @@
         .td-actions { display:flex; gap:0.25rem; white-space:nowrap; }
         .btn-sm {
             padding:0.2rem 0.55rem; border-radius:0.3rem; border:1px solid var(--border);
-            background:transparent; color:var(--text2); cursor:pointer; font-size:0.75rem;
-            transition:0.15s; white-space:nowrap;
+            background:transparent; color:var(--text2); cursor:pointer; font-size:0.75rem; transition:0.15s;
         }
         .btn-sm:hover { border-color:var(--cyan); color:var(--cyan2); }
         .btn-sm.danger:hover { border-color:var(--danger); color:var(--danger); }
         .btn-sm.gold { border-color:rgba(200,138,44,0.3); color:var(--gold); }
         .btn-sm.gold:hover { border-color:var(--gold2); color:var(--gold2); background:rgba(200,138,44,0.06); }
-        .editable-cell { cursor:pointer; border-radius:0.25rem; transition:0.15s; padding:0.15rem 0.3rem; margin:-0.15rem -0.3rem; }
+        .editable-cell { cursor:pointer; border-radius:0.25rem;transition:0.15s;padding:0.15rem 0.3rem;margin:-0.15rem -0.3rem; }
         .editable-cell:hover { background:rgba(26,143,196,0.08); }
         .editable-cell input {
             width:100%; padding:0.2rem 0.3rem; border:1px solid var(--cyan); border-radius:0.25rem;
             background:var(--bg); color:var(--text); font-size:0.85rem; outline:none;
         }
         .badge-tag { display:inline-block; padding:0.1rem 0.4rem; border-radius:0.2rem; font-size:0.72rem; font-weight:600; }
-        .badge-ssr { background:rgba(200,138,44,0.15); color:var(--gold2); }
-        .badge-sr { background:rgba(156,39,176,0.12); color:#ce93d8; }
-        .badge-r { background:rgba(26,143,196,0.12); color:var(--cyan2); }
         .badge-new { background:rgba(46,125,50,0.12); color:var(--success2); }
         .badge-hot { background:rgba(229,57,53,0.12); color:var(--danger); }
+        .badge-r { background:rgba(26,143,196,0.12); color:var(--cyan2); }
+        .badge-vid { background:rgba(200,138,44,0.12); color:var(--gold2); }
         .empty { text-align:center; padding:3rem; color:var(--text2); font-size:0.9rem; }
 
-        /* Modal */
         .modal-overlay {
             position:fixed; top:0;left:0;right:0;bottom:0;
             background:rgba(0,0,0,0.6); display:none; align-items:center;
@@ -172,7 +143,7 @@
         .modal-overlay.active { display:flex; }
         .modal {
             background:var(--card); border-radius:0.6rem; border:1px solid var(--border);
-            max-width:700px; width:100%; max-height:85vh; overflow-y:auto;
+            max-width:750px; width:100%; max-height:85vh; overflow-y:auto;
             box-shadow: 0 20px 60px rgba(0,0,0,0.5);
         }
         .modal-header {
@@ -193,8 +164,7 @@
         .form-group input, .form-group textarea, .form-group select {
             width:100%; padding:0.55rem 0.75rem; border-radius:0.35rem;
             border:1px solid var(--border); background:var(--bg);
-            color:var(--text); font-size:0.85rem; outline:none;
-            font-family:inherit; transition:border-color 0.2s;
+            color:var(--text); font-size:0.85rem; outline:none; font-family:inherit; transition:border-color 0.2s;
         }
         .form-group textarea { min-height:100px; resize:vertical; }
         .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color:var(--cyan); }
@@ -202,18 +172,19 @@
         .form-actions { display:flex; gap:0.5rem; justify-content:flex-end; margin-top:0.25rem; }
         .btn-cancel {
             padding:0.5rem 1.2rem; border-radius:0.35rem; border:1px solid var(--border);
-            background:transparent; color:var(--text2); cursor:pointer; font-size:0.85rem;
-            transition:0.15s;
+            background:transparent; color:var(--text2); cursor:pointer; font-size:0.85rem; transition:0.15s;
         }
         .btn-cancel:hover { border-color:var(--text2); color:var(--text); }
-        .rte-bar { display:flex; gap:0.2rem; margin-bottom:0.4rem; flex-wrap:wrap; }
+        .rte-bar { display:flex; gap:0.2rem; margin-bottom:0.4rem; flex-wrap:wrap; align-items:center; }
         .rte-btn {
             padding:0.25rem 0.5rem; border-radius:0.25rem; border:1px solid var(--border);
-            background:var(--card2); color:var(--text2); cursor:pointer; font-size:0.75rem;
-            transition:0.15s; font-family:monospace;
+            background:var(--card2); color:var(--text2); cursor:pointer; font-size:0.75rem; transition:0.15s;
         }
         .rte-btn:hover { border-color:var(--cyan); color:var(--cyan2); }
         .rte-btn b { font-weight:700; }
+        .rte-btn.vid { border-color:rgba(200,138,44,0.3); color:var(--gold); }
+        .rte-btn.vid:hover { border-color:var(--gold2); color:var(--gold2); }
+        .inline-flex { display:flex; gap:0.5rem; align-items:flex-end; flex-wrap:wrap; }
 
         @media (max-width:768px) {
             .topbar { padding:0.6rem 1rem; }
@@ -227,11 +198,10 @@
     </style>
 </head>
 <body>
-    <!-- Login -->
     <div class="login-page" id="loginPage">
         <div class="login-box">
             <h1>王者荣耀世界 · 管理后台</h1>
-            <p class="sub">游戏攻略内容管理系统</p>
+            <p class="sub">PVP + 自由探索攻略内容管理</p>
             <input type="text" id="loginUser" placeholder="用户名" autocomplete="username">
             <input type="password" id="loginPass" placeholder="密码" autocomplete="current-password">
             <button id="loginBtn">登 录</button>
@@ -239,16 +209,13 @@
         </div>
     </div>
 
-    <!-- Admin -->
     <div class="admin-page" id="adminPage">
         <header class="topbar">
             <span class="topbar-brand">管理后台</span>
             <nav class="topbar-nav" id="adminNav">
                 <a data-table="dashboard" class="active">概览</a>
-                <a data-table="heroes">英雄</a>
-                <a data-table="resources">资源</a>
-                <a data-table="guides">攻略</a>
-                <a data-table="maps">地图</a>
+                <a data-table="pvp_guides">PVP攻略</a>
+                <a data-table="explore_guides">探索攻略</a>
                 <a data-table="codes">兑换码</a>
                 <a data-table="quickref">速查</a>
             </nav>
@@ -314,12 +281,12 @@
     <div class="modal-overlay" id="mediaModal">
         <div class="modal">
             <div class="modal-header">
-                <h3>媒体库</h3>
+                <h3>媒体库（图片 + 视频）</h3>
                 <button class="modal-close" id="mediaModalClose">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label>上传文件 (png,jpg,gif,webp,svg,mp4,webm)</label>
+                    <label>上传文件 (png, jpg, gif, webp, svg, mp4, webm, mov)</label>
                     <input type="file" id="mediaFile" accept="image/*,video/*">
                     <div id="mediaUploadStatus" style="font-size:0.82rem;margin-top:0.4rem;"></div>
                 </div>
@@ -346,67 +313,38 @@
         let selectedIds = new Set();
         let dragRow = null;
 
+        const GUIDE_FIELDS = [
+            { key: 'title', label: '标题', type: 'text' },
+            { key: 'description', label: '简介', type: 'textarea' },
+            { key: 'icon', label: '图标(emoji)', type: 'text' },
+            { key: 'category', label: '分类', type: 'select', options: {} },
+            { key: 'tags', label: '标签(逗号分隔)', type: 'tags' },
+            { key: 'badge', label: '角标', type: 'select', options: ['','new','hot'] },
+            { key: 'video_url', label: '视频链接', type: 'text' },
+            { key: 'content', label: '攻略内容(HTML)', type: 'richtext' },
+            { key: 'sort_order', label: '排序', type: 'number' },
+        ];
+
         const TABLE_META = {
-            heroes: {
-                name: '英雄',
-                fields: [
-                    { key: 'name', label: '名称', type: 'text' },
-                    { key: 'subtitle', label: '副标题', type: 'text' },
-                    { key: 'icon', label: '图标', type: 'text' },
-                    { key: 'rarity', label: '稀有度', type: 'select', options: ['R','SR','SSR'] },
-                    { key: 'badge', label: '角标', type: 'select', options: ['','new','hot'] },
-                    { key: 'description', label: '简介', type: 'textarea' },
-                    { key: 'tags', label: '标签(逗号分隔)', type: 'tags' },
-                    { key: 'image_url', label: '图片URL', type: 'text' },
-                    { key: 'sort_order', label: '排序', type: 'number' },
-                    { key: 'stats', label: '属性', type: 'kv' },
-                    { key: 'skills', label: '技能(每行: 名称::描述)', type: 'skills' },
-                ],
-                columns: ['sort','icon','name','rarity','badge','tags','description'],
-                nameField: 'name'
+            pvp_guides: {
+                name: 'PVP攻略',
+                fields: GUIDE_FIELDS.map(f => {
+                    if (f.key === 'category') return { ...f, options: ['1v1','4v4','general'] };
+                    return f;
+                }),
+                columns: ['sort','icon','title','category','badge','tags','video_url','description'],
+                nameField: 'title',
+                catLabels: { '1v1':'1v1竞技', '4v4':'4v4团队', 'general':'通用技巧' }
             },
-            resources: {
-                name: '资源',
-                fields: [
-                    { key: 'name', label: '名称', type: 'text' },
-                    { key: 'description', label: '描述', type: 'textarea' },
-                    { key: 'icon', label: '图标', type: 'text' },
-                    { key: 'rarity', label: '稀有度', type: 'select', options: ['R','SR','SSR'] },
-                    { key: 'category', label: '分类', type: 'select', options: ['currency','material','other'] },
-                    { key: 'tags', label: '标签(逗号分隔)', type: 'tags' },
-                    { key: 'details', label: '详情', type: 'textarea' },
-                    { key: 'sort_order', label: '排序', type: 'number' },
-                ],
-                columns: ['sort','icon','name','rarity','category','tags','description'],
-                nameField: 'name'
-            },
-            guides: {
-                name: '攻略',
-                fields: [
-                    { key: 'title', label: '标题', type: 'text' },
-                    { key: 'description', label: '简介', type: 'textarea' },
-                    { key: 'icon', label: '图标', type: 'text' },
-                    { key: 'category', label: '分类', type: 'select', options: ['general','beginner','hero','resource','advance'] },
-                    { key: 'tags', label: '标签(逗号分隔)', type: 'tags' },
-                    { key: 'badge', label: '角标', type: 'select', options: ['','new','hot'] },
-                    { key: 'content', label: '攻略内容(HTML)', type: 'richtext' },
-                    { key: 'sort_order', label: '排序', type: 'number' },
-                ],
-                columns: ['sort','icon','title','category','badge','tags','description'],
-                nameField: 'title'
-            },
-            maps: {
-                name: '地图',
-                fields: [
-                    { key: 'name', label: '名称', type: 'text' },
-                    { key: 'description', label: '简介', type: 'textarea' },
-                    { key: 'icon', label: '图标', type: 'text' },
-                    { key: 'tags', label: '标签(逗号分隔)', type: 'tags' },
-                    { key: 'content', label: '详细内容(HTML)', type: 'richtext' },
-                    { key: 'sort_order', label: '排序', type: 'number' },
-                ],
-                columns: ['sort','icon','name','tags','description'],
-                nameField: 'name'
+            explore_guides: {
+                name: '探索攻略',
+                fields: GUIDE_FIELDS.map(f => {
+                    if (f.key === 'category') return { ...f, options: ['map','boss','collection','beginner'] };
+                    return f;
+                }),
+                columns: ['sort','icon','title','category','badge','tags','video_url','description'],
+                nameField: 'title',
+                catLabels: { 'map':'地图探索', 'boss':'BOSS攻略', 'collection':'收集养成', 'beginner':'新手入门' }
             },
             codes: {
                 name: '兑换码',
@@ -426,7 +364,7 @@
                 fields: [
                     { key: 'title', label: '标题', type: 'text' },
                     { key: 'icon', label: '图标', type: 'text' },
-                    { key: 'items', label: '条目(每行一个)', type: 'textarea' },
+                    { key: 'items', label: '条目(每行一个)', type: 'items' },
                     { key: 'sort_order', label: '排序', type: 'number' },
                 ],
                 columns: ['sort','icon','title','items'],
@@ -434,7 +372,7 @@
             }
         };
 
-        // ========== Login ==========
+        // Login
         $('loginBtn').addEventListener('click', async () => {
             const u = $('loginUser').value;
             const p = $('loginPass').value;
@@ -467,7 +405,6 @@
             }
         })();
 
-        // ========== Nav ==========
         adminNav.addEventListener('click', e => {
             if (e.target.tagName === 'A') switchTab(e.target.dataset.table);
         });
@@ -486,18 +423,16 @@
             const navLink = document.querySelector(`#adminNav a[data-table="${table}"]`);
             if (navLink) navLink.classList.add('active');
             toolbarRow.style.display = table === 'dashboard' ? 'none' : '';
-
             if (table === 'dashboard') loadDashboard();
             else loadTable(table);
         }
 
-        // ========== Dashboard ==========
         async function loadDashboard() {
             const res = await fetch('/api/admin/stats');
             const stats = await res.json();
-            const tableNames = { heroes:'英雄', resources:'资源', guides:'攻略', maps:'地图', codes:'兑换码', quickref:'速查' };
+            const tableNames = { pvp_guides:'PVP攻略', explore_guides:'探索攻略', codes:'兑换码', quickref:'速查' };
             let html = '<div class="dash-grid">';
-            ['heroes','resources','guides','maps','codes','quickref'].forEach(t => {
+            ['pvp_guides','explore_guides','codes','quickref'].forEach(t => {
                 const s = stats[t] || {};
                 html += `<div class="dash-card">
                     <div class="count">${s.count ?? '-'}</div>
@@ -506,7 +441,6 @@
                 </div>`;
             });
             html += '</div>';
-
             if (stats.logs && stats.logs.length) {
                 html += '<div style="background:var(--card);border:1px solid var(--border);border-radius:0.5rem;padding:1.25rem;"><h3 style="font-size:0.95rem;margin-bottom:0.75rem;color:var(--text2);">操作日志</h3><div class="log-list">';
                 stats.logs.forEach(log => {
@@ -517,7 +451,6 @@
             contentWrap.innerHTML = html;
         }
 
-        // ========== Table ==========
         async function loadTable(table) {
             const res = await fetch(`/api/data/${table}`);
             currentData = await res.json();
@@ -540,19 +473,17 @@
                 });
             }
 
-            if (!rows.length) {
-                contentWrap.innerHTML = '<div class="empty">暂无数据</div>';
-                return;
-            }
+            if (!rows.length) { contentWrap.innerHTML = '<div class="empty">暂无数据</div>'; return; }
 
             let html = '<div class="table-wrap"><table><thead><tr>';
             html += '<th style="width:30px;"><input type="checkbox" id="selectAll" title="全选"></th>';
             html += '<th style="width:30px;"></th>';
             meta.columns.forEach(col => {
                 if (col === 'sort') return;
-                html += `<th>${col === 'id' ? 'ID' : col}</th>`;
+                const labels = { icon:'图标', title:'标题', name:'名称', category:'分类', badge:'角标', tags:'标签', video_url:'视频', description:'简介', id:'ID', code:'兑换码', reward:'奖励', expiry:'有效期', is_active:'状态', items:'条目' };
+                html += `<th>${labels[col] || col}</th>`;
             });
-            html += '<th style="min-width:160px;">操作</th></tr></thead><tbody>';
+            html += '<th style="min-width:180px;">操作</th></tr></thead><tbody>';
 
             rows.forEach((item, idx) => {
                 html += `<tr draggable="true" data-id="${item.id}" data-idx="${idx}" class="drag-row">`;
@@ -561,23 +492,27 @@
                 meta.columns.forEach(col => {
                     if (col === 'sort') return;
                     let val = item[col];
-                    if (col === 'id') {
-                        html += `<td style="color:var(--text2);">${val}</td>`;
+                    if (col === 'icon') {
+                        html += `<td style="font-size:1.3rem;">${val || '📖'}</td>`;
                     } else if (col === 'tags' && Array.isArray(val)) {
-                        html += `<td>${val.map(t => `<span class="badge-tag badge-r">${escHtml(t)}</span>`).join(' ')}</td>`;
-                    } else if (col === 'rarity') {
-                        const cls = val === 'SSR' ? 'badge-ssr' : val === 'SR' ? 'badge-sr' : 'badge-r';
-                        html += `<td><span class="badge-tag ${cls}">${escHtml(String(val||''))}</span></td>`;
+                        html += `<td>${val.slice(0,3).map(t => `<span class="badge-tag badge-r">${escHtml(t)}</span>`).join(' ')}</td>`;
                     } else if (col === 'badge') {
                         const cls = val === 'new' ? 'badge-new' : val === 'hot' ? 'badge-hot' : '';
                         html += `<td>${val ? `<span class="badge-tag ${cls}">${val==='new'?'最新':'热门'}</span>` : '—'}</td>`;
+                    } else if (col === 'video_url') {
+                        html += `<td>${val ? '<span class="badge-tag badge-vid">▶ 有视频</span>' : '—'}</td>`;
+                    } else if (col === 'category') {
+                        const label = (meta.catLabels || {})[val] || val;
+                        html += `<td>${label || '—'}</td>`;
                     } else if (col === 'is_active') {
                         html += `<td style="color:${val?'var(--success2)':'var(--danger)'};">${val ? '启用' : '禁用'}</td>`;
-                    } else if (col === 'description' || col === 'content') {
-                        const s = String(val ?? '').replace(/<[^>]*>/g, '').substring(0, 40);
+                    } else if (col === 'description') {
+                        const s = String(val ?? '').replace(/<[^>]*>/g, '').substring(0, 50);
                         html += `<td class="td-desc" title="${escHtml(String(val??''))}">${s || '—'}</td>`;
                     } else if (col === 'items' && Array.isArray(val)) {
                         html += `<td class="td-desc" title="${escHtml(val.join(' | '))}">${val.slice(0,3).join(' | ')}${val.length>3?'...':''}</td>`;
+                    } else if (col === 'title' || col === 'name' || col === 'code') {
+                        html += `<td class="editable-cell" data-col="${col}" data-id="${item.id}"><strong>${escHtml(String(val ?? '—'))}</strong></td>`;
                     } else {
                         html += `<td class="editable-cell" data-col="${col}" data-id="${item.id}">${escHtml(String(val ?? '—'))}</td>`;
                     }
@@ -595,13 +530,11 @@
         }
 
         function bindTableEvents() {
-            // Checkboxes
             $('selectAll').addEventListener('change', function() {
                 const rows = currentData.filter(r => {
                     const q = searchAdmin.value.toLowerCase();
                     if (!q) return true;
-                    const meta = TABLE_META[currentTable];
-                    return meta.columns.some(col => {
+                    return TABLE_META[currentTable].columns.some(col => {
                         if (col === 'sort') return false;
                         return String(r[col] ?? '').toLowerCase().includes(q);
                     });
@@ -620,7 +553,6 @@
                 });
             });
 
-            // Action buttons
             contentWrap.addEventListener('click', async e => {
                 const btn = e.target.closest('button[data-action]');
                 if (!btn) return;
@@ -632,7 +564,7 @@
                 else if (action === 'del') await deleteItem(id);
             });
 
-            // Inline edit (double-click)
+            // Inline edit
             document.querySelectorAll('.editable-cell').forEach(cell => {
                 cell.addEventListener('dblclick', function() {
                     const col = this.dataset.col;
@@ -666,11 +598,10 @@
                 });
             });
 
-            // Drag to sort
+            // Drag sort
             document.querySelectorAll('.drag-row').forEach(row => {
                 row.addEventListener('dragstart', function(e) {
-                    dragRow = this;
-                    this.style.opacity = '0.5';
+                    dragRow = this; this.style.opacity = '0.5';
                     e.dataTransfer.effectAllowed = 'move';
                 });
                 row.addEventListener('dragend', function() {
@@ -678,14 +609,12 @@
                     document.querySelectorAll('.drag-row').forEach(r => r.classList.remove('drag-over'));
                 });
                 row.addEventListener('dragover', function(e) {
-                    e.preventDefault();
-                    e.dataTransfer.dropEffect = 'move';
+                    e.preventDefault(); e.dataTransfer.dropEffect = 'move';
                     if (this !== dragRow) this.classList.add('drag-over');
                 });
                 row.addEventListener('dragleave', function() { this.classList.remove('drag-over'); });
                 row.addEventListener('drop', async function(e) {
-                    e.preventDefault();
-                    this.classList.remove('drag-over');
+                    e.preventDefault(); this.classList.remove('drag-over');
                     if (this === dragRow) return;
                     const rows = [...document.querySelectorAll('.drag-row')];
                     const fromIdx = rows.indexOf(dragRow);
@@ -707,26 +636,26 @@
             $('btnBatchDel').textContent = selectedIds.size ? `删除(${selectedIds.size})` : '批量删除';
         }
 
-        // ========== CRUD ==========
+        // CRUD
         $('btnAdd').addEventListener('click', () => openEditModal(null));
 
         async function duplicateItem(id) {
-            const res = await fetch(`/api/admin/${currentTable}/${id}/duplicate`, { method: 'POST' });
-            if (res.ok) await loadTable(currentTable);
+            await fetch(`/api/admin/${currentTable}/${id}/duplicate`, { method: 'POST' });
+            await loadTable(currentTable);
         }
 
         async function toggleTop(id) {
-            const res = await fetch(`/api/admin/${currentTable}/${id}/toggle-top`, { method: 'POST' });
-            if (res.ok) await loadTable(currentTable);
+            await fetch(`/api/admin/${currentTable}/${id}/toggle-top`, { method: 'POST' });
+            await loadTable(currentTable);
         }
 
         async function deleteItem(id) {
             if (!confirm('确认删除？')) return;
-            const res = await fetch(`/api/admin/${currentTable}/${id}`, { method: 'DELETE' });
-            if (res.ok) await loadTable(currentTable);
+            await fetch(`/api/admin/${currentTable}/${id}`, { method: 'DELETE' });
+            await loadTable(currentTable);
         }
 
-        // ========== Edit Modal ==========
+        // Edit Modal
         $('modalClose').addEventListener('click', closeEditModal);
         editModal.addEventListener('click', e => { if (e.target === editModal) closeEditModal(); });
         document.addEventListener('keydown', e => { if (e.key === 'Escape') closeEditModal(); });
@@ -742,10 +671,8 @@
             let html = '';
             meta.fields.forEach(f => {
                 let val = item[f.key] ?? '';
-                if (Array.isArray(val) && f.key !== 'items' && f.key !== 'skills') val = val.join(', ');
+                if (Array.isArray(val) && f.key === 'tags') val = val.join(', ');
                 if (f.key === 'items' && Array.isArray(val)) val = val.join('\n');
-                if (f.key === 'skills' && Array.isArray(val)) val = val.map(s => `${s.name}::${s.desc}`).join('\n');
-                if (f.key === 'stats' && typeof val === 'object' && val !== null) val = Object.entries(val).map(([k,v]) => `${k}:${v}`).join('; ');
 
                 html += `<div class="form-group">`;
                 html += `<label>${f.label}</label>`;
@@ -753,31 +680,32 @@
                 if (f.type === 'richtext') {
                     html += `<div class="rte-bar">
                         <button class="rte-btn" data-rte="h3" title="标题"><b>H</b></button>
-                        <button class="rte-btn" data-rte="b" title="加粗"><b>B</b></button>
+                        <button class="rte-btn" data-rte="strong" title="加粗"><b>B</b></button>
                         <button class="rte-btn" data-rte="p" title="段落">P</button>
                         <button class="rte-btn" data-rte="ul" title="列表">≡</button>
                         <button class="rte-btn" data-rte="li" title="列表项">·</button>
-                        <button class="rte-btn" data-rte="strong" title="重点"><b>S</b></button>
+                        <button class="rte-btn vid" data-rte="video" title="插入视频">▶ 视频</button>
                     </div>`;
-                    html += `<textarea name="${f.key}" id="rte_${f.key}" rows="10">${escHtml(String(val))}</textarea>`;
+                    html += `<textarea name="${f.key}" id="rte_${f.key}" rows="12">${escHtml(String(val))}</textarea>`;
                 } else if (f.type === 'textarea') {
                     html += `<textarea name="${f.key}" rows="4">${escHtml(String(val))}</textarea>`;
+                } else if (f.type === 'items') {
+                    html += `<textarea name="${f.key}" rows="5">${escHtml(String(val))}</textarea>`;
+                    html += `<div class="help">每行一个条目</div>`;
                 } else if (f.type === 'select') {
                     html += `<select name="${f.key}">`;
                     f.options.forEach(opt => {
                         const sel = String(val) === String(opt) ? ' selected' : '';
-                        html += `<option value="${opt}"${sel}>${opt === '' ? '(无)' : opt}</option>`;
+                        const label = f.key === 'category' ? ((meta.catLabels || {})[opt] || opt) : (opt === '' ? '(无)' : opt);
+                        html += `<option value="${opt}"${sel}>${label}</option>`;
                     });
                     html += '</select>';
-                } else if (f.type === 'kv') {
-                    html += `<input type="text" name="${f.key}" value="${escHtml(String(val))}" placeholder="生命:A+|攻击:S|防御:B">`;
-                    html += `<div class="help">格式: 属性:等级，用 | 或 ; 分隔</div>`;
-                } else if (f.type === 'skills') {
-                    html += `<textarea name="${f.key}" rows="4">${escHtml(String(val))}</textarea>`;
-                    html += `<div class="help">每行一个技能: 技能名::技能描述</div>`;
                 } else if (f.type === 'tags') {
                     html += `<input type="text" name="${f.key}" value="${escHtml(String(val))}">`;
-                    html += `<div class="help">逗号分隔</div>`;
+                    html += `<div class="help">逗号分隔，如: PVP, 1v1, 排位</div>`;
+                } else if (f.key === 'video_url') {
+                    html += `<div class="inline-flex"><input type="text" name="${f.key}" value="${escHtml(String(val))}" placeholder="粘贴视频链接 或 从媒体库选择" style="flex:1;"><button type="button" class="btn-outline" onclick="openMediaForVideo()">媒体库</button></div>`;
+                    html += `<div class="help">支持: YouTube链接、B站链接、.mp4/.webm直链、其他嵌入链接</div>`;
                 } else {
                     html += `<input type="${f.type}" name="${f.key}" value="${escHtml(String(val))}">`;
                 }
@@ -792,17 +720,39 @@
             modalBody.innerHTML = html;
             editModal.classList.add('active');
 
-            // Bind RTE buttons
+            // RTE buttons
             modalBody.querySelectorAll('.rte-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const tag = this.dataset.rte;
+                    if (tag === 'video') {
+                        const url = prompt('输入视频链接（YouTube / B站 / .mp4直链 / 嵌入代码）：');
+                        if (!url) return;
+                        const textareaId = this.closest('.form-group').querySelector('textarea').id;
+                        const ta = document.getElementById(textareaId);
+                        let embed;
+                        const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/);
+                        const biliMatch = url.match(/bilibili\.com\/video\/(BV[a-zA-Z0-9]+)/);
+                        if (ytMatch) {
+                            embed = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:0.4rem;margin:1rem 0;"><iframe src="https://www.youtube.com/embed/${ytMatch[1]}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen></iframe></div>`;
+                        } else if (biliMatch) {
+                            embed = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:0.4rem;margin:1rem 0;"><iframe src="https://player.bilibili.com/player.html?bvid=${biliMatch[1]}&page=1" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen></iframe></div>`;
+                        } else if (url.match(/\.(mp4|webm|mov)/i)) {
+                            embed = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:0.4rem;margin:1rem 0;"><video controls src="${url}" style="position:absolute;top:0;left:0;width:100%;height:100%;"></video></div>`;
+                        } else {
+                            embed = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:0.4rem;margin:1rem 0;"><iframe src="${url}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen></iframe></div>`;
+                        }
+                        const start = ta.selectionStart;
+                        ta.value = ta.value.substring(0, start) + '\n' + embed + '\n' + ta.value.substring(ta.selectionEnd);
+                        ta.focus();
+                        return;
+                    }
                     const textareaId = this.closest('.form-group').querySelector('textarea').id;
                     const ta = document.getElementById(textareaId);
                     const start = ta.selectionStart, end = ta.selectionEnd;
                     const sel = ta.value.substring(start, end) || '';
                     let wrap;
                     if (tag === 'h3') wrap = [`<h3>`, `</h3>`];
-                    else if (tag === 'b' || tag === 'strong') wrap = [`<strong>`, `</strong>`];
+                    else if (tag === 'strong') wrap = [`<strong>`, `</strong>`];
                     else if (tag === 'p') wrap = [`<p>`, `</p>`];
                     else if (tag === 'ul') wrap = [`<ul>\n  `, `\n</ul>`];
                     else if (tag === 'li') wrap = [`<li>`, `</li>`];
@@ -827,18 +777,6 @@
                     val = val ? val.split(/[,，]/).map(s => s.trim()).filter(Boolean) : [];
                 } else if (f.key === 'items') {
                     val = val ? val.split('\n').map(s => s.trim()).filter(Boolean) : [];
-                } else if (f.key === 'skills') {
-                    val = val ? val.split('\n').map(s => {
-                        const parts = s.split('::');
-                        return { name: (parts[0]||'').trim(), desc: (parts[1]||'').trim() };
-                    }).filter(s => s.name) : [];
-                } else if (f.key === 'stats') {
-                    const obj = {};
-                    val.split(/[;|]/).forEach(pair => {
-                        const [k, v] = pair.split(':').map(s => s.trim());
-                        if (k && v) obj[k] = v;
-                    });
-                    val = Object.keys(obj).length ? obj : {};
                 } else if (f.key === 'sort_order' || f.key === 'is_active') {
                     val = Number(val) || 0;
                 }
@@ -862,19 +800,21 @@
             if (res.ok) { closeEditModal(); await loadTable(currentTable); }
         }
 
-        // ========== Batch Delete ==========
+        // Batch Delete
         $('btnBatchDel').addEventListener('click', async () => {
             if (!selectedIds.size) return;
             if (!confirm(`确认删除选中的 ${selectedIds.size} 条数据？不可恢复！`)) return;
-            const res = await fetch('/api/admin/batch-delete', {
+            await fetch('/api/admin/batch-delete', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ table: currentTable, ids: [...selectedIds] })
             });
-            if (res.ok) { selectedIds.clear(); updateBatchBtn(); await loadTable(currentTable); }
+            selectedIds.clear();
+            updateBatchBtn();
+            await loadTable(currentTable);
         });
 
-        // ========== Import ==========
+        // Import
         const importModal = $('importModal');
         $('btnImport').addEventListener('click', () => { importModal.classList.add('active'); $('importTableName').textContent = TABLE_META[currentTable].name; });
         $('importModalClose').addEventListener('click', () => importModal.classList.remove('active'));
@@ -948,23 +888,31 @@
             return result;
         }
 
-        // ========== Media ==========
+        // Media
         const mediaModal = $('mediaModal'), mediaGrid = $('mediaGrid');
-        $('btnMedia').addEventListener('click', async () => { mediaModal.classList.add('active'); await loadMedia(); });
+        let mediaForVideo = false;
+
+        $('btnMedia').addEventListener('click', async () => { mediaForVideo = false; mediaModal.classList.add('active'); await loadMedia(); });
         $('mediaModalClose').addEventListener('click', () => mediaModal.classList.remove('active'));
         mediaModal.addEventListener('click', e => { if (e.target === mediaModal) mediaModal.classList.remove('active'); });
+
+        function openMediaForVideo() {
+            mediaForVideo = true;
+            mediaModal.classList.add('active');
+            loadMedia();
+        }
 
         async function loadMedia() {
             const res = await fetch('/api/admin/media');
             const files = await res.json();
-            if (!files.length) { mediaGrid.innerHTML = '<p style="color:var(--text2);font-size:0.8rem;">暂无文件</p>'; return; }
+            if (!files.length) { mediaGrid.innerHTML = '<p style="color:var(--text2);font-size:0.8rem;">暂无文件，上传后出现在这里</p>'; return; }
             mediaGrid.innerHTML = files.map(f => `
-                <div style="position:relative;width:110px;text-align:center;background:var(--bg);border-radius:0.35rem;padding:0.4rem;border:1px solid var(--border);">
+                <div style="position:relative;width:120px;text-align:center;background:var(--bg);border-radius:0.35rem;padding:0.4rem;border:1px solid var(--border);">
                     ${f.type === 'image'
-                        ? `<img src="${f.url}" style="width:100%;height:70px;object-fit:cover;border-radius:0.2rem;cursor:pointer;" onclick="copyMediaUrl('${f.url}')" title="点击复制">`
-                        : `<video src="${f.url}" style="width:100%;height:70px;object-fit:cover;border-radius:0.2rem;"></video>`
+                        ? `<img src="${f.url}" style="width:100%;height:75px;object-fit:cover;border-radius:0.2rem;cursor:pointer;" onclick="copyMediaUrl('${f.url}')" title="点击复制链接">`
+                        : `<video src="${f.url}" style="width:100%;height:75px;object-fit:cover;border-radius:0.2rem;cursor:pointer;" onclick="copyMediaUrl('${f.url}')" title="点击复制链接"></video>`
                     }
-                    <p style="font-size:0.68rem;color:var(--text2);margin:0.25rem 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${f.filename}</p>
+                    <p style="font-size:0.65rem;color:var(--text2);margin:0.25rem 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${f.filename}">${f.filename.substring(0,14)}</p>
                     <div style="display:flex;gap:0.15rem;justify-content:center;">
                         <button class="btn-sm" onclick="copyMediaUrl('${f.url}')">复制</button>
                         <button class="btn-sm danger" onclick="deleteMedia('${f.filename}')">删</button>
@@ -980,14 +928,30 @@
             try {
                 const res = await fetch('/api/admin/upload', { method: 'POST', body: fd });
                 const data = await res.json();
-                if (data.success) { $('mediaUploadStatus').innerHTML = `成功! <a href="${data.url}" target="_blank">${data.url}</a>`; this.value = ''; await loadMedia(); }
-                else $('mediaUploadStatus').innerHTML = data.error || '失败';
+                if (data.success) {
+                    $('mediaUploadStatus').innerHTML = `成功! <a href="${data.url}" target="_blank">${data.url}</a>`;
+                    this.value = '';
+                    await loadMedia();
+                } else {
+                    $('mediaUploadStatus').innerHTML = data.error || '失败';
+                }
             } catch(e) { $('mediaUploadStatus').innerHTML = '上传失败: ' + e.message; }
         });
 
         function copyMediaUrl(url) {
-            navigator.clipboard.writeText(url).then(() => $('mediaUploadStatus').innerHTML = '已复制: ' + url)
-                .catch(() => $('mediaUploadStatus').innerHTML = '手动复制: ' + url);
+            if (mediaForVideo) {
+                // Find video_url input in the edit modal
+                const videoInput = modalBody.querySelector('[name="video_url"]');
+                if (videoInput) {
+                    videoInput.value = url;
+                    $('mediaUploadStatus').innerHTML = '已填入视频链接: ' + url;
+                } else {
+                    navigator.clipboard.writeText(url).then(() => $('mediaUploadStatus').innerHTML = '已复制: ' + url);
+                }
+            } else {
+                navigator.clipboard.writeText(url).then(() => $('mediaUploadStatus').innerHTML = '已复制: ' + url)
+                    .catch(() => $('mediaUploadStatus').innerHTML = '手动复制: ' + url);
+            }
         }
 
         async function deleteMedia(filename) {
@@ -996,7 +960,7 @@
             await loadMedia();
         }
 
-        // ========== Export ==========
+        // Export
         $('btnExport').addEventListener('click', async () => {
             const res = await fetch('/api/admin/export');
             const data = await res.json();
@@ -1007,10 +971,8 @@
             a.click();
         });
 
-        // ========== Search ==========
         searchAdmin.addEventListener('input', () => { if (currentTable !== 'dashboard') renderTable(); });
 
-        // ========== Utils ==========
         function escHtml(s) {
             const div = document.createElement('div');
             div.textContent = String(s);
