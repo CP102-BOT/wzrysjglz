@@ -50,6 +50,7 @@ def init_db():
             description TEXT DEFAULT '',
             content TEXT DEFAULT '',
             icon TEXT DEFAULT '⚔️',
+            image_url TEXT DEFAULT '',
             category TEXT DEFAULT 'general',
             tags TEXT DEFAULT '[]',
             badge TEXT DEFAULT '',
@@ -63,6 +64,7 @@ def init_db():
             description TEXT DEFAULT '',
             content TEXT DEFAULT '',
             icon TEXT DEFAULT '🗺️',
+            image_url TEXT DEFAULT '',
             category TEXT DEFAULT 'map',
             tags TEXT DEFAULT '[]',
             badge TEXT DEFAULT '',
@@ -96,6 +98,13 @@ def init_db():
         );
     ''')
     db.commit()
+
+    # 迁移：给已有数据库添加 image_url 列
+    for table in ['pvp_guides', 'explore_guides']:
+        try:
+            cur.execute(f"ALTER TABLE {table} ADD COLUMN image_url TEXT DEFAULT ''")
+        except sqlite3.OperationalError:
+            pass  # 列已存在
 
     if cur.execute("SELECT COUNT(*) FROM pvp_guides").fetchone()[0] == 0:
         seed_data(db)
@@ -340,15 +349,15 @@ def admin_delete(table, id):
 # ==================== 批量导入 ====================
 
 IMPORT_FIELDS = {
-    'pvp_guides': ['title', 'description', 'content', 'icon', 'category', 'tags', 'badge', 'video_url', 'sort_order'],
-    'explore_guides': ['title', 'description', 'content', 'icon', 'category', 'tags', 'badge', 'video_url', 'sort_order'],
+    'pvp_guides': ['title', 'description', 'content', 'icon', 'image_url', 'category', 'tags', 'badge', 'video_url', 'sort_order'],
+    'explore_guides': ['title', 'description', 'content', 'icon', 'image_url', 'category', 'tags', 'badge', 'video_url', 'sort_order'],
     'codes': ['code', 'description', 'reward', 'expiry', 'is_active', 'sort_order'],
     'quickref': ['title', 'icon', 'items', 'sort_order'],
 }
 
 TEMPLATE_EXAMPLES = {
-    'pvp_guides': ['攻略标题', '简介描述', '<h3>内容</h3>', '⚔️', 'general', 'PVP|技巧', '', '', '0'],
-    'explore_guides': ['探索标题', '简介描述', '<h3>内容</h3>', '🗺️', 'map', '探索|收集', '', '', '0'],
+    'pvp_guides': ['攻略标题', '简介描述', '<h3>内容</h3>', '⚔️', '', 'general', 'PVP|技巧', '', '', '0'],
+    'explore_guides': ['探索标题', '简介描述', '<h3>内容</h3>', '🗺️', '', 'map', '探索|收集', '', '', '0'],
     'codes': ['CODE123', '兑换码描述', '奖励内容', '2026-12-31', '1', '0'],
     'quickref': ['速查标题', '📋', '条目1|条目2|条目3', '0'],
 }

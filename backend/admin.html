@@ -317,6 +317,7 @@
             { key: 'title', label: '标题', type: 'text' },
             { key: 'description', label: '简介', type: 'textarea' },
             { key: 'icon', label: '图标(emoji)', type: 'text' },
+            { key: 'image_url', label: '封面图片链接', type: 'text' },
             { key: 'category', label: '分类', type: 'select', options: {} },
             { key: 'tags', label: '标签(逗号分隔)', type: 'tags' },
             { key: 'badge', label: '角标', type: 'select', options: ['','new','hot'] },
@@ -332,7 +333,7 @@
                     if (f.key === 'category') return { ...f, options: ['1v1','4v4','general'] };
                     return f;
                 }),
-                columns: ['sort','icon','title','category','badge','tags','video_url','description'],
+                columns: ['sort','icon','title','category','badge','tags','image_url','video_url','description'],
                 nameField: 'title',
                 catLabels: { '1v1':'1v1竞技', '4v4':'4v4团队', 'general':'通用技巧' }
             },
@@ -342,7 +343,7 @@
                     if (f.key === 'category') return { ...f, options: ['map','boss','collection','beginner'] };
                     return f;
                 }),
-                columns: ['sort','icon','title','category','badge','tags','video_url','description'],
+                columns: ['sort','icon','title','category','badge','tags','image_url','video_url','description'],
                 nameField: 'title',
                 catLabels: { 'map':'地图探索', 'boss':'BOSS攻略', 'collection':'收集养成', 'beginner':'新手入门' }
             },
@@ -480,7 +481,7 @@
             html += '<th style="width:30px;"></th>';
             meta.columns.forEach(col => {
                 if (col === 'sort') return;
-                const labels = { icon:'图标', title:'标题', name:'名称', category:'分类', badge:'角标', tags:'标签', video_url:'视频', description:'简介', id:'ID', code:'兑换码', reward:'奖励', expiry:'有效期', is_active:'状态', items:'条目' };
+                const labels = { icon:'图标', title:'标题', name:'名称', category:'分类', badge:'角标', tags:'标签', image_url:'封面图', video_url:'视频', description:'简介', id:'ID', code:'兑换码', reward:'奖励', expiry:'有效期', is_active:'状态', items:'条目' };
                 html += `<th>${labels[col] || col}</th>`;
             });
             html += '<th style="min-width:180px;">操作</th></tr></thead><tbody>';
@@ -499,6 +500,8 @@
                     } else if (col === 'badge') {
                         const cls = val === 'new' ? 'badge-new' : val === 'hot' ? 'badge-hot' : '';
                         html += `<td>${val ? `<span class="badge-tag ${cls}">${val==='new'?'最新':'热门'}</span>` : '—'}</td>`;
+                    } else if (col === 'image_url') {
+                        html += `<td>${val ? '<span class="badge-tag" style="background:rgba(46,125,50,0.12);color:var(--success2);">🖼 有图片</span>' : '—'}</td>`;
                     } else if (col === 'video_url') {
                         html += `<td>${val ? '<span class="badge-tag badge-vid">▶ 有视频</span>' : '—'}</td>`;
                     } else if (col === 'category') {
