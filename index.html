@@ -440,7 +440,6 @@
     <script>
         const API = 'https://wzrysjglz.onrender.com/api/data';
         const LS_FAV = 'wzry_favs_v2';
-        let dataCache = {};
         let currentTab = 'home';
         let currentFilter = 'all';
         let searchQuery = '';
@@ -461,12 +460,11 @@
             return getFavorites().some(f => f.id === id && f.tab === tab);
         }
 
+        // ★ 修复：不再缓存数据，每次切页面都重新请求 API，确保后台新增内容前台即时可见
         async function loadData(tab) {
-            if (dataCache[tab]) return dataCache[tab];
             try {
                 const res = await fetch(`${API}/${tab}`);
                 const data = await res.json();
-                dataCache[tab] = data;
                 return data;
             } catch(e) { return []; }
         }
@@ -798,15 +796,24 @@
         }
 
         // Favorites
-        function renderFavorites() {
+        async function renderFavorites() {
             const list = document.getElementById('favoritesList');
             const favs = getFavorites();
             if (!favs.length) {
                 list.innerHTML = '<p style="color:var(--text2);">暂无收藏</p>';
                 return;
             }
+            // ★ 总是从 API 获取最新数据
+            const tables = ['pvp_guides', 'explore_guides', 'codes', 'quickref'];
+            const freshData = {};
+            for (const t of tables) {
+                try {
+                    const res = await fetch(`${API}/${t}`);
+                    freshData[t] = await res.json();
+                } catch(e) { freshData[t] = []; }
+            }
             list.innerHTML = favs.map(f => {
-                const data = (dataCache[f.tab] || []).find(d => d.id === f.id);
+                const data = (freshData[f.tab] || []).find(d => d.id === f.id);
                 if (!data) return '';
                 const name = data.title || data.name || data.code || '未知';
                 const tabNames = { pvp_guides:'PVP攻略', explore_guides:'探索攻略', codes:'兑换码', quickref:'速查' };
