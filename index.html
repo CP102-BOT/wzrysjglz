@@ -3,905 +3,672 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>王者荣耀世界 - PVP攻略站</title>
+    <title>王者荣耀世界 · 攻略站</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0c0f17;
-            --card: #141824;
-            --card2: #1a1f2e;
-            --text: #e8eaed;
-            --text2: #8892a4;
-            --red: #c62828;
-            --red2: #e53935;
-            --cyan: #1a8fc4;
-            --cyan2: #26a5da;
-            --gold: #c88a2c;
-            --gold2: #e2a834;
-            --green: #2e7d32;
-            --green2: #43a047;
-            --border: rgba(136,146,164,0.12);
+            --bg-deep: #060B12;
+            --bg: #0D1520;
+            --bg-card: #111A27;
+            --bg-hover: #172231;
+            --bg-elevated: #1A2535;
+            --text: #EFF2F6;
+            --text2: #8496AD;
+            --text3: #5A6D85;
+            --gold: #C8922A;
+            --gold2: #E2AC3F;
+            --gold-bg: rgba(200,146,42,0.08);
+            --gold-glow: rgba(200,146,42,0.15);
+            --red: #D9434E;
+            --red2: #F0606A;
+            --red-bg: rgba(217,67,78,0.08);
+            --cyan: #2E9EC4;
+            --cyan2: #46B8DE;
+            --cyan-bg: rgba(46,158,196,0.07);
+            --green: #3DA35D;
+            --green2: #52C072;
+            --border: rgba(132,150,173,0.08);
+            --border2: rgba(132,150,173,0.14);
             --radius: 0.5rem;
+            --radius-lg: 0.75rem;
+            --shadow: 0 2px 8px rgba(0,0,0,0.3);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
+            --t: 0.2s cubic-bezier(0.4,0,0.2,1);
+            --font: 'Noto Sans SC', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body {
-            font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
-            background: var(--bg); color: var(--text); line-height:1.6; min-height:100vh;
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{
+            font-family:var(--font);background:var(--bg-deep);color:var(--text);
+            line-height:1.6;min-height:100vh;-webkit-font-smoothing:antialiased;
+            overflow-x:hidden;
         }
 
-        /* Header */
-        .header {
-            background: rgba(12,15,23,0.92);
+        /* ── 背景纹理 ── */
+        body::before{
+            content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+            background:
+                url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L60 17.3v34.6L30 69.3 0 51.9V17.3z' fill='none' stroke='%23C8922A' stroke-width='0.5' opacity='0.02'/%3E%3C/svg%3E") repeat,
+                radial-gradient(ellipse 70% 50% at 50% 0%, rgba(200,146,42,0.04) 0%, transparent 60%),
+                radial-gradient(ellipse 35% 35% at 75% 45%, rgba(46,158,196,0.03) 0%, transparent 50%),
+                radial-gradient(ellipse 30% 25% at 20% 75%, rgba(217,67,78,0.02) 0%, transparent 50%);
+        }
+
+        ::-webkit-scrollbar{width:4px;height:4px}
+        ::-webkit-scrollbar-track{background:transparent}
+        ::-webkit-scrollbar-thumb{background:rgba(132,150,173,0.15);border-radius:2px}
+        ::-webkit-scrollbar-thumb:hover{background:rgba(132,150,173,0.3)}
+
+        /* ═══════ HEADER ═══════ */
+        .header{
+            position:sticky;top:0;z-index:100;
+            background:rgba(13,21,32,0.88);
+            backdrop-filter:blur(18px) saturate(150%);
+            -webkit-backdrop-filter:blur(18px) saturate(150%);
             border-bottom:1px solid var(--border);
-            padding:0.65rem 1.5rem; position:sticky; top:0; z-index:100;
-            backdrop-filter: blur(12px);
         }
-        .header-inner {
-            max-width:1280px; margin:0 auto;
-            display:flex; justify-content:space-between; align-items:center;
-            flex-wrap:wrap; gap:0.75rem;
+        .h-inner{
+            max-width:1400px;margin:0 auto;padding:0 1.5rem;
+            display:flex;justify-content:space-between;align-items:center;
+            height:56px;gap:1rem;
         }
-        .logo { font-size:1.15rem; font-weight:700; color:var(--red2); display:flex; align-items:center; gap:0.5rem; }
-        .logo i { font-style:normal; font-size:1.3rem; }
-        .header-nav { display:flex; gap:0.15rem; flex-wrap:wrap; }
-        .header-nav a {
-            padding:0.4rem 0.9rem; border-radius:0.35rem; cursor:pointer;
-            text-decoration:none; color:var(--text2); font-size:0.88rem;
-            font-weight:500; transition:0.15s;
+        .logo{
+            font-size:1rem;font-weight:800;color:var(--gold2);
+            display:flex;align-items:center;gap:.5rem;letter-spacing:.02em;
+            white-space:nowrap;
         }
-        .header-nav a:hover { color:var(--text); background:var(--card2); }
-        .header-nav a.active { color:var(--red2); background:rgba(198,40,40,0.08); }
-        .header-actions { display:flex; gap:0.35rem; align-items:center; }
-        .btn-icon {
-            width:34px; height:34px; border-radius:0.35rem;
-            border:1px solid var(--border); background:var(--card);
-            color:var(--text2); cursor:pointer; font-size:1rem;
-            display:flex; align-items:center; justify-content:center; transition:0.15s;
+        .logo svg{width:28px;height:28px;flex-shrink:0}
+        .h-nav{display:flex;gap:2px}
+        .h-nav a{
+            display:flex;align-items:center;gap:.4rem;
+            padding:.45rem .85rem;border-radius:.4rem;cursor:pointer;
+            text-decoration:none;color:var(--text2);font-size:.85rem;
+            font-weight:600;transition:var(--t);position:relative;
         }
-        .btn-icon:hover { color:var(--red2); border-color:var(--red); }
-        .hamburger {
-            display:none; background:none; border:1px solid var(--border);
-            color:var(--text); font-size:1.2rem; cursor:pointer;
-            width:36px; height:36px; border-radius:0.35rem;
-            align-items:center; justify-content:center; transition:0.15s;
+        .h-nav a svg{width:17px;height:17px;flex-shrink:0;opacity:.6}
+        .h-nav a:hover{color:var(--text);background:var(--bg-hover)}
+        .h-nav a:hover svg{opacity:1}
+        .h-nav a.active{color:var(--gold2);background:var(--gold-bg)}
+        .h-nav a.active svg{opacity:1;color:var(--gold2)}
+        .h-nav a.active::after{
+            content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);
+            width:55%;height:2px;background:var(--gold);border-radius:1px;
         }
-        .hamburger:hover { border-color:var(--red); color:var(--red2); }
-
-        /* Hero Banner */
-        .hero-banner { max-width:1280px; margin:1.5rem auto; padding:0 1.5rem; }
-        .hero-slider {
-            background: linear-gradient(135deg, #1a1520 0%, #141824 50%, #0f1a25 100%);
-            border:1px solid var(--border); border-radius:0.6rem; overflow:hidden; position:relative;
+        .h-acts{display:flex;gap:.4rem;align-items:center}
+        .btn-icon{
+            width:36px;height:36px;border-radius:.4rem;
+            border:1px solid var(--border);background:var(--bg-card);
+            color:var(--text2);cursor:pointer;font-size:1rem;
+            display:flex;align-items:center;justify-content:center;transition:var(--t);
+            position:relative;
         }
-        .hero-slide {
-            display:none; padding:2rem 2.5rem; align-items:center; gap:2rem; min-height:200px;
+        .btn-icon:hover{color:var(--gold2);border-color:rgba(200,146,42,0.3);background:var(--bg-hover)}
+        .btn-icon .dot{
+            position:absolute;top:5px;right:5px;width:6px;height:6px;
+            border-radius:50%;background:var(--red);display:none;
         }
-        .hero-slide.active { display:flex; }
-        .hero-slide .hero-avatar {
-            width:110px; height:110px; border-radius:0.5rem;
-            background:var(--card2); display:flex; align-items:center;
-            justify-content:center; font-size:3rem; flex-shrink:0; border:2px solid var(--border);
-        }
-        .hero-slide .hero-info h2 { font-size:1.3rem; font-weight:700; margin-bottom:0.35rem; }
-        .hero-slide .hero-info .sub { color:var(--text2); font-size:0.88rem; margin-bottom:0.5rem; }
-        .hero-slide .hero-info .desc { color:var(--text2); font-size:0.85rem; line-height:1.7; }
-        .hero-slide .hero-tags { display:flex; gap:0.35rem; margin-top:0.75rem; flex-wrap:wrap; }
-        .hero-tag {
-            padding:0.2rem 0.6rem; border-radius:0.25rem; font-size:0.75rem;
-            font-weight:600; border:1px solid; color:var(--red2);
-            border-color:rgba(198,40,40,0.3); background:rgba(198,40,40,0.08);
-        }
-        .hero-dots { display:flex; gap:0.4rem; justify-content:center; padding:0.75rem; }
-        .hero-dot { width:8px; height:8px; border-radius:50%; background:var(--border); cursor:pointer; transition:0.2s; }
-        .hero-dot.active { background:var(--red2); width:20px; border-radius:4px; }
-
-        @media (max-width:768px) {
-            .hero-slide { flex-direction:column; text-align:center; padding:1.5rem; }
-            .hero-slide .hero-avatar { width:80px; height:80px; font-size:2.2rem; }
+        .btn-icon .dot.show{display:block}
+        .hamburger{
+            display:none;background:none;border:1px solid var(--border);
+            color:var(--text);font-size:1.2rem;cursor:pointer;
+            width:36px;height:36px;border-radius:.4rem;
+            align-items:center;justify-content:center;
         }
 
-        /* Code Banner */
-        .code-banner { max-width:1280px; margin:0 auto 1.5rem; padding:0 1.5rem; }
-        .code-banner-inner {
-            background: linear-gradient(135deg, rgba(198,40,40,0.12) 0%, rgba(26,143,196,0.08) 100%);
-            border:1px solid rgba(198,40,40,0.2); border-radius:0.6rem;
-            padding:1.25rem 1.5rem; display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap;
+        /* ═══════ PVP MODE TABS (LOL-style sub-nav) ═══════ */
+        .mode-tabs{
+            max-width:1400px;margin:1.25rem auto 0;padding:0 1.5rem;
+            display:flex;gap:0;border-bottom:1px solid var(--border);
+            overflow-x:auto;-webkit-overflow-scrolling:touch;
         }
-        .code-banner-inner .cb-icon { font-size:2rem; flex-shrink:0; }
-        .code-banner-inner .cb-info { flex:1; min-width:200px; }
-        .code-banner-inner .cb-title { font-weight:700; font-size:0.95rem; margin-bottom:0.2rem; }
-        .code-banner-inner .cb-codes { display:flex; gap:0.75rem; flex-wrap:wrap; }
-        .code-tag {
-            background:rgba(198,40,40,0.15); border:1px solid rgba(198,40,40,0.3);
-            padding:0.35rem 0.8rem; border-radius:0.3rem; font-family:monospace;
-            font-size:0.9rem; color:var(--red2); cursor:pointer; transition:0.15s; font-weight:600;
+        .mode-tab{
+            display:flex;align-items:center;gap:.45rem;
+            padding:.6rem 1.15rem;cursor:pointer;white-space:nowrap;
+            color:var(--text2);font-size:.88rem;font-weight:600;
+            border-bottom:2px solid transparent;transition:var(--t);
+            font-family:var(--font);
         }
-        .code-tag:hover { background:rgba(198,40,40,0.25); }
-        .code-tag .reward { display:block; font-size:0.7rem; color:var(--text2); font-weight:400; margin-top:0.1rem; font-family:inherit; }
-        .cb-copied { position:fixed; top:1rem; left:50%; transform:translateX(-50%);
-            background:var(--green); color:#fff; padding:0.5rem 1.5rem; border-radius:0.35rem;
-            font-size:0.85rem; z-index:999; pointer-events:none; transition:0.3s; opacity:0; }
+        .mode-tab svg{width:18px;height:18px;opacity:.55;flex-shrink:0}
+        .mode-tab:hover{color:var(--text)}
+        .mode-tab:hover svg{opacity:.85}
+        .mode-tab.active{color:var(--gold2);border-bottom-color:var(--gold)}
+        .mode-tab.active svg{opacity:1;color:var(--gold2)}
+        .mode-tab .tip{
+            font-size:.65rem;padding:.1rem .4rem;border-radius:.2rem;
+            font-weight:700;letter-spacing:.04em;line-height:1.4;
+        }
+        .tip-new{background:rgba(61,163,93,0.12);color:var(--green2)}
+        .tip-hot{background:rgba(217,67,78,0.12);color:var(--red2)}
 
-        /* Search */
-        .search-wrap { max-width:1280px; margin:0 auto 1rem; padding:0 1.5rem; }
-        .search-box { max-width:560px; margin:0 auto; position:relative; }
-        .search-input {
-            width:100%; padding:0.75rem 1rem 0.75rem 2.6rem;
-            border-radius:0.4rem; border:1px solid var(--border);
-            background:var(--card); color:var(--text); font-size:0.9rem;
-            outline:none; transition:border-color 0.2s;
+        /* ═══════ HERO BANNER ═══════ */
+        .hero-section{max-width:1400px;margin:1.25rem auto;padding:0 1.5rem}
+        .hero-banner{
+            border-radius:var(--radius-lg);overflow:hidden;position:relative;
+            background:linear-gradient(135deg,#0c1420 0%,#111a27 35%,#0d1622 65%,#0c1420 100%);
+            border:1px solid var(--border2);min-height:200px;
         }
-        .search-input:focus { border-color:var(--cyan); }
-        .search-icon { position:absolute; left:0.85rem; top:50%; transform:translateY(-50%); color:var(--text2); }
+        .hero-banner::before{
+            content:'';position:absolute;inset:0;z-index:0;
+            background:
+                radial-gradient(circle at 20% 30%,rgba(200,146,42,0.08),transparent 50%),
+                radial-gradient(circle at 80% 60%,rgba(46,158,196,0.06),transparent 40%);
+        }
+        .hero-slide{
+            display:none;padding:2rem 2.5rem;align-items:center;gap:2rem;
+            position:relative;z-index:1;animation:slideIn .35s ease;
+        }
+        @keyframes slideIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+        .hero-slide.active{display:flex}
+        .hero-av{
+            width:96px;height:96px;border-radius:.6rem;
+            background:linear-gradient(135deg,var(--bg-card),var(--bg-elevated));
+            display:flex;align-items:center;justify-content:center;
+            font-size:2.5rem;flex-shrink:0;border:1px solid var(--border2);
+            box-shadow:0 4px 20px rgba(0,0,0,0.4);
+        }
+        .hero-info{flex:1;min-width:0}
+        .hero-info h2{font-size:1.3rem;font-weight:800;margin-bottom:.3rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+        .hero-badge{font-size:.65rem;padding:.15rem .5rem;border-radius:.25rem;font-weight:700;letter-spacing:.03em}
+        .hero-badge.hot{background:var(--red-bg);color:var(--red2);border:1px solid rgba(217,67,78,0.25)}
+        .hero-badge.new{background:rgba(61,163,93,0.1);color:var(--green2);border:1px solid rgba(61,163,93,0.2)}
+        .hero-info .sub{color:var(--text2);font-size:.84rem;margin-bottom:.4rem}
+        .hero-info .desc{color:var(--text2);font-size:.83rem;line-height:1.65;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+        .hero-tags{display:flex;gap:.35rem;margin-top:.65rem;flex-wrap:wrap}
+        .hero-tag{padding:.18rem .6rem;border-radius:.25rem;font-size:.73rem;font-weight:500;border:1px solid rgba(200,146,42,0.2);color:var(--gold2);background:var(--gold-bg)}
+        .hero-dots{display:flex;gap:.4rem;justify-content:center;padding:.75rem;position:relative;z-index:1}
+        .hero-dot{width:8px;height:8px;border-radius:50%;cursor:pointer;background:var(--border2);transition:var(--t)}
+        .hero-dot.active{background:var(--gold);width:22px;border-radius:4px}
 
-        /* Filters */
-        .filter-wrap {
-            max-width:1280px; margin:0 auto 1.25rem; padding:0 1.5rem;
-            display:flex; gap:0.35rem; flex-wrap:wrap; align-items:center;
+        /* ═══════ CODE BANNER ═══════ */
+        .cb-wrap{max-width:1400px;margin:0 auto 1rem;padding:0 1.5rem}
+        .cb-inner{
+            background:linear-gradient(135deg,rgba(200,146,42,0.08),rgba(200,146,42,0.03));
+            border:1px solid rgba(200,146,42,0.15);border-radius:var(--radius);
+            padding:1rem 1.25rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;
         }
-        .filter-label { color:var(--text2); font-size:0.8rem; margin-right:0.3rem; }
-        .filter-tag {
-            padding:0.25rem 0.75rem; border-radius:1rem; cursor:pointer;
-            border:1px solid var(--border); background:var(--card);
-            color:var(--text2); font-size:0.8rem; transition:0.15s;
+        .cb-inner .cb-icon{font-size:1.5rem;flex-shrink:0}
+        .cb-inner .cb-info{flex:1;min-width:180px}
+        .cb-inner .cb-title{font-weight:700;font-size:.88rem;color:var(--gold2);margin-bottom:.15rem}
+        .cb-codes{display:flex;gap:.5rem;flex-wrap:wrap}
+        .code-tag{
+            padding:.32rem .7rem;border-radius:.3rem;
+            background:rgba(200,146,42,0.1);border:1px solid rgba(200,146,42,0.25);
+            font-family:'SF Mono','Menlo',monospace;font-size:.85rem;
+            color:var(--gold2);cursor:pointer;transition:var(--t);font-weight:600;
         }
-        .filter-tag:hover { border-color:var(--text2); color:var(--text); }
-        .filter-tag.active { background:var(--red); color:#fff; border-color:var(--red); }
+        .code-tag:hover{background:rgba(200,146,42,0.2);box-shadow:0 0 0 1px rgba(200,146,42,0.2),0 2px 12px rgba(200,146,42,0.1)}
+        .code-tag .reward{display:block;font-size:.66rem;color:var(--text2);font-weight:400;font-family:var(--font)}
 
-        /* Main Content */
-        .main-content { max-width:1280px; margin:0 auto 3rem; padding:0 1.5rem; }
-        .section-header { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:1.25rem; }
-        .section-title { font-size:1.15rem; font-weight:700; color:var(--text); }
-        .section-count { color:var(--text2); font-size:0.82rem; }
+        /* ═══════ SEARCH + FILTERS ═══════ */
+        .search-wrap{max-width:1400px;margin:0 auto .85rem;padding:0 1.5rem}
+        .search-box{max-width:480px;margin:0 auto;position:relative}
+        .search-input{
+            width:100%;padding:.65rem 1rem .65rem 2.6rem;
+            border-radius:.4rem;border:1px solid var(--border2);
+            background:var(--bg-card);color:var(--text);
+            font-size:.88rem;font-family:var(--font);outline:none;transition:var(--t);
+        }
+        .search-input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(200,146,42,0.08)}
+        .search-input::placeholder{color:var(--text3)}
+        .search-icon{position:absolute;left:.9rem;top:50%;transform:translateY(-50%);color:var(--text3);font-size:.95rem;pointer-events:none}
+        .filter-wrap{
+            max-width:1400px;margin:0 auto 1rem;padding:0 1.5rem;
+            display:flex;gap:.35rem;flex-wrap:wrap;align-items:center;
+        }
+        .filter-label{color:var(--text3);font-size:.78rem;margin-right:.2rem}
+        .filter-tag{
+            padding:.28rem .75rem;border-radius:1rem;cursor:pointer;
+            border:1px solid var(--border);background:var(--bg-card);
+            color:var(--text2);font-size:.78rem;transition:var(--t);font-weight:500;
+        }
+        .filter-tag:hover{border-color:var(--border2);color:var(--text)}
+        .filter-tag.active{background:var(--gold-bg);color:var(--gold2);border-color:rgba(200,146,42,0.3)}
 
-        /* Card Grid */
-        .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:1rem; }
+        /* ═══════ HOME TABS ═══════ */
+        .home-sections{max-width:1400px;margin:0 auto;padding:0 1.5rem}
+        .hs-tabs{display:flex;gap:0;margin-bottom:1rem;border-bottom:1px solid var(--border)}
+        .hs-tab{
+            padding:.5rem 1.2rem;cursor:pointer;color:var(--text2);
+            font-size:.9rem;font-weight:600;border-bottom:2px solid transparent;
+            transition:var(--t);font-family:var(--font);display:flex;align-items:center;gap:.4rem;
+        }
+        .hs-tab:hover{color:var(--text)}
+        .hs-tab.active{color:var(--gold2);border-bottom-color:var(--gold)}
 
-        /* Horizontal Scroll */
-        .hscroll-wrap { margin-bottom:2rem; }
-        .hscroll {
-            display:flex; gap:1rem; overflow-x:auto; padding-bottom:0.5rem;
-            scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch;
-        }
-        .hscroll::-webkit-scrollbar { height:4px; }
-        .hscroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
-        .hscroll .card { min-width:300px; scroll-snap-align:start; }
+        /* ═══════ SECTION ═══════ */
+        .sec-hdr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1rem}
+        .sec-title{font-size:1.05rem;font-weight:800;color:var(--text);display:flex;align-items:center;gap:.5rem}
+        .sec-title::before{content:'';width:3px;height:1.05rem;background:var(--gold);border-radius:2px}
+        .sec-count{color:var(--text3);font-size:.78rem}
 
-        /* Section tabs on home */
-        .home-sections { max-width:1280px; margin:0 auto; padding:0 1.5rem; }
-        .home-section-tabs { display:flex; gap:0.15rem; margin-bottom:1.25rem; }
-        .home-section-tab {
-            padding:0.55rem 1.4rem; border-radius:0.35rem 0.35rem 0 0; cursor:pointer;
-            color:var(--text2); font-size:0.95rem; font-weight:600;
-            border-bottom:2px solid transparent; transition:0.15s;
-        }
-        .home-section-tab:hover { color:var(--text); }
-        .home-section-tab.active { color:var(--red2); border-bottom-color:var(--red2); }
+        .main-content{max-width:1400px;margin:0 auto 3rem;padding:0 1.5rem}
 
-        /* Card */
-        .card {
-            background:var(--card); border:1px solid var(--border);
-            border-radius:0.5rem; cursor:pointer; transition:0.2s;
-            overflow:hidden; display:flex; flex-direction:column;
+        /* ═══════ DATA RANKING SECTION ═══════ */
+        .rank-section{max-width:1400px;margin:0 auto 1.5rem;padding:0 1.5rem}
+        .rank-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem}
+        .rank-card{
+            background:var(--bg-card);border:1px solid var(--border);
+            border-radius:var(--radius);padding:1.25rem;transition:var(--t);
+            position:relative;overflow:hidden;
         }
-        .card:hover { transform:translateY(-2px); border-color:rgba(136,146,164,0.25); }
-        .card-img {
-            height:160px; background:var(--card2);
-            display:flex; align-items:center; justify-content:center;
-            font-size:3rem; position:relative; overflow:hidden;
+        .rank-card:hover{border-color:var(--border2);background:var(--bg-hover)}
+        .rank-card::before{
+            content:'';position:absolute;top:0;left:0;right:0;height:2px;
+            background:linear-gradient(90deg,transparent,var(--gold),transparent);
+            opacity:0;transition:opacity .3s;
         }
-        .card-img img { width:100%; height:100%; object-fit:cover; }
-        .card-img video { width:100%; height:100%; object-fit:cover; }
-        .card-badge {
-            position:absolute; top:0.5rem; right:0.5rem; padding:0.2rem 0.5rem;
-            border-radius:0.25rem; font-size:0.7rem; font-weight:700; z-index:2;
+        .rank-card:hover::before{opacity:1}
+        .rank-card .rk-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.85rem}
+        .rank-card .rk-title{font-weight:700;font-size:.88rem;color:var(--text2)}
+        .rank-card .rk-icon{font-size:1.3rem}
+        .rank-item{
+            display:flex;align-items:center;gap:.65rem;padding:.45rem 0;
+            border-bottom:1px solid var(--border);transition:var(--t);
         }
-        .badge-new { background:var(--green); color:#fff; }
-        .badge-hot { background:var(--red); color:#fff; }
-        .badge-vid {
-            position:absolute; bottom:0.5rem; right:0.5rem; padding:0.2rem 0.45rem;
-            border-radius:0.25rem; font-size:0.7rem; font-weight:600; z-index:2;
-            background:rgba(0,0,0,0.7); color:#fff;
+        .rank-item:last-child{border-bottom:none}
+        .rank-item:hover{background:rgba(200,146,42,0.03);margin:0 -.5rem;padding:.45rem .5rem;border-radius:.3rem}
+        .rank-num{
+            width:22px;height:22px;border-radius:50%;display:flex;align-items:center;
+            justify-content:center;font-size:.7rem;font-weight:800;flex-shrink:0;
+            background:var(--bg);color:var(--text3);
         }
-        .card-body { padding:1rem 1.25rem 1.25rem; flex:1; display:flex; flex-direction:column; }
-        .card-title {
-            font-size:1rem; font-weight:700; margin-bottom:0.35rem;
-            display:flex; justify-content:space-between; align-items:center;
-        }
-        .card-fav {
-            background:none; border:none; cursor:pointer; font-size:1rem;
-            padding:0.15rem; transition:0.15s; opacity:0.5;
-        }
-        .card-fav:hover, .card-fav.active { opacity:1; }
-        .card-meta { color:var(--text2); font-size:0.8rem; margin-bottom:0.5rem; }
-        .card-tags { display:flex; gap:0.3rem; flex-wrap:wrap; margin-bottom:0.5rem; }
-        .card-tag {
-            padding:0.15rem 0.45rem; border-radius:0.2rem;
-            background:rgba(26,143,196,0.08); color:var(--cyan2);
-            font-size:0.72rem; font-weight:500; border:1px solid rgba(26,143,196,0.15);
-        }
-        .card-desc { color:var(--text2); font-size:0.84rem; line-height:1.55; margin-top:auto;
-            display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+        .rank-num.top1{background:rgba(200,146,42,0.2);color:var(--gold2)}
+        .rank-num.top2{background:rgba(132,150,173,0.15);color:var(--text2)}
+        .rank-num.top3{background:rgba(200,146,42,0.08);color:var(--gold)}
+        .rank-info{flex:1;min-width:0}
+        .rank-info .rn{font-size:.84rem;font-weight:700;color:var(--text)}
+        .rank-info .rp{font-size:.72rem;color:var(--text3)}
+        .rank-bar-wrap{width:60px;height:4px;background:var(--border);border-radius:2px;flex-shrink:0;overflow:hidden}
+        .rank-bar{height:100%;border-radius:2px;background:var(--gold);transition:width .6s ease}
 
-        /* Accordion */
-        .accordion { display:flex; flex-direction:column; gap:0.6rem; }
-        .accordion-item {
-            background:var(--card); border:1px solid var(--border);
-            border-radius:0.5rem; overflow:hidden;
-        }
-        .accordion-header {
-            padding:1rem 1.25rem; cursor:pointer; display:flex;
-            justify-content:space-between; align-items:center;
-            font-weight:600; font-size:0.95rem; transition:0.15s;
-        }
-        .accordion-header:hover { background:var(--card2); }
-        .accordion-header .arr { transition:0.25s; color:var(--text2); font-size:0.8rem; }
-        .accordion-item.open .accordion-header .arr { transform:rotate(180deg); }
-        .accordion-body { display:none; padding:0 1.25rem 1.25rem; }
-        .accordion-item.open .accordion-body { display:block; }
-        .accordion-body ul { list-style:none; }
-        .accordion-body li {
-            padding:0.45rem 0; border-bottom:1px solid var(--border);
-            color:var(--text2); font-size:0.85rem;
-        }
-        .accordion-body li:last-child { border-bottom:none; }
+        /* ═══════ GRID ═══════ */
+        .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1rem}
+        @media(min-width:1100px){.grid{grid-template-columns:repeat(3,1fr)}}
+        @media(min-width:1450px){.grid{grid-template-columns:repeat(4,1fr)}}
 
-        /* Modal */
-        .modal-overlay {
-            position:fixed; top:0;left:0;right:0;bottom:0;
-            background:rgba(0,0,0,0.6); display:none;
-            align-items:center; justify-content:center; z-index:1000; padding:1rem;
+        /* ═══════ CARD ═══════ */
+        .card{
+            background:var(--bg-card);border:1px solid var(--border);
+            border-radius:var(--radius);cursor:pointer;transition:var(--t);
+            overflow:hidden;display:flex;flex-direction:column;position:relative;
         }
-        .modal-overlay.active { display:flex; }
-        .modal {
-            background:var(--card); border-radius:0.6rem; border:1px solid var(--border);
-            max-width:800px; width:100%; max-height:85vh; overflow-y:auto;
-            box-shadow:0 20px 60px rgba(0,0,0,0.5);
+        .card:hover{transform:translateY(-2px);border-color:var(--border2);box-shadow:var(--shadow)}
+        .card-img{
+            height:165px;background:var(--bg-elevated);display:flex;
+            align-items:center;justify-content:center;font-size:2.8rem;
+            position:relative;overflow:hidden;
         }
-        .modal-header {
-            padding:1.25rem 1.5rem; border-bottom:1px solid var(--border);
-            display:flex; justify-content:space-between; align-items:center;
-            position:sticky; top:0; background:var(--card); z-index:10;
-            border-radius:0.6rem 0.6rem 0 0;
+        .card-img img{width:100%;height:100%;object-fit:cover;transition:transform .35s ease}
+        .card:hover .card-img img{transform:scale(1.04)}
+        .card-img .play-ov{
+            position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+            background:rgba(0,0,0,0.3);opacity:0;transition:opacity .3s;z-index:3;
         }
-        .modal-header h3 { font-size:1.1rem; font-weight:700; }
-        .modal-close {
-            background:none; border:none; color:var(--text2); font-size:1.3rem;
-            cursor:pointer; width:32px; height:32px; border-radius:0.35rem;
-            display:flex; align-items:center; justify-content:center; transition:0.15s;
+        .card[data-vid]:hover .play-ov{opacity:1}
+        .play-btn{
+            width:44px;height:44px;border-radius:50%;background:rgba(200,146,42,0.85);
+            color:#fff;display:flex;align-items:center;justify-content:center;
+            font-size:1.1rem;backdrop-filter:blur(4px);
         }
-        .modal-close:hover { background:var(--card2); color:var(--red2); }
-        .modal-actions { display:flex; gap:0.4rem; }
-        .modal-body { padding:1.5rem; }
-        .modal-video-wrap {
-            position:relative; padding-bottom:56.25%; height:0; overflow:hidden;
-            border-radius:0.4rem; margin-bottom:1.25rem; background:#000;
+        .card-badge{
+            position:absolute;top:.55rem;left:.55rem;
+            padding:.18rem .5rem;border-radius:.25rem;
+            font-size:.67rem;font-weight:700;z-index:4;letter-spacing:.03em;
         }
-        .modal-video-wrap iframe {
-            position:absolute; top:0; left:0; width:100%; height:100%; border:0;
+        .bg-new{background:var(--green);color:#fff}
+        .bg-hot{background:var(--red);color:#fff}
+        .bg-vid{
+            position:absolute;bottom:.55rem;right:.55rem;
+            padding:.18rem .45rem;border-radius:.25rem;
+            font-size:.67rem;font-weight:600;z-index:4;
+            background:rgba(0,0,0,0.75);color:#fff;
+            display:flex;align-items:center;gap:.2rem;backdrop-filter:blur(4px);
         }
-        .modal-video-wrap video {
-            position:absolute; top:0; left:0; width:100%; height:100%;
+        .card-body{padding:1rem 1.1rem 1.1rem;flex:1;display:flex;flex-direction:column}
+        .card-title{font-size:.92rem;font-weight:700;margin-bottom:.25rem;display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem}
+        .card-title span{flex:1;min-width:0}
+        .card-fav{background:none;border:none;cursor:pointer;font-size:1rem;padding:.1rem .25rem;transition:var(--t);flex-shrink:0;opacity:.35;color:var(--red2)}
+        .card-fav:hover,.card-fav.active{opacity:1}
+        .card-meta{color:var(--text3);font-size:.76rem;margin-bottom:.35rem}
+        .card-tags{display:flex;gap:.25rem;flex-wrap:wrap;margin-bottom:.4rem}
+        .card-tag{
+            padding:.12rem .45rem;border-radius:.2rem;
+            background:var(--cyan-bg);color:var(--cyan2);
+            font-size:.7rem;font-weight:500;border:1px solid rgba(46,158,196,0.12);
         }
-        .guide-content { color:var(--text2); line-height:1.8; font-size:0.9rem; }
-        .guide-content h3 { color:var(--text); font-size:1.05rem; margin:1.25rem 0 0.6rem; font-weight:700; }
-        .guide-content h3:first-child { margin-top:0; }
-        .guide-content p { margin-bottom:0.6rem; }
-        .guide-content strong { color:var(--text); }
-        .guide-content ul { margin:0.4rem 0 0.4rem 1.5rem; }
-        .guide-content li { margin-bottom:0.3rem; }
-        .empty-state { text-align:center; padding:4rem 2rem; color:var(--text2); }
-        .empty-state .icon { font-size:3rem; margin-bottom:1rem; opacity:0.5; }
+        .card-desc{
+            color:var(--text2);font-size:.8rem;line-height:1.5;margin-top:auto;
+            display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+        }
 
-        /* Favorites Sidebar */
-        .overlay {
-            position:fixed; top:0;left:0;right:0;bottom:0;
-            background:rgba(0,0,0,0.4); display:none; z-index:150;
-        }
-        .overlay.active { display:block; }
-        .sidebar {
-            position:fixed; right:-400px; top:0; bottom:0; width:400px;
-            max-width:90vw; background:var(--card); border-left:1px solid var(--border);
-            z-index:200; transition:right 0.3s ease; overflow-y:auto;
-            box-shadow:-8px 0 30px rgba(0,0,0,0.4);
-        }
-        .sidebar.active { right:0; }
-        .sidebar-header {
-            padding:1.25rem 1.5rem; border-bottom:1px solid var(--border);
-            display:flex; justify-content:space-between; align-items:center;
-            position:sticky; top:0; background:var(--card); z-index:10;
-        }
-        .sidebar-header h3 { font-size:1rem; font-weight:700; }
-        .sidebar-list { padding:0.75rem 1rem; }
-        .fav-item {
-            padding:1rem; background:var(--bg); border-radius:0.4rem;
-            margin-bottom:0.5rem; cursor:pointer; transition:0.15s;
-            border:1px solid transparent;
-        }
-        .fav-item:hover { border-color:var(--border); transform:translateX(-3px); }
+        /* ═══════ ACCORDION ═══════ */
+        .accordion{display:flex;flex-direction:column;gap:.55rem}
+        .acc-item{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+        .acc-hdr{padding:.95rem 1.15rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:.9rem;transition:var(--t)}
+        .acc-hdr:hover{background:var(--bg-hover)}
+        .acc-hdr .arr{transition:var(--t);color:var(--text3);font-size:.7rem}
+        .acc-item.open .acc-hdr .arr{transform:rotate(180deg);color:var(--gold2)}
+        .acc-body{display:none;padding:0 1.15rem 1.15rem}
+        .acc-item.open .acc-body{display:block}
+        .acc-body ul{list-style:none}
+        .acc-body li{padding:.4rem 0;border-bottom:1px solid var(--border);color:var(--text2);font-size:.82rem}
+        .acc-body li::before{content:'\2022';color:var(--gold);margin-right:.55rem}
+        .acc-body li:last-child{border-bottom:none}
 
-        .page-section { display:none; }
-        .page-section.active { display:block; }
+        /* ═══════ MODAL ═══════ */
+        .modal-overlay{
+            position:fixed;inset:0;background:rgba(6,11,18,0.85);
+            display:none;align-items:center;justify-content:center;
+            z-index:1000;padding:1rem;backdrop-filter:blur(6px);
+        }
+        .modal-overlay.active{display:flex}
+        .modal{
+            background:var(--bg-card);border-radius:var(--radius-lg);
+            border:1px solid var(--border2);max-width:860px;width:100%;
+            max-height:88vh;overflow-y:auto;box-shadow:var(--shadow-lg);
+            animation:modalIn .22s ease;
+        }
+        @keyframes modalIn{from{opacity:0;transform:scale(.97) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+        .modal-header{
+            padding:1.1rem 1.5rem;border-bottom:1px solid var(--border);
+            display:flex;justify-content:space-between;align-items:center;
+            position:sticky;top:0;background:var(--bg-card);z-index:10;
+            border-radius:var(--radius-lg) var(--radius-lg) 0 0;
+        }
+        .modal-header h3{font-size:1.02rem;font-weight:700}
+        .modal-close{
+            background:none;border:none;color:var(--text2);font-size:1.2rem;
+            cursor:pointer;width:30px;height:30px;border-radius:.35rem;
+            display:flex;align-items:center;justify-content:center;transition:var(--t);
+        }
+        .modal-close:hover{background:var(--bg-hover);color:var(--red2)}
+        .modal-acts{display:flex;gap:.35rem}
+        .modal-body{padding:1.5rem}
+        .modal-video{
+            position:relative;padding-bottom:56.25%;height:0;overflow:hidden;
+            border-radius:var(--radius);margin-bottom:1.25rem;background:#000;
+            box-shadow:var(--shadow);
+        }
+        .modal-video iframe,.modal-video video{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
+        .guide-content{color:var(--text2);line-height:1.8;font-size:.88rem}
+        .guide-content h3{color:var(--text);font-size:1rem;margin:1.2rem 0 .55rem;font-weight:700}
+        .guide-content h3:first-child{margin-top:0}
+        .guide-content p{margin-bottom:.55rem}
+        .guide-content strong{color:var(--text)}
+        .guide-content ul{margin:.4rem 0 .4rem 1.5rem}
+        .guide-content li{margin-bottom:.25rem}
+        .guide-content li::marker{color:var(--gold)}
+        .empty-state{text-align:center;padding:4rem 2rem;color:var(--text3)}
+        .empty-state .icon{font-size:2.8rem;margin-bottom:.75rem;opacity:.35}
 
-        @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-        ::-webkit-scrollbar { width:5px; }
-        ::-webkit-scrollbar-track { background:transparent; }
-        ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
-        ::-webkit-scrollbar-thumb:hover { background:var(--text2); }
+        /* ═══════ FAVORITES ═══════ */
+        .overlay{position:fixed;inset:0;background:rgba(6,11,18,0.5);display:none;z-index:150;backdrop-filter:blur(2px)}
+        .overlay.active{display:block}
+        .sidebar{
+            position:fixed;right:-420px;top:0;bottom:0;width:400px;max-width:92vw;
+            background:var(--bg-card);border-left:1px solid var(--border);
+            z-index:200;transition:right .3s cubic-bezier(.4,0,.2,1);
+            overflow-y:auto;box-shadow:-8px 0 30px rgba(0,0,0,0.5);
+        }
+        .sidebar.active{right:0}
+        .sidebar-header{
+            padding:1.2rem 1.5rem;border-bottom:1px solid var(--border);
+            display:flex;justify-content:space-between;align-items:center;
+            position:sticky;top:0;background:var(--bg-card);z-index:10;
+        }
+        .sidebar-header h3{font-size:.95rem;font-weight:700;color:var(--gold2)}
+        .sidebar-list{padding:.75rem 1rem}
+        .fav-item{
+            padding:.95rem;background:var(--bg);border-radius:var(--radius);
+            margin-bottom:.5rem;cursor:pointer;transition:var(--t);border:1px solid transparent;
+        }
+        .fav-item:hover{border-color:var(--border2);transform:translateX(-3px)}
 
-        @media (max-width:768px) {
-            .hamburger { display:flex; }
-            .header { padding:0.6rem 1rem; }
-            .header-nav {
-                display:none; width:100%; flex-direction:column;
-                order:3; background:var(--card); border-radius:0.4rem;
-                border:1px solid var(--border); padding:0.3rem;
-            }
-            .header-nav.open { display:flex; }
-            .header-nav a { padding:0.6rem 0.75rem; }
-            .grid { grid-template-columns:1fr; gap:0.75rem; }
-            .hero-banner, .code-banner, .search-wrap, .filter-wrap, .main-content, .home-sections { padding:0 1rem; }
-            .sidebar { width:100%; right:-100%; }
-            .modal-body { padding:1rem; }
-            .hscroll .card { min-width:260px; }
-            .home-section-tab { font-size:0.85rem; padding:0.45rem 1rem; }
+        /* ═══════ TOAST ═══════ */
+        .toast{
+            position:fixed;top:1rem;left:50%;transform:translateX(-50%);
+            background:var(--green);color:#fff;padding:.5rem 1.4rem;
+            border-radius:.35rem;font-size:.82rem;z-index:2000;font-weight:600;
+            pointer-events:none;opacity:0;transition:opacity .3s;
+            box-shadow:0 4px 16px rgba(61,163,93,0.3);
+        }
+
+        .page-section{display:none;position:relative;z-index:1}
+        .page-section.active{display:block}
+
+        /* ═══════ RESPONSIVE ═══════ */
+        @media(max-width:768px){
+            .hamburger{display:flex}
+            .h-nav{display:none;width:100%;flex-direction:column;order:3;background:var(--bg-card);border-radius:var(--radius);border:1px solid var(--border);padding:.25rem}
+            .h-nav.open{display:flex}
+            .h-nav a{padding:.55rem .7rem}
+            .grid{grid-template-columns:1fr!important;gap:.7rem}
+            .hero-slide{flex-direction:column;text-align:center;padding:1.5rem}
+            .hero-av{width:68px;height:68px;font-size:2rem}
+            .rank-grid{grid-template-columns:1fr}
+            .mode-tabs{font-size:.82rem}
+            .mode-tab{padding:.5rem .85rem}
+            .hero-section,.cb-wrap,.search-wrap,.filter-wrap,.main-content,.home-sections,.rank-section{padding:0 1rem}
+            .sidebar{width:100%;right:-100%}
+            .modal-body{padding:1rem}
+        }
+        @media(max-width:480px){
+            .h-inner{flex-wrap:wrap;height:auto;padding:.55rem 0}
+            .logo{font-size:.9rem}
+            .grid{gap:.55rem}
+            .card-img{height:140px}
         }
     </style>
 </head>
 <body>
     <header class="header">
-        <div class="header-inner">
-            <div class="logo"><i>⚔</i> 王者荣耀世界 · PVP攻略站</div>
-            <button class="hamburger" id="hamburgerBtn" aria-label="菜单">☰</button>
-            <nav class="header-nav" id="headerNav">
-                <a data-tab="home" class="active">首页</a>
-                <a data-tab="pvp">PVP攻略</a>
-                <a data-tab="explore">探索攻略</a>
-                <a data-tab="quickref">速查</a>
+        <div class="h-inner">
+            <div class="logo">
+                <svg viewBox="0 0 28 28" fill="none"><rect x="2" y="2" width="24" height="24" rx="6" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M14 7l3 6-3 4-3-4 3-6z" fill="currentColor" opacity="0.6"/><circle cx="14" cy="16" r="1.5" fill="currentColor"/></svg>
+                王者荣耀世界·攻略站
+            </div>
+            <button class="hamburger" id="hb" aria-label="菜单">☰</button>
+            <nav class="h-nav" id="hnav">
+                <a data-tab="home" class="active">
+                    <svg viewBox="0 0 20 20" fill="none"><path d="M3 8l7-5 7 5v9H3V8z" stroke="currentColor" stroke-width="1.5" fill="none"/><rect x="8" y="12" width="4" height="5" rx="1" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
+                    首页
+                </a>
+                <a data-tab="pvp">
+                    <svg viewBox="0 0 20 20" fill="none"><path d="M10 2L14 7l-4 5-4-5 4-5z" stroke="currentColor" stroke-width="1.3" fill="none"/><rect x="2" y="12" width="16" height="7" rx="1" stroke="currentColor" stroke-width="1.2" fill="none"/><line x1="10" y1="12" x2="10" y2="19" stroke="currentColor" stroke-width="1"/></svg>
+                    PVP攻略
+                </a>
+                <a data-tab="explore">
+                    <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M6 7l3-1 1 3-3 1-1-3z" stroke="currentColor" stroke-width="1" fill="currentColor" opacity="0.3"/><path d="M12 10l2-1 1 2-2 1-1-2z" stroke="currentColor" stroke-width="1" fill="currentColor" opacity="0.3"/></svg>
+                    探索
+                </a>
+                <a data-tab="quickref">
+                    <svg viewBox="0 0 20 20" fill="none"><rect x="3" y="2" width="14" height="16" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/><line x1="7" y1="6" x2="13" y2="6" stroke="currentColor" stroke-width="1"/><line x1="7" y1="9" x2="13" y2="9" stroke="currentColor" stroke-width="1"/><line x1="7" y1="12" x2="11" y2="12" stroke="currentColor" stroke-width="1"/></svg>
+                    速查
+                </a>
             </nav>
-            <div class="header-actions">
-                <button class="btn-icon" id="favBtn" title="收藏夹">★</button>
+            <div class="h-acts">
+                <button class="btn-icon" id="favBtn" title="收藏夹">★<span class="dot" id="favDot"></span></button>
             </div>
         </div>
     </header>
 
-    <!-- Home -->
+    <!-- ═══════ HOME ═══════ -->
     <div class="page-section active" id="pageHome">
-        <div class="hero-banner">
-            <div class="hero-slider" id="heroSlider"></div>
-            <div class="hero-dots" id="heroDots"></div>
+        <!-- Hero Banner -->
+        <div class="hero-section">
+            <div class="hero-banner" id="heroWrap">
+                <div class="hero-slider" id="heroSlider"></div>
+                <div class="hero-dots" id="heroDots"></div>
+            </div>
         </div>
-        <div class="code-banner" id="codeBannerSection"></div>
+        <!-- Code Banner -->
+        <div class="cb-wrap"><div id="codeBannerSection"></div></div>
+
+        <!-- Data Ranking (like LOL 101's data panels) -->
+        <div class="rank-section">
+            <div class="sec-hdr"><h2 class="sec-title">📊 角色梯度排行</h2></div>
+            <div class="rank-grid">
+                <div class="rank-card">
+                    <div class="rk-header"><span class="rk-title">⚔ 武道对决(1v1) T0</span><span class="rk-icon">👑</span></div>
+                    <div class="rank-item"><span class="rank-num top1">1</span><div class="rank-info"><div class="rn">云缨</div><div class="rp">先手压制型</div></div><div class="rank-bar-wrap"><div class="rank-bar" style="width:95%"></div></div></div>
+                    <div class="rank-item"><span class="rank-num top2">2</span><div class="rank-info"><div class="rn">司空震</div><div class="rp">爆发收割型</div></div><div class="rank-bar-wrap"><div class="rank-bar" style="width:88%"></div></div></div>
+                    <div class="rank-item"><span class="rank-num top3">3</span><div class="rank-info"><div class="rn">元歌</div><div class="rp">操作上限极高</div></div><div class="rank-bar-wrap"><div class="rank-bar" style="width:82%"></div></div></div>
+                </div>
+                <div class="rank-card">
+                    <div class="rk-header"><span class="rk-title">🛡 协战争魁(4v4) 推荐</span><span class="rk-icon">🛡️</span></div>
+                    <div class="rank-item"><span class="rank-num top1">1</span><div class="rank-info"><div class="rn">坦克+双C+辅助</div><div class="rp">最稳阵容</div></div><div class="rank-bar-wrap"><div class="rank-bar" style="width:92%"></div></div></div>
+                    <div class="rank-item"><span class="rank-num top2">2</span><div class="rank-info"><div class="rn">双坦克+单C+辅助</div><div class="rp">容错率高</div></div><div class="rank-bar-wrap"><div class="rank-bar" style="width:85%"></div></div></div>
+                    <div class="rank-item"><span class="rank-num top3">3</span><div class="rank-info"><div class="rn">三C+辅助</div><div class="rp">输出拉满</div></div><div class="rank-bar-wrap"><div class="rank-bar" style="width:78%"></div></div></div>
+                </div>
+                <div class="rank-card">
+                    <div class="rk-header"><span class="rk-title">🔥 本周热度排行</span><span class="rk-icon">📈</span></div>
+                    <div class="rank-item"><span class="rank-num top1">1</span><div class="rank-info"><div class="rn">闪避取消教学</div><div class="rp">+234% 搜索</div></div><div class="rank-bar-wrap"><div class="rank-bar" style="width:98%"></div></div></div>
+                    <div class="rank-item"><span class="rank-num top2">2</span><div class="rank-info"><div class="rn">新赛季上分配置</div><div class="rp">+187% 搜索</div></div><div class="rank-bar-wrap"><div class="rank-bar" style="width:89%"></div></div></div>
+                    <div class="rank-item"><span class="rank-num top3">3</span><div class="rank-info"><div class="rn">4v4职业搭配</div><div class="rp">+156% 搜索</div></div><div class="rank-bar-wrap"><div class="rank-bar" style="width:80%"></div></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Home Section Grid -->
         <div class="home-sections">
-            <div class="home-section-tabs" id="homeSectionTabs">
-                <span class="home-section-tab active" data-hometab="pvp">PVP热门</span>
-                <span class="home-section-tab" data-hometab="explore">探索热门</span>
+            <div class="hs-tabs" id="homeSectionTabs">
+                <span class="hs-tab active" data-hometab="pvp">⚔ PVP热门</span>
+                <span class="hs-tab" data-hometab="explore">🗺 探索热门</span>
             </div>
-            <div class="section-header">
-                <h2 class="section-title" id="homeSectionTitle">PVP热门攻略</h2>
-            </div>
+            <div class="sec-hdr"><h2 class="sec-title" id="homeSectionTitle">PVP热门攻略</h2></div>
             <div class="grid" id="homeGrid"></div>
         </div>
     </div>
 
-    <!-- List pages -->
+    <!-- ═══════ LIST PAGES ═══════ -->
     <div class="page-section" id="pageList">
-        <div class="search-wrap">
+        <!-- PVP Mode Tabs (LOL-style) -->
+        <div class="mode-tabs" id="modeTabsWrap">
+            <span class="mode-tab active" data-mode="all">
+                <svg viewBox="0 0 18 18"><rect x="2" y="2" width="14" height="14" rx="3" stroke="currentColor" stroke-width="1.3" fill="none"/><line x1="6" y1="9" x2="12" y2="9" stroke="currentColor" stroke-width="1.2"/><line x1="9" y1="6" x2="9" y2="12" stroke="currentColor" stroke-width="1.2"/></svg>
+                全部
+            </span>
+            <span class="mode-tab" data-mode="1v1">
+                <svg viewBox="0 0 18 18"><path d="M9 1L11.5 7l-5 0 2.5-6z" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M9 17L6.5 11l5 0-2.5 6z" stroke="currentColor" stroke-width="1.2" fill="none"/><line x1="9" y1="7" x2="9" y2="11" stroke="currentColor" stroke-width="1"/></svg>
+                武道对决 1v1
+                <span class="tip tip-hot">HOT</span>
+            </span>
+            <span class="mode-tab" data-mode="4v4">
+                <svg viewBox="0 0 18 18"><circle cx="6" cy="6" r="1.8" stroke="currentColor" stroke-width="1.2" fill="none"/><circle cx="12" cy="6" r="1.8" stroke="currentColor" stroke-width="1.2" fill="none"/><circle cx="4" cy="13" r="1.8" stroke="currentColor" stroke-width="1.2" fill="none"/><circle cx="14" cy="13" r="1.8" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
+                协战争魁 4v4
+            </span>
+            <span class="mode-tab" data-mode="general">
+                <svg viewBox="0 0 18 18"><circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M9 4v4l3 2" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
+                通用技巧
+            </span>
+        </div>
+        <!-- Search -->
+        <div class="search-wrap" style="margin-top:.85rem;">
             <div class="search-box">
                 <span class="search-icon">🔍</span>
-                <input type="text" class="search-input" id="searchInput" placeholder="搜索攻略...">
+                <input type="text" class="search-input" id="searchInput" placeholder="搜索攻略、英雄、技能...">
             </div>
         </div>
+        <!-- Filters -->
         <div class="filter-wrap" id="filterSection"></div>
+        <!-- Grid -->
         <main class="main-content">
-            <div class="section-header">
-                <h2 class="section-title" id="sectionTitle"></h2>
-                <span class="section-count" id="resultCount"></span>
+            <div class="sec-hdr">
+                <h2 class="sec-title" id="sectionTitle"></h2>
+                <span class="sec-count" id="resultCount"></span>
             </div>
             <div class="grid" id="cardGrid"></div>
         </main>
     </div>
 
-    <!-- QuickRef -->
+    <!-- ═══════ QUICK REF ═══════ -->
     <div class="page-section" id="pageQuickRef">
         <main class="main-content">
-            <div class="section-header"><h2 class="section-title">速查手册</h2></div>
+            <div class="sec-hdr"><h2 class="sec-title">速查手册</h2></div>
             <div class="accordion" id="quickRefAccordion"></div>
         </main>
     </div>
 
-    <!-- Detail Modal -->
+    <!-- ═══════ MODAL ═══════ -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
             <div class="modal-header">
                 <h3 id="modalTitle"></h3>
-                <div class="modal-actions">
-                    <button class="btn-icon" id="modalFavBtn" title="收藏" style="font-size:1.1rem;">☆</button>
-                    <button class="btn-icon" id="modalCopyBtn" title="复制" style="font-size:0.9rem;">📋</button>
-                    <button class="modal-close" id="modalClose">&times;</button>
+                <div class="modal-acts">
+                    <button class="btn-icon" id="modalFavBtn" title="收藏" style="font-size:1.05rem;">☆</button>
+                    <button class="btn-icon" id="modalCopyBtn" title="复制" style="font-size:.85rem;">📋</button>
+                    <button class="modal-close" id="modalClose">✕</button>
                 </div>
             </div>
             <div class="modal-body" id="modalBody"></div>
         </div>
     </div>
 
-    <!-- Copied toast -->
-    <div class="cb-copied" id="copiedToast">已复制</div>
+    <!-- Toast -->
+    <div class="toast" id="copiedToast">已复制</div>
 
     <!-- Favorites Sidebar -->
     <div class="overlay" id="favoritesOverlay"></div>
     <aside class="sidebar" id="favoritesSidebar">
-        <div class="sidebar-header">
-            <h3>★ 我的收藏</h3>
-            <button class="modal-close" id="favClose">&times;</button>
-        </div>
-        <div class="sidebar-list" id="favoritesList"><p style="color:var(--text2);">暂无收藏</p></div>
+        <div class="sidebar-header"><h3>★ 我的收藏</h3><button class="modal-close" id="favClose">✕</button></div>
+        <div class="sidebar-list" id="favoritesList"><p style="color:var(--text3);">暂无收藏</p></div>
     </aside>
 
     <script>
-        const API = 'https://wzrysjglz.onrender.com/api/data';
-        const LS_FAV = 'wzry_favs_v2';
-        let currentTab = 'home';
-        let currentFilter = 'all';
-        let searchQuery = '';
-        let heroBannerTimer = null;
-        let homeCurrentTab = 'pvp';
+        const API='https://wzrysjglz.onrender.com/api/data';
+        const LS_FAV='wzry_favs_v2';
+        let tab='home',filter='all',sq='',heroTimer=null,homeTab='pvp',pvpMode='all';
 
-        function getFavorites() {
-            try { return JSON.parse(localStorage.getItem(LS_FAV) || '[]'); } catch { return []; }
-        }
-        function saveFavorites(favs) { localStorage.setItem(LS_FAV, JSON.stringify(favs)); }
-        function toggleFavorite(id, tab) {
-            let favs = getFavorites();
-            const idx = favs.findIndex(f => f.id === id && f.tab === tab);
-            if (idx >= 0) favs.splice(idx, 1); else favs.push({ id, tab });
-            saveFavorites(favs);
-        }
-        function isFavorited(id, tab) {
-            return getFavorites().some(f => f.id === id && f.tab === tab);
-        }
-
-        async function loadData(tab) {
-            try {
-                const res = await fetch(`${API}/${tab}`);
-                const data = await res.json();
-                if (!Array.isArray(data)) return [];
-                return data;
-            } catch(e) { return []; }
-        }
-
-        function getApiTable(tab) {
-            if (tab === 'pvp') return 'pvp_guides';
-            if (tab === 'explore') return 'explore_guides';
-            if (tab === 'quickref') return 'quickref';
-            return tab;
-        }
-
-        function switchTab(tab) {
-            currentTab = tab;
-            currentFilter = 'all';
-            searchQuery = '';
-            const si = document.getElementById('searchInput');
-            if (si) si.value = '';
-            document.querySelectorAll('.header-nav a').forEach(a => a.classList.remove('active'));
-            const navLink = document.querySelector(`.header-nav a[data-tab="${tab}"]`);
-            if (navLink) navLink.classList.add('active');
-
-            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
-
-            if (tab === 'home') {
-                document.getElementById('pageHome').classList.add('active');
-                loadHomePage();
-            } else if (tab === 'quickref') {
-                document.getElementById('pageQuickRef').classList.add('active');
-                loadData('quickref').then(renderQuickRef);
-            } else {
-                document.getElementById('pageList').classList.add('active');
-                renderSectionTitle();
-                renderFilters();
-                renderCards();
-            }
-        }
-
-        // ========== Home Page ==========
-        async function loadHomePage() {
-            const pvp = await loadData('pvp_guides');
-            renderHeroBanner(pvp);
-            const codes = await loadData('codes');
-            renderCodeBanner(codes);
-            const explore = await loadData('explore_guides');
-            renderHomeGrid(pvp, explore);
-        }
-
-        function renderHeroBanner(guides) {
-            const banner = document.querySelector('.hero-banner');
-            const slider = document.getElementById('heroSlider');
-            const dots = document.getElementById('heroDots');
-            const featured = guides.filter(g => g.badge === 'hot' || g.badge === 'new').slice(0, 4);
-            if (!featured.length) {
-                banner.style.display = 'none';
-                return;
-            }
-            banner.style.display = '';
-            if (heroBannerTimer) clearInterval(heroBannerTimer);
-            let currentIdx = 0;
-            const show = (idx) => {
-                currentIdx = idx;
-                const g = featured[idx];
-                const tags = Array.isArray(g.tags) ? g.tags : [];
-                slider.innerHTML = `
-                    <div class="hero-slide active">
-                        <div class="hero-avatar">${g.icon || '⚔️'}</div>
-                        <div class="hero-info">
-                            <h2>${g.title}${g.badge === 'new' ? ' <small style="color:var(--green2);">NEW</small>' : g.badge === 'hot' ? ' <small style="color:var(--red2);">HOT</small>' : ''}</h2>
-                            <p class="sub">${g.category === '1v1' ? '1v1竞技' : g.category === '4v4' ? '4v4团队' : g.category === 'general' ? '通用技巧' : g.category}</p>
-                            <p class="desc">${g.description || ''}</p>
-                            <div class="hero-tags">${tags.map(t => `<span class="hero-tag">${t}</span>`).join('')}</div>
-                        </div>
-                    </div>`;
-                dots.innerHTML = featured.map((_, i) => `<span class="hero-dot${i === idx ? ' active' : ''}" data-idx="${i}"></span>`).join('');
-                dots.querySelectorAll('.hero-dot').forEach(d => {
-                    d.addEventListener('click', () => show(parseInt(d.dataset.idx)));
-                });
-            };
-            show(0);
-            heroBannerTimer = setInterval(() => show((currentIdx + 1) % featured.length), 5000);
-        }
-
-        function renderCodeBanner(codes) {
-            const section = document.getElementById('codeBannerSection');
-            const active = codes.filter(c => c.is_active === 1);
-            if (!active.length) { section.style.display = 'none'; return; }
-            section.innerHTML = `
-                <div class="code-banner-inner">
-                    <div class="cb-icon">🎁</div>
-                    <div class="cb-info">
-                        <div class="cb-title">最新兑换码</div>
-                        <div class="cb-codes">
-                            ${active.map(c => `
-                                <span class="code-tag" onclick="copyCode('${c.code}', this)" title="${c.reward || ''}">
-                                    ${c.code}
-                                    <span class="reward">${c.reward || ''} · ${c.expiry || '长期有效'}</span>
-                                </span>
-                            `).join('')}
-                        </div>
-                    </div>
-                </div>`;
-        }
-
-        function renderHomeGrid(pvp, explore) {
-            const grid = document.getElementById('homeGrid');
-            const data = homeCurrentTab === 'pvp' ? pvp : explore;
-            document.getElementById('homeSectionTitle').textContent = homeCurrentTab === 'pvp' ? 'PVP热门攻略' : '探索热门攻略';
-            const items = data.filter(g => g.badge === 'hot' || g.badge === 'new').slice(0, 6);
-            if (!items.length) {
-                grid.innerHTML = '<div class="empty-state"><div class="icon">📖</div><p>暂无内容</p></div>';
-                return;
-            }
-            const homeTable = homeCurrentTab === 'pvp' ? 'pvp_guides' : 'explore_guides';
-            grid.innerHTML = items.map(g => renderCard(g, homeTable)).join('');
-        }
-
-        // 使用一次性事件委托，不再每次 loadHomePage 重复绑定
-        document.getElementById('homeSectionTabs').addEventListener('click', async e => {
-            const tab = e.target.closest('.home-section-tab');
-            if (!tab) return;
-            homeCurrentTab = tab.dataset.hometab;
-            document.querySelectorAll('.home-section-tab').forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            const pvp = await loadData('pvp_guides');
-            const explore = await loadData('explore_guides');
-            renderHomeGrid(pvp, explore);
-        });
-
-        function renderCard(item, apiTable) {
-            const id = item.id;
-            const name = item.title || item.name || item.code || '';
-            const badge = (item.badge || '').toLowerCase();
-            const desc = item.description || '';
-            const tags = Array.isArray(item.tags) ? item.tags : [];
-            const catLabel = item.category || '';
-            const imageUrl = item.image_url || '';
-            const videoUrl = item.video_url || '';
-            const isFav = isFavorited(id, apiTable);
-
-            let badgeHtml = '';
-            if (badge === 'new') badgeHtml = '<span class="card-badge badge-new">最新</span>';
-            else if (badge === 'hot') badgeHtml = '<span class="card-badge badge-hot">热门</span>';
-
-            let vidBadge = '';
-            if (videoUrl) vidBadge = '<span class="badge-vid">▶ 视频</span>';
-
-            const imageHtml = imageUrl ? `<img src="${imageUrl}" alt="${name}" loading="lazy">` : '';
-            const iconHtml = !imageUrl ? item.icon || '📖' : '';
-
-            return `<div class="card" data-id="${id}" data-tab="${apiTable}">
-                <div class="card-img">${badgeHtml}${vidBadge}${imageHtml}${iconHtml}</div>
-                <div class="card-body">
-                    <div class="card-title">
-                        <span>${name}</span>
-                        <button class="card-fav${isFav ? ' active' : ''}" data-id="${id}" data-tab="${apiTable}" onclick="event.stopPropagation();toggleFavCard(this, '${apiTable}', ${id})">${isFav ? '♥' : '☆'}</button>
-                    </div>
-                    ${catLabel ? `<div class="card-meta">${catLabel === '1v1' ? '1v1竞技' : catLabel === '4v4' ? '4v4团队' : catLabel === 'general' ? '通用技巧' : catLabel === 'map' ? '地图探索' : catLabel === 'boss' ? 'BOSS攻略' : catLabel === 'collection' ? '收集养成' : catLabel}</div>` : ''}
-                    ${tags.length ? `<div class="card-tags">${tags.slice(0,3).map(t => `<span class="card-tag">${t}</span>`).join('')}</div>` : ''}
-                    <div class="card-desc">${desc}</div>
-                </div>
-            </div>`;
-        }
-
-        function toggleFavCard(el, tab, id) {
-            toggleFavorite(id, tab);
-            const isFav = isFavorited(id, tab);
-            el.textContent = isFav ? '♥' : '☆';
-            el.classList.toggle('active', isFav);
-        }
-
-        // ========== List Pages ==========
-        const TAB_TITLES = { pvp:'PVP攻略', explore:'探索攻略' };
-        const TAB_API = { pvp:'pvp_guides', explore:'explore_guides' };
-        const TAB_FILTERS = {
-            pvp: ['1v1','4v4','general'],
-            explore: ['map','boss','collection']
-        };
-        const FILTER_LABELS = {
-            pvp: { '1v1':'1v1竞技', '4v4':'4v4团队', 'general':'通用技巧' },
-            explore: { 'map':'地图探索', 'boss':'BOSS攻略', 'collection':'收集养成' }
+        // ── Demo data ──
+        const D={
+            pvp_guides:[
+                {id:1,title:'武道对决·无双流全解析',description:'1v1决斗核心思路：距离控制、技能预判、连招节奏。完整拆解无双流体系。',icon:'⚔️',category:'1v1',badge:'hot',tags:['PVP','1v1','无双流'],video_url:'https://www.bilibili.com/video/BV1xx411c7mD',content:'<h3>无双流核心</h3><p>先手压制+连招衔接。突进→普攻×2→控制→大招→追击。</p><h3>装备</h3><p>破军+无尽战刃+影刃，后期补名刀。</p>'},
+                {id:2,title:'孤身论决·角色梯度榜',description:'1v1公平模式全角色强度排名与Ban/Pick策略。',icon:'🏆',category:'1v1',badge:'hot',tags:['公平','梯度','Ban/Pick'],video_url:'https://www.bilibili.com/video/BV1GJ411x7Qx',content:'<h3>S级</h3><p>云缨、司空震、元歌。</p><h3>A级</h3><p>花木兰、李白、韩信。</p>'},
+                {id:3,title:'协战争魁·4v4配合进阶',description:'4v4职业搭配、阵型站位与团战时机选择。',icon:'🛡️',category:'4v4',badge:'new',tags:['4v4','团队','阵型'],video_url:'https://www.bilibili.com/video/BV1s4411c7oF',content:'<h3>推荐阵容</h3><p>1坦+2C+1辅。坦克开团，输出分散站位，辅助控场。</p>'},
+                {id:4,title:'PK模式·5v5大乱斗法则',description:'5v5乱斗地图机制、资源争夺与团战决策。',icon:'🔥',category:'4v4',badge:'hot',tags:['5v5','资源','团战'],video_url:'https://www.youtube.com/watch?v=dQw4w9WgXcQ',content:'<h3>关键资源点</h3><p>中央神符+两侧野怪+刷新BOSS。控制资源=控制节奏。</p>'},
+                {id:5,title:'闪避取消与帧数压制',description:'通用进阶：闪避取消后摇、帧数压制、读帧预判。',icon:'💨',category:'general',badge:'new',tags:['进阶','闪避','帧数'],video_url:'https://www.bilibili.com/video/BV1VJ4m1M7dV',content:'<h3>闪避取消</h3><p>在技能后摇特定帧闪避可取消硬直。注意角色收招瞬间。</p>'},
+                {id:6,title:'全角色克制速查表',description:'一目了然：谁克谁、被谁克。',icon:'📊',category:'general',badge:'',tags:['克制','速查'],video_url:'',content:'<h3>克制原则</h3><p>突进克射手→射手克坦克→坦克克刺客→刺客克法师→法师克突进。</p>'},
+                {id:7,title:'新手30分钟PVP速成',description:'零基础了解PVP模式、操作界面、连招基础。',icon:'🌱',category:'general',badge:'new',tags:['新手','入门','速成'],video_url:'https://www.bilibili.com/video/BV1GJ411x7Qx',content:'<h3>模式简介</h3><p>4种PVP：武道对决、孤身论决、协战争魁、PK混战。</p>'},
+                {id:8,title:'赛季冲分·1v1最强套路',description:'当前版本胜率最高的5套1v1打法合集。',icon:'💎',category:'1v1',badge:'hot',tags:['赛季','1v1','冲分'],video_url:'https://www.bilibili.com/video/BV1s4411c7oF',content:'<h3>控制流</h3><p>多段控制锁死对手。核心装备：冰痕之握。</p>'},
+            ],
+            explore_guides:[
+                {id:10,title:'稷下学院·全宝箱攻略',description:'100%探索指南：宝箱位置+隐藏任务+对话选项。',icon:'🏫',category:'map',badge:'hot',tags:['稷下','宝箱'],video_url:'https://www.bilibili.com/video/BV1xx411c7mD',content:'<h3>23个宝箱</h3><p>图书馆3+演武场5+宿舍4+后山6+密室5。</p>'},
+                {id:11,title:'观星群山·隐藏BOSS',description:'星陨之灵触发条件、技能拆解、掉落奖励。',icon:'🏔️',category:'boss',badge:'hot',tags:['BOSS','隐藏'],video_url:'https://www.bilibili.com/video/BV1VJ4m1M7dV',content:'<h3>触发</h3><p>山顶观星台完成3次占星→午夜0点BOSS降临。</p>'},
+                {id:12,title:'唤灵系统·全灵兽指南',description:'所有灵兽获取、属性、技能、进化路线。',icon:'🐉',category:'collection',badge:'new',tags:['唤灵','灵兽','进化'],video_url:'',content:'<h3>获取</h3><p>主线：青鸾白虎麒麟。野捕：穷奇饕餮梼杌。限定：年兽九尾狐。</p>'},
+                {id:13,title:'奇门秘境·机关解谜',description:'所有机关谜题解法+隐藏房间路线。',icon:'🔮',category:'map',badge:'new',tags:['机关','解谜'],video_url:'',content:'<h3>五行机关</h3><p>金→水→木→火→土顺序激活，每柱一个小谜题。</p>'},
+                {id:14,title:'织梦原野·采集路线',description:'珍稀材料采集路线和刷新时间。',icon:'🌾',category:'collection',badge:'',tags:['采集','材料'],video_url:'',content:'<h3>路线</h3><p>传送点→沿河梦露花→密林星荧菇→悬崖琉璃矿。</p>'},
+            ],
+            codes:[
+                {id:20,code:'WZSY2026',description:'周年庆礼包',reward:'钻石×500+金币×10000',expiry:'2026-12-31',is_active:1,sort_order:0},
+                {id:21,code:'KINGSWORLD',description:'开服福利',reward:'限定头像框+体力×200',expiry:'长期有效',is_active:1,sort_order:1},
+                {id:22,code:'PVP666',description:'PVP赛季奖',reward:'铭文碎片×300+竞技币×100',expiry:'2026-06-30',is_active:1,sort_order:2},
+            ],
+            quickref:[
+                {id:30,title:'PVP模式速查',icon:'⚔️',items:['武道对决(1v1)：标准装备三局两胜','孤身论决(1v1公平)：平衡属性纯拼技术','协战争魁(4v4)：团队竞技职业搭配','PK模式(混战)：1v1/3v3/5v5大乱斗']},
+                {id:31,title:'常用术语',icon:'📖',items:['CC=控制 / DPS=秒伤 / Buff=增益 / Debuff=减益','AOE=范围伤害 / CD=冷却 / DOT=持续伤害','Gank=抓人 / Trade=换血 / Kite=风筝']},
+                {id:32,title:'装备品质',icon:'💎',items:['白→绿→蓝→紫→金→红(传说级附特殊被动)','金色以上可锻造升级','套装效果：同套2/4件触发额外属性']},
+                {id:33,title:'每日必做',icon:'📋',items:['签到领奖(累计递增)','日常任务×5(大量经验)','竞技场3场(竞技币)','世界BOSS(稀有材料)','唤灵喂养(亲密度)']},
+            ]
         };
 
-        function renderSectionTitle() {
-            document.getElementById('sectionTitle').textContent = TAB_TITLES[currentTab] || currentTab;
+        // ── Helpers ──
+        function favs(){try{return JSON.parse(localStorage.getItem(LS_FAV)||'[]')}catch{return[]}}
+        function sfav(v){localStorage.setItem(LS_FAV,JSON.stringify(v))}
+        function updot(){const d=document.getElementById('favDot');d.classList.toggle('show',favs().length>0)}
+        function tfav(id,tb){let f=favs();const i=f.findIndex(x=>x.id===id&&x.tab===tb);i>=0?f.splice(i,1):f.push({id,tab:tb});sfav(f);updot()}
+        function isfav(id,tb){return favs().some(x=>x.id===id&&x.tab===tb)}
+        async function ld(tb){try{const r=await fetch(`${API}/${tb}`);const d=await r.json();if(Array.isArray(d)&&d.length>0)return d;return D[tb]||[]}catch{return D[tb]||[]}}
+        function TAB(t){if(t==='pvp')return'pvp_guides';if(t==='explore')return'explore_guides';if(t==='quickref')return'quickref';return t}
+
+        function sw(t){
+            tab=t;filter='all';sq='';pvpMode='all';
+            const si=document.getElementById('searchInput');if(si)si.value='';
+            document.querySelectorAll('.h-nav a').forEach(a=>a.classList.remove('active'));
+            const nl=document.querySelector(`.h-nav a[data-tab="${t}"]`);if(nl)nl.classList.add('active');
+            document.querySelectorAll('.page-section').forEach(p=>p.classList.remove('active'));
+            if(t==='home'){document.getElementById('pageHome').classList.add('active');lh()}
+            else if(t==='quickref'){document.getElementById('pageQuickRef').classList.add('active');ld('quickref').then(rq)}
+            else{document.getElementById('pageList').classList.add('active');document.getElementById('modeTabsWrap').style.display=(t==='pvp')?'':'none';rt();rf();rc()}
         }
 
-        function renderFilters() {
-            const section = document.getElementById('filterSection');
-            const filters = TAB_FILTERS[currentTab] || [];
-            const badgeFilters = ['new', 'hot'];
-            let html = '<span class="filter-label">筛选：</span>';
-            html += `<span class="filter-tag active" data-filter="all">全部</span>`;
-            filters.forEach(f => {
-                const label = (FILTER_LABELS[currentTab] || {})[f] || f;
-                html += `<span class="filter-tag" data-filter="${f}">${label}</span>`;
-            });
-            badgeFilters.forEach(f => html += `<span class="filter-tag" data-filter="${f}">${f === 'new' ? '最新' : '热门'}</span>`);
-            section.innerHTML = html;
-            section.querySelectorAll('.filter-tag').forEach(tag => {
-                tag.addEventListener('click', function() {
-                    section.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                    currentFilter = this.dataset.filter;
-                    renderCards();
-                });
-            });
-        }
-
-        function getFilteredData(data) {
-            if (!Array.isArray(data)) return [];
-            let rows = [...data];
-            if (currentFilter && currentFilter !== 'all') {
-                if (currentFilter === 'new' || currentFilter === 'hot') {
-                    rows = rows.filter(item => (item.badge || '').toLowerCase() === currentFilter);
-                } else {
-                    rows = rows.filter(item => {
-                        const cat = (item.category || '').toLowerCase();
-                        return cat === currentFilter.toLowerCase();
-                    });
-                }
-            }
-            if (searchQuery) {
-                const q = searchQuery.toLowerCase();
-                rows = rows.filter(item =>
-                    ['title', 'description', 'category'].some(k =>
-                        String(item[k] || '').toLowerCase().includes(q)
-                    ) || (Array.isArray(item.tags) && item.tags.some(t => String(t).toLowerCase().includes(q)))
-                );
-            }
-            return rows;
-        }
-
-        async function renderCards() {
-            const apiTable = TAB_API[currentTab] || currentTab;
-            const data = await loadData(apiTable);
-            const filtered = getFilteredData(data);
-            const grid = document.getElementById('cardGrid');
-            document.getElementById('resultCount').textContent = `共 ${filtered.length} 条`;
-
-            if (!filtered.length) {
-                grid.innerHTML = '<div class="empty-state"><div class="icon">🔍</div><p>没有找到相关内容</p></div>';
-                return;
-            }
-
-            grid.innerHTML = filtered.map(item => renderCard(item, apiTable)).join('');
-        }
-
-        // Card click → modal
-        document.addEventListener('click', async function(e) {
-            const card = e.target.closest('.card[data-id]');
-            if (!card) return;
-            if (e.target.closest('.card-fav')) return;
-            const id = parseInt(card.dataset.id);
-            const tab = card.dataset.tab;
-            const data = await loadData(tab);
-            const item = data.find(d => d.id === id);
-            if (item) openModal(item, tab);
-        });
-
-        // Modal
-        function openModal(item, tab) {
-            const overlay = document.getElementById('modalOverlay');
-            document.getElementById('modalTitle').textContent = item.title || item.name || '';
-            overlay.dataset.itemId = item.id;
-            overlay.dataset.itemTab = tab;
-            const favBtn = document.getElementById('modalFavBtn');
-            favBtn.textContent = isFavorited(item.id, tab) ? '♥' : '☆';
-
-            let html = '';
-
-            // Video embed
-            const videoUrl = item.video_url || '';
-            if (videoUrl) {
-                const ytMatch = videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/);
-                const biliMatch = videoUrl.match(/bilibili\.com\/video\/(BV[a-zA-Z0-9]+)/);
-                if (ytMatch) {
-                    html += `<div class="modal-video-wrap"><iframe src="https://www.youtube.com/embed/${ytMatch[1]}" allowfullscreen></iframe></div>`;
-                } else if (biliMatch) {
-                    html += `<div class="modal-video-wrap"><iframe src="https://player.bilibili.com/player.html?bvid=${biliMatch[1]}&page=1" allowfullscreen></iframe></div>`;
-                } else if (videoUrl.match(/\.(mp4|webm|mov)/i)) {
-                    html += `<div class="modal-video-wrap"><video controls src="${videoUrl}"></video></div>`;
-                } else {
-                    html += `<div class="modal-video-wrap"><iframe src="${videoUrl}" allowfullscreen></iframe></div>`;
-                }
-            }
-
-            // Content
-            if (item.content) {
-                html += `<div class="guide-content">${item.content}</div>`;
-            } else if (item.description) {
-                html += `<div class="guide-content"><p>${item.description}</p></div>`;
-            }
-
-            // Tags & meta
-            const tags = Array.isArray(item.tags) ? item.tags : [];
-            if (tags.length) {
-                const cat = item.category || '';
-                html += `<div style="margin-top:1.25rem;display:flex;gap:0.4rem;flex-wrap:wrap;align-items:center;">
-                    ${cat ? `<span style="color:var(--text2);font-size:0.8rem;">分类：${cat}</span>` : ''}
-                    ${tags.map(t => `<span class="card-tag">${t}</span>`).join('')}
-                </div>`;
-            }
-
-            document.getElementById('modalBody').innerHTML = html;
-            overlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeModal() {
-            document.getElementById('modalOverlay').classList.remove('active');
-            document.body.style.overflow = '';
-        }
-
-        // QuickRef
-        function renderQuickRef(data) {
-            const accordion = document.getElementById('quickRefAccordion');
-            if (!data.length) {
-                accordion.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>暂无内容</p></div>';
-                return;
-            }
-            accordion.innerHTML = data.map((q, i) => {
-                const items = Array.isArray(q.items) ? q.items : [];
-                return `<div class="accordion-item${i === 0 ? ' open' : ''}">
-                    <div class="accordion-header" onclick="this.parentElement.classList.toggle('open')">
-                        <span>${q.icon || ''} ${q.title}</span>
-                        <span class="arr">▾</span>
-                    </div>
-                    <div class="accordion-body"><ul>${items.map(it => `<li>${it}</li>`).join('')}</ul></div>
-                </div>`;
-            }).join('');
-        }
-
-        // Favorites
-        async function renderFavorites() {
-            const list = document.getElementById('favoritesList');
-            const favs = getFavorites();
-            if (!favs.length) {
-                list.innerHTML = '<p style="color:var(--text2);">暂无收藏</p>';
-                return;
-            }
-            // ★ 总是从 API 获取最新数据
-            const tables = ['pvp_guides', 'explore_guides', 'codes', 'quickref'];
-            const freshData = {};
-            for (const t of tables) {
-                try {
-                    const res = await fetch(`${API}/${t}`);
-                    freshData[t] = await res.json();
-                } catch(e) { freshData[t] = []; }
-            }
-            list.innerHTML = favs.map(f => {
-                const data = (freshData[f.tab] || []).find(d => d.id === f.id);
-                if (!data) return '';
-                const name = data.title || data.name || data.code || '未知';
-                const tabNames = { pvp_guides:'PVP攻略', explore_guides:'探索攻略', codes:'兑换码', quickref:'速查' };
-                return `<div class="fav-item" data-tab="${f.tab}" data-id="${f.id}">
-                    <strong>${name}</strong>
-                    <div style="font-size:0.78rem;color:var(--text2);">${tabNames[f.tab] || f.tab}</div>
-                </div>`;
-            }).filter(Boolean).join('');
-        }
-
-        function toggleFavoritesSidebar() {
-            const sidebar = document.getElementById('favoritesSidebar');
-            const overlay = document.getElementById('favoritesOverlay');
-            const isActive = sidebar.classList.toggle('active');
-            overlay.classList.toggle('active', isActive);
-            if (isActive) renderFavorites();
-        }
-
-        // Copy
-        function copyCode(code, el) {
-            navigator.clipboard.writeText(code).then(() => {
-                const toast = document.getElementById('copiedToast');
-                toast.textContent = `已复制: ${code}`;
-                toast.style.opacity = '1';
-                setTimeout(() => toast.style.opacity = '0', 2000);
-            }).catch(() => {});
-        }
-
-        // Events
-        document.querySelectorAll('.header-nav a').forEach(a => {
-            a.addEventListener('click', () => switchTab(a.dataset.tab));
-        });
-        document.getElementById('searchInput').addEventListener('input', e => {
-            searchQuery = e.target.value;
-            if (currentTab !== 'home' && currentTab !== 'quickref') renderCards();
-        });
-        document.getElementById('modalClose').addEventListener('click', closeModal);
-        document.getElementById('modalOverlay').addEventListener('click', e => {
-            if (e.target === document.getElementById('modalOverlay')) closeModal();
-        });
-        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
-        document.getElementById('modalFavBtn').addEventListener('click', function() {
-            const overlay = document.getElementById('modalOverlay');
-            const id = parseInt(overlay.dataset.itemId);
-            const tab = overlay.dataset.itemTab;
-            toggleFavorite(id, tab);
-            this.textContent = isFavorited(id, tab) ? '♥' : '☆';
-        });
-        document.getElementById('modalCopyBtn').addEventListener('click', async () => {
-            const overlay = document.getElementById('modalOverlay');
-            const tab = overlay.dataset.itemTab;
-            const id = parseInt(overlay.dataset.itemId);
-            const data = await loadData(tab);
-            const item = data.find(d => d.id === id);
-            if (!item) return;
-            const text = `【${item.title || ''}】\n${(item.content || item.description || '').replace(/<[^>]*>/g, '')}`;
-            navigator.clipboard.writeText(text).then(() => {
-                const toast = document.getElementById('copiedToast');
-                toast.textContent = '内容已复制';
-                toast.style.opacity = '1';
-                setTimeout(() => toast.style.opacity = '0', 2000);
-            }).catch(() => {});
-        });
-        document.getElementById('favBtn').addEventListener('click', toggleFavoritesSidebar);
-        document.getElementById('favClose').addEventListener('click', toggleFavoritesSidebar);
-        document.getElementById('favoritesOverlay').addEventListener('click', toggleFavoritesSidebar);
-
-        document.getElementById('favoritesList').addEventListener('click', async (e) => {
-            const item = e.target.closest('.fav-item');
-            if (!item) return;
-            const tab = item.dataset.tab;
-            const id = parseInt(item.dataset.id);
-            toggleFavoritesSidebar();
-            const frontTab = tab === 'pvp_guides' ? 'pvp' : tab === 'explore_guides' ? 'explore' : tab === 'quickref' ? 'quickref' : 'home';
-            switchTab(frontTab);
-            const data = await loadData(tab);
-            const found = data.find(d => d.id === id);
-            if (found) openModal(found, tab);
-        });
-
-        document.getElementById('hamburgerBtn').addEventListener('click', () => {
-            document.getElementById('headerNav').classList.toggle('open');
-        });
-
-        // Init
-        switchTab('home');
-    </script>
-</body>
-</html>
+        // ── Home ──
+        async function lh(){const p=await ld('pvp_guides');rhb(p);const c=await ld('codes');rcb

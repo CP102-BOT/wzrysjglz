@@ -111,8 +111,13 @@ def init_db():
     db.close()
 
 def seed_data(db):
-    cur = db.cursor()
+    # 种子数据已清空，数据库从空白开始
+    # 通过管理后台（/admin）手动添加内容
+    pass
 
+def _seed_data_old(db):
+    """旧种子数据，已弃用，仅保留供参考"""
+    cur = db.cursor()
     pvp_guides = [
         ('武道对决上分指南', '1v1排位赛上分全攻略，从青铜到巅峰', '⚔️', '1v1',
          json.dumps(['武道对决','1v1','排位','上分'], ensure_ascii=False), 'hot',
@@ -633,8 +638,4 @@ init_db()
 if __name__ == '__main__':
     print("=" * 50)
     print("  王者荣耀世界攻略站 API 已启动")
-    print(f"  后台: http://localhost:5000/admin")
-    print(f"  账号: {ADMIN_USERNAME}")
-    print("=" * 50)
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    pri
