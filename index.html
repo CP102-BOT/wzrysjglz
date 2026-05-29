@@ -435,6 +435,73 @@
         .page-section{display:none;position:relative;z-index:1}
         .page-section.active{display:block}
 
+        /* ═══════ ② TOC 目录 ═══════ */
+        .toc{
+            background:var(--bg);border:1px solid var(--border);
+            border-radius:var(--radius);padding:.85rem 1.1rem;
+            margin-bottom:1.25rem;
+        }
+        .toc-title{font-size:.82rem;font-weight:700;color:var(--gold2);margin-bottom:.55rem}
+        .toc-list{list-style:none;display:flex;flex-wrap:wrap;gap:.35rem}
+        .toc-item{
+            padding:.22rem .6rem;border-radius:.25rem;cursor:pointer;
+            font-size:.78rem;color:var(--text2);background:var(--bg-card);
+            border:1px solid var(--border);transition:var(--t);white-space:nowrap;
+        }
+        .toc-item:hover{color:var(--gold2);border-color:var(--gold);background:var(--gold-bg)}
+
+        /* ═══════ ⑤ 点赞 ═══════ */
+        .like-bar{
+            display:flex;align-items:center;gap:.5rem;margin-top:1.25rem;
+            padding:1rem;background:var(--bg);border-radius:var(--radius);
+            border:1px solid var(--border);
+        }
+        .like-btn{
+            display:flex;align-items:center;gap:.4rem;
+            padding:.45rem 1rem;border-radius:.4rem;cursor:pointer;
+            border:1px solid var(--border2);background:var(--bg-card);
+            color:var(--text2);font-size:.88rem;font-weight:600;
+            transition:var(--t);font-family:var(--font);
+        }
+        .like-btn:hover{border-color:var(--red);color:var(--red2)}
+        .like-btn.liked{background:rgba(217,67,78,0.1);color:var(--red2);border-color:var(--red)}
+        .like-count{font-size:.82rem;color:var(--text3)}
+
+        /* ═══════ ① 相关推荐 ═══════ */
+        .related-section{margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--border)}
+        .related-title{font-size:.9rem;font-weight:700;color:var(--text);margin-bottom:.75rem}
+        .related-grid{display:flex;gap:.7rem;overflow-x:auto;padding-bottom:.4rem;-webkit-overflow-scrolling:touch}
+        .related-grid::-webkit-scrollbar{height:3px}
+        .related-grid::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+        .related-card{
+            min-width:180px;max-width:200px;flex-shrink:0;
+            background:var(--bg);border:1px solid var(--border);
+            border-radius:var(--radius);cursor:pointer;transition:var(--t);
+            overflow:hidden;
+        }
+        .related-card:hover{border-color:var(--border2)}
+        .related-card .rc-img{
+            height:90px;background:var(--bg-elevated);display:flex;
+            align-items:center;justify-content:center;font-size:2rem;
+        }
+        .related-card .rc-body{padding:.6rem .75rem}
+        .related-card .rc-title{font-size:.8rem;font-weight:700;color:var(--text);display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+        .related-card .rc-meta{font-size:.68rem;color:var(--text3);margin-top:.15rem}
+
+        /* ═══════ ④ 最近浏览 ═══════ */
+        .recent-section{max-width:1400px;margin:1.5rem auto 0;padding:0 1.5rem}
+        .recent-list{display:flex;gap:.5rem;overflow-x:auto;padding-bottom:.3rem}
+        .recent-list::-webkit-scrollbar{height:3px}
+        .recent-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+        .recent-item{
+            display:flex;align-items:center;gap:.45rem;flex-shrink:0;
+            padding:.4rem .75rem;background:var(--bg-card);border:1px solid var(--border);
+            border-radius:2rem;cursor:pointer;transition:var(--t);
+            font-size:.78rem;color:var(--text2);font-weight:500;
+        }
+        .recent-item:hover{border-color:var(--border2);color:var(--text)}
+        .recent-item .ri-icon{font-size:1rem}
+
         /* ═══════ RESPONSIVE ═══════ */
         @media(max-width:768px){
             .hamburger{display:flex}
@@ -616,6 +683,8 @@
     <script>
         const API='https://wzrysjglz.onrender.com/api/data';
         const LS_FAV='wzry_favs_v2';
+        const LS_LIKE='wzry_likes_v1';
+        const LS_HIST='wzry_hist_v1';
         let tab='home',filter='all',sq='',heroTimer=null,homeTab='pvp',pvpMode='all';
 
         // ── Demo data ──
@@ -656,6 +725,24 @@
         function updot(){const d=document.getElementById('favDot');d.classList.toggle('show',favs().length>0)}
         function tfav(id,tb){let f=favs();const i=f.findIndex(x=>x.id===id&&x.tab===tb);i>=0?f.splice(i,1):f.push({id,tab:tb});sfav(f);updot()}
         function isfav(id,tb){return favs().some(x=>x.id===id&&x.tab===tb)}
+
+        // ── ⑤ 点赞 ──
+        function likes(){try{return JSON.parse(localStorage.getItem(LS_LIKE)||'{}')}catch{return{}}}
+        function slk(v){localStorage.setItem(LS_LIKE,JSON.stringify(v))}
+        function tglk(id,tb){let l=likes();const k=tb+'_'+id;if(l[k])delete l[k];else l[k]=1;slk(l);return!!l[k]}
+        function islk(id,tb){return!!likes()[tb+'_'+id]}
+        function getlk(id,tb){const base=(parseInt(id)*7+parseInt(tb.length||0)*13)%100;return base+Object.values(likes()).filter(x=>x).length}
+
+        // ── ④ 最近浏览 ──
+        function hist(){try{return JSON.parse(localStorage.getItem(LS_HIST)||'[]')}catch{return[]}}
+        function shist(v){localStorage.setItem(LS_HIST,JSON.stringify(v))}
+        function addhist(id,tb){let h=hist();h=h.filter(x=>!(x.id===id&&x.tab===tb));h.unshift({id,tab:tb,ts:Date.now()});if(h.length>12)h=h.slice(0,12);shist(h)}
+        function rendhist(d,p,e){const h=hist();if(!h.length)return;const w=document.getElementById('pageHome');
+        let el=document.getElementById('recentSection');if(!el){el=document.createElement('div');el.id='recentSection';el.className='recent-section';w.insertBefore(el,w.querySelector('.home-sections'))}
+        let items=[];for(const x of h){let fd=null;for(const src of[d,p,e]){fd=src.find(g=>g.id===x.id);if(fd)break}if(fd)items.push(fd)}
+        if(!items.length){el.style.display='none';return}
+        el.style.display='';el.innerHTML=`<div class="sec-hdr"><h2 class="sec-title">🕐 最近浏览</h2></div><div class="recent-list">${items.map(x=>{const nm=x.title||x.name||x.code||'';const tb2=x.category?'pvp_guides':(x.code?'codes':'explore_guides');const ic=x.icon||'📖';return`<div class="recent-item" data-id="${x.id}" data-tab="${tb2}"><span class="ri-icon">${ic}</span>${nm}</div>`}).join('')}</div>`;
+        el.querySelectorAll('.recent-item').forEach(ri=>{ri.addEventListener('click',async()=>{const id=parseInt(ri.dataset.id),tb2=ri.dataset.tab;const dt=await ld(tb2);const it=dt.find(g=>g.id===id);if(it)om(it,tb2)})})}
         async function ld(tb){try{const r=await fetch(`${API}/${tb}`);const d=await r.json();if(Array.isArray(d)&&d.length>0)return d;return D[tb]||[]}catch{return D[tb]||[]}}
         function TAB(t){if(t==='pvp')return'pvp_guides';if(t==='explore')return'explore_guides';if(t==='quickref')return'quickref';return t}
 
@@ -671,4 +758,159 @@
         }
 
         // ── Home ──
-        async function lh(){const p=await ld('pvp_guides');rhb(p);const c=await ld('codes');rcb
+        async function lh(){const p=await ld('pvp_guides');rhb(p);const c=await ld('codes');rcb(c);const e=await ld('explore_guides');rhg(p,e);rendhist(p,p,e)}
+
+        function rhb(g){
+            const w=document.getElementById('heroWrap'),s=document.getElementById('heroSlider'),d=document.getElementById('heroDots');
+            const f=g.filter(x=>x.badge==='hot'||x.badge==='new').slice(0,4);
+            if(!f.length){w.setAttribute('data-empty','');return}
+            w.removeAttribute('data-empty');if(heroTimer)clearInterval(heroTimer);
+            let ci=0;
+            const sh=(i)=>{
+                ci=i;const g=f[i],t=Array.isArray(g.tags)?g.tags:[];
+                const bh=g.badge==='new'?'<span class="hero-badge new">NEW</span>':g.badge==='hot'?'<span class="hero-badge hot">HOT</span>':'';
+                const cl={'1v1':'⚔ 武道对决','4v4':'🛡 协战争魁','general':'📖 通用技巧','map':'🗺 地图探索','boss':'👹 BOSS攻略','collection':'💎 收集养成'};
+                s.innerHTML=`<div class="hero-slide active"><div class="hero-av">${g.icon||'⚔️'}</div><div class="hero-info"><h2>${g.title} ${bh}</h2><p class="sub">${cl[g.category]||g.category||''}</p><p class="desc">${g.description||''}</p><div class="hero-tags">${t.map(x=>`<span class="hero-tag">${x}</span>`).join('')}</div></div></div>`;
+                d.innerHTML=f.map((_,j)=>`<span class="hero-dot${j===i?' active':''}" data-idx="${j}"></span>`).join('');
+                d.querySelectorAll('.hero-dot').forEach(dt=>dt.addEventListener('click',()=>sh(parseInt(dt.dataset.idx))));
+            };
+            sh(0);heroTimer=setInterval(()=>sh((ci+1)%f.length),5000);
+        }
+
+        function rcb(c){const s=document.getElementById('codeBannerSection');const a=c.filter(x=>x.is_active===1);if(!a.length){s.setAttribute('data-empty','');return}s.removeAttribute('data-empty');s.innerHTML=`<div class="cb-inner"><div class="cb-icon">🎁</div><div class="cb-info"><div class="cb-title">最新兑换码</div><div class="cb-codes">${a.map(x=>`<span class="code-tag" onclick="cc('${x.code}',this)" title="${x.reward||''}">${x.code}<span class="reward">${x.reward||''} · ${x.expiry||'长期有效'}</span></span>`).join('')}</div></div></div>`}
+
+        function rhg(p,e){const g=document.getElementById('homeGrid');const d=homeTab==='pvp'?p:e;document.getElementById('homeSectionTitle').textContent=homeTab==='pvp'?'PVP热门攻略':'探索热门攻略';const it=d.filter(x=>x.badge==='hot'||x.badge==='new').slice(0,8);if(!it.length){g.innerHTML='<div class="empty-state"><div class="icon">📖</div><p>暂无内容</p></div>';return}const ht=homeTab==='pvp'?'pvp_guides':'explore_guides';g.innerHTML=it.map(x=>rc(x,ht)).join('')}
+
+        document.getElementById('homeSectionTabs').addEventListener('click',async e=>{const t=e.target.closest('.hs-tab');if(!t)return;homeTab=t.dataset.hometab;document.querySelectorAll('.hs-tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');const p=await ld('pvp_guides');const ex=await ld('explore_guides');rhg(p,ex)});
+
+        // ── PVP Mode Tabs ──
+        document.getElementById('modeTabsWrap').addEventListener('click',function(e){const t=e.target.closest('.mode-tab');if(!t)return;pvpMode=t.dataset.mode;document.querySelectorAll('.mode-tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');filter='all';document.querySelectorAll('.filter-tag').forEach(x=>x.classList.remove('active'));const all=document.querySelector('.filter-tag[data-filter="all"]');if(all)all.classList.add('active');if(pvpMode==='all'){renderFiltersTab()}else{renderFiltersSimple()}rc()});
+
+        function renderFiltersTab(){
+            const s=document.getElementById('filterSection');
+            const cat=tab==='pvp'?{all:'全部','1v1':'⚔ 武道对决','4v4':'🛡 协战争魁','general':'📖 通用技巧'}:{all:'全部',map:'🗺 地图',boss:'👹 BOSS',collection:'💎 收集'};
+            let h='<span class="filter-label">筛:</span>';
+            h+='<span class="filter-tag active" data-filter="all">全部</span>';
+            Object.entries(cat).forEach(([k,v])=>{if(k==='all')return;h+=`<span class="filter-tag" data-filter="${k}">${v}</span>`});
+            h+='<span class="filter-tag" data-filter="new">🆕 最新</span><span class="filter-tag" data-filter="hot">🔥 热门</span>';
+            s.innerHTML=h;
+            s.querySelectorAll('.filter-tag').forEach(tag=>tag.addEventListener('click',function(){s.querySelectorAll('.filter-tag').forEach(t=>t.classList.remove('active'));this.classList.add('active');filter=this.dataset.filter;rc()}));
+        }
+        function renderFiltersSimple(){
+            const s=document.getElementById('filterSection');
+            let h='<span class="filter-label">筛:</span><span class="filter-tag active" data-filter="all">全部</span>';
+            h+='<span class="filter-tag" data-filter="new">🆕 最新</span><span class="filter-tag" data-filter="hot">🔥 热门</span>';
+            s.innerHTML=h;
+            s.querySelectorAll('.filter-tag').forEach(tag=>tag.addEventListener('click',function(){s.querySelectorAll('.filter-tag').forEach(t=>t.classList.remove('active'));this.classList.add('active');filter=this.dataset.filter;rc()}));
+        }
+
+        // ── Card ──
+        function rc(item,apt){
+            const id=item.id,nm=item.title||item.name||item.code||'',bd=(item.badge||'').toLowerCase(),ds=item.description||'';
+            const tg=Array.isArray(item.tags)?item.tags:[],cl=item.category||'';
+            const img=item.image_url||'',vid=item.video_url||'',fav=isfav(id,apt);
+            let bh='';if(bd==='new')bh='<span class="card-badge bg-new">最新</span>';else if(bd==='hot')bh='<span class="card-badge bg-hot">热门</span>';
+            let vb='';if(vid)vb='<span class="bg-vid">▶ 视频</span>';
+            const hv=vid?' data-vid':'',ih=img?`<img src="${img}" alt="${nm}" loading="lazy">`:'',ech=!img?(item.icon||'📖'):'';
+            const po=vid?'<div class="play-ov"><div class="play-btn">▶</div></div>':'';
+            const cll={'1v1':'武道对决','4v4':'协战争魁','general':'通用技巧','map':'地图探索','boss':'BOSS','collection':'收集'};
+            return`<div class="card" data-id="${id}" data-tab="${apt}"${hv}><div class="card-img">${bh}${vb}${po}${ih}${ech}</div><div class="card-body"><div class="card-title"><span>${nm}</span><button class="card-fav${fav?' active':''}" data-id="${id}" data-tab="${apt}" onclick="event.stopPropagation();tfc(this,'${apt}',${id})">${fav?'♥':'☆'}</button></div>${cl?`<div class="card-meta">${cll[cl]||cl}</div>`:''}${tg.length?`<div class="card-tags">${tg.slice(0,3).map(t=>`<span class="card-tag">${t}</span>`).join('')}</div>`:''}<div class="card-desc">${ds}</div></div></div>`;
+        }
+        function tfc(el,tb,id){tfav(id,tb);const fv=isfav(id,tb);el.textContent=fv?'♥':'☆';el.classList.toggle('active',fv)}
+
+        // ── List Pages ──
+        const TT={pvp:'PVP攻略',explore:'探索攻略'},TA={pvp:'pvp_guides',explore:'explore_guides'};
+
+        function rt(){document.getElementById('sectionTitle').textContent=(tab==='pvp'?'⚔ ':'🗺 ')+(TT[tab]||tab)}
+        function rf(){if(tab==='pvp'&&pvpMode!=='all'){renderFiltersSimple()}else{renderFiltersTab()}}
+        function gfd(d){
+            if(!Array.isArray(d))return[];let r=[...d];
+            if(pvpMode&&pvpMode!=='all')r=r.filter(x=>(x.category||'').toLowerCase()===pvpMode.toLowerCase());
+            if(filter&&filter!=='all'){if(filter==='new'||filter==='hot')r=r.filter(x=>(x.badge||'').toLowerCase()===filter);else r=r.filter(x=>(x.category||'').toLowerCase()===filter.toLowerCase())}
+            if(sq){const q=sq.toLowerCase();r=r.filter(x=>['title','description','category'].some(k=>String(x[k]||'').toLowerCase().includes(q))||(Array.isArray(x.tags)&&x.tags.some(t=>String(t).toLowerCase().includes(q))))}
+            return r;
+        }
+        async function rc(){const at=TA[tab]||tab;const d=await ld(at);const fd=gfd(d);const g=document.getElementById('cardGrid');document.getElementById('resultCount').textContent=`共 ${fd.length} 条`;if(!fd.length){g.innerHTML='<div class="empty-state"><div class="icon">🔍</div><p>没有找到相关内容</p></div>';return}g.innerHTML=fd.map(x=>rc(x,at)).join('')}
+
+        // ── Modal ──
+        async function openFromCard(e){
+            const c=e.target.closest('.card[data-id]');if(!c)return;if(e.target.closest('.card-fav'))return;
+            const id=parseInt(c.dataset.id),tb2=c.dataset.tab;const d=await ld(tb2);const it=d.find(x=>x.id===id);
+            if(it){addhist(it.id,tb2);om(it,tb2,d)}
+        }
+        document.addEventListener('click',openFromCard);
+
+        function om(item,tb,allData){
+            allData=allData||[];
+            const o=document.getElementById('modalOverlay');document.getElementById('modalTitle').textContent=item.title||item.name||'';
+            o.dataset.itemId=item.id;o.dataset.itemTab=tb;
+            const fb=document.getElementById('modalFavBtn');fb.textContent=isfav(item.id,tb)?'♥':'☆';
+
+            let h='';
+            const vu=item.video_url||'';
+            if(vu){const ym=vu.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/);const bm=vu.match(/bilibili\.com\/video\/(BV[a-zA-Z0-9]+)/);if(ym)h+=`<div class="modal-video"><iframe src="https://www.youtube.com/embed/${ym[1]}" allowfullscreen></iframe></div>`;else if(bm)h+=`<div class="modal-video"><iframe src="https://player.bilibili.com/player.html?bvid=${bm[1]}&page=1" allowfullscreen></iframe></div>`;else if(vu.match(/\.(mp4|webm|mov)/i))h+=`<div class="modal-video"><video controls src="${vu}"></video></div>`;else h+=`<div class="modal-video"><iframe src="${vu}" allowfullscreen></iframe></div>`}
+
+            // ── ② TOC 目录 ──
+            const contentHtml=item.content||'';
+            const h3s=contentHtml.match(/<h3>([^<]*)<\/h3>/gi)||[];
+            if(h3s.length>1){
+                const items=h3s.map((m,i)=>{const t=m.replace(/<\/?h3>/gi,'');return`<span class="toc-item" data-toc="${i}">${t}</span>`}).join('');
+                h+=`<div class="toc"><div class="toc-title">📑 内容目录</div><div class="toc-list">${items}</div></div>`;
+            }
+
+            if(item.content)h+=`<div class="guide-content" id="guideContent">${item.content}</div>`;else if(item.description)h+=`<div class="guide-content"><p>${item.description}</p></div>`;
+
+            const tg=Array.isArray(item.tags)?item.tags:[],cl=item.category||'',cll={'1v1':'武道对决','4v4':'协战争魁','general':'通用技巧','map':'地图','boss':'BOSS','collection':'收集'};
+            if(tg.length)h+=`<div style="margin-top:1.2rem;display:flex;gap:.35rem;flex-wrap:wrap;align-items:center;">${cl?`<span style="color:var(--text3);font-size:.78rem;">${cll[cl]||cl}</span>`:''}${tg.map(t=>`<span class="card-tag">${t}</span>`).join('')}</div>`;
+
+            // ── ⑤ 点赞 ──
+            const lk=islk(item.id,tb);const lc=getlk(item.id,tb);
+            h+=`<div class="like-bar"><button class="like-btn${lk?' liked':''}" id="modalLikeBtn" data-id="${item.id}" data-tab="${tb}">${lk?'❤️':'🤍'} ${lk?'已赞':'点赞'}</button><span class="like-count">${lc} 次赞</span></div>`;
+
+            // ── ① 相关推荐 ──
+            if(allData.length>1){
+                const rel=allData.filter(x=>x.id!==item.id&&(x.category===item.category||(Array.isArray(x.tags)&&Array.isArray(item.tags)&&x.tags.some(t=>item.tags.includes(t))))).slice(0,6);
+                if(rel.length){
+                    h+=`<div class="related-section"><div class="related-title">📎 相关推荐</div><div class="related-grid">${rel.map(r=>{const nm=r.title||r.name||r.code||'';const ct=cll[r.category]||r.category||'';return`<div class="related-card" data-id="${r.id}" data-tab="${tb}"><div class="rc-img">${r.icon||'📖'}</div><div class="rc-body"><div class="rc-title">${nm}</div><div class="rc-meta">${ct}</div></div></div>`}).join('')}</div></div>`;
+                }
+            }
+
+            document.getElementById('modalBody').innerHTML=h;o.classList.add('active');document.body.style.overflow='hidden';
+
+            // Bind TOC clicks
+            document.querySelectorAll('.toc-item').forEach(ti=>{ti.addEventListener('click',function(){const idx=parseInt(this.dataset.toc);const gc=document.getElementById('guideContent');if(!gc)return;const hs=gc.querySelectorAll('h3');if(hs[idx])hs[idx].scrollIntoView({behavior:'smooth',block:'start'})})});
+
+            // Bind like button
+            const lb=document.getElementById('modalLikeBtn');if(lb)lb.addEventListener('click',function(){const nlk=tglk(parseInt(this.dataset.id),this.dataset.tab);this.classList.toggle('liked',nlk);this.innerHTML=nlk?'❤️ 已赞':'🤍 点赞';const lc2=getlk(parseInt(this.dataset.id),this.dataset.tab);const le=this.parentElement.querySelector('.like-count');if(le)le.textContent=lc2+' 次赞'});
+
+            // Bind related cards
+            document.querySelectorAll('.related-card').forEach(rc=>{rc.addEventListener('click',async e2=>{const relId=parseInt(rc.dataset.id),relTb=rc.dataset.tab;const d2=await ld(relTb);const it2=d2.find(x=>x.id===relId);if(it2){addhist(it2.id,relTb);om(it2,relTb,d2)}document.getElementById('modalBody').scrollTop=0})});
+        }
+        function cm(){document.getElementById('modalOverlay').classList.remove('active');document.body.style.overflow=''}
+
+        function rq(d){const a=document.getElementById('quickRefAccordion');if(!d.length){a.innerHTML='<div class="empty-state"><div class="icon">📋</div><p>暂无内容</p></div>';return}a.innerHTML=d.map((q,i)=>{const it=Array.isArray(q.items)?q.items:[];return`<div class="acc-item${i===0?' open':''}"><div class="acc-hdr" onclick="this.parentElement.classList.toggle('open')"><span>${q.icon||'📌'} ${q.title}</span><span class="arr">▾</span></div><div class="acc-body"><ul>${it.map(x=>`<li>${x}</li>`).join('')}</ul></div></div>`}).join('')}
+
+        async function rfavs(){const l=document.getElementById('favoritesList');const f=favs();if(!f.length){l.innerHTML='<p style="color:var(--text3);">暂无收藏</p>';return}const ts=['pvp_guides','explore_guides','codes','quickref'];const fd={};for(const t of ts){try{const r=await fetch(`${API}/${t}`);fd[t]=await r.json()}catch{fd[t]=[]}}l.innerHTML=f.map(fv=>{const d=(fd[fv.tab]||[]).find(x=>x.id===fv.id);if(!d)return'';const nm=d.title||d.name||d.code||'未知';const tn={pvp_guides:'⚔ PVP攻略',explore_guides:'🗺 探索攻略',codes:'🎁 兑换码',quickref:'📋 速查'};return`<div class="fav-item" data-tab="${fv.tab}" data-id="${fv.id}"><strong>${nm}</strong><div style="font-size:.75rem;color:var(--text3);margin-top:.15rem;">${tn[fv.tab]||fv.tab}</div></div>`}).filter(Boolean).join('')}
+
+        function tfs(){const s=document.getElementById('favoritesSidebar'),o=document.getElementById('favoritesOverlay');const a=s.classList.toggle('active');o.classList.toggle('active',a);if(a)rfavs()}
+
+        function cc(code,el){navigator.clipboard.writeText(code).then(()=>{const t=document.getElementById('copiedToast');t.textContent=`已复制: ${code}`;t.style.opacity='1';setTimeout(()=>t.style.opacity='0',2000)}).catch(()=>{})}
+
+        // ── Bindings ──
+        document.querySelectorAll('.h-nav a').forEach(a=>a.addEventListener('click',()=>sw(a.dataset.tab)));
+        document.getElementById('hb').addEventListener('click',()=>document.getElementById('hnav').classList.toggle('open'));
+        document.getElementById('searchInput').addEventListener('input',e=>{sq=e.target.value;if(tab!=='home'&&tab!=='quickref')rc()});
+        document.getElementById('modalClose').addEventListener('click',cm);
+        document.getElementById('modalOverlay').addEventListener('click',e=>{if(e.target===document.getElementById('modalOverlay'))cm()});
+        document.addEventListener('keydown',e=>{if(e.key==='Escape')cm()});
+        document.getElementById('modalFavBtn').addEventListener('click',function(){const o=document.getElementById('modalOverlay');const id=parseInt(o.dataset.itemId),tb=o.dataset.itemTab;tfav(id,tb);this.textContent=isfav(id,tb)?'♥':'☆'});
+        document.getElementById('modalCopyBtn').addEventListener('click',async()=>{const o=document.getElementById('modalOverlay');const tb=o.dataset.itemTab,id=parseInt(o.dataset.itemId);const d=await ld(tb);const it=d.find(x=>x.id===id);if(!it)return;const tx=`【${it.title||''}】\n${(it.content||it.description||'').replace(/<[^>]*>/g,'')}`;navigator.clipboard.writeText(tx).then(()=>{const t=document.getElementById('copiedToast');t.textContent='内容已复制';t.style.opacity='1';setTimeout(()=>t.style.opacity='0',2000)}).catch(()=>{})});
+        document.getElementById('favBtn').addEventListener('click',tfs);
+        document.getElementById('favClose').addEventListener('click',tfs);
+        document.getElementById('favoritesOverlay').addEventListener('click',tfs);
+        document.getElementById('favoritesList').addEventListener('click',async e=>{const it=e.target.closest('.fav-item');if(!it)return;const tb2=it.dataset.tab,id=parseInt(it.dataset.id);tfs();const ft=tb2==='pvp_guides'?'pvp':tb2==='explore_guides'?'explore':tb2==='quickref'?'quickref':'home';sw(ft);const d=await ld(tb2);const fd=d.find(x=>x.id===id);if(fd){addhist(fd.id,tb2);om(fd,tb2,d)}});
+
+        updot();sw('home');
+    </script>
+</body>
+</html>
