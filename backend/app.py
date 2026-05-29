@@ -638,4 +638,8 @@ init_db()
 if __name__ == '__main__':
     print("=" * 50)
     print("  王者荣耀世界攻略站 API 已启动")
-    pri
+    print(f"  后台: http://localhost:5000/admin")
+    print(f"  账号: {ADMIN_USERNAME}")
+    print("=" * 50)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)

@@ -737,13 +737,43 @@
         function hist(){try{return JSON.parse(localStorage.getItem(LS_HIST)||'[]')}catch{return[]}}
         function shist(v){localStorage.setItem(LS_HIST,JSON.stringify(v))}
         function addhist(id,tb){let h=hist();h=h.filter(x=>!(x.id===id&&x.tab===tb));h.unshift({id,tab:tb,ts:Date.now()});if(h.length>12)h=h.slice(0,12);shist(h)}
-        function rendhist(d,p,e){const h=hist();if(!h.length)return;const w=document.getElementById('pageHome');
-        let el=document.getElementById('recentSection');if(!el){el=document.createElement('div');el.id='recentSection';el.className='recent-section';w.insertBefore(el,w.querySelector('.home-sections'))}
-        let items=[];for(const x of h){let fd=null;for(const src of[d,p,e]){fd=src.find(g=>g.id===x.id);if(fd)break}if(fd)items.push(fd)}
-        if(!items.length){el.style.display='none';return}
-        el.style.display='';el.innerHTML=`<div class="sec-hdr"><h2 class="sec-title">🕐 最近浏览</h2></div><div class="recent-list">${items.map(x=>{const nm=x.title||x.name||x.code||'';const tb2=x.category?'pvp_guides':(x.code?'codes':'explore_guides');const ic=x.icon||'📖';return`<div class="recent-item" data-id="${x.id}" data-tab="${tb2}"><span class="ri-icon">${ic}</span>${nm}</div>`}).join('')}</div>`;
-        el.querySelectorAll('.recent-item').forEach(ri=>{ri.addEventListener('click',async()=>{const id=parseInt(ri.dataset.id),tb2=ri.dataset.tab;const dt=await ld(tb2);const it=dt.find(g=>g.id===id);if(it)om(it,tb2)})})}
-        async function ld(tb){try{const r=await fetch(`${API}/${tb}`);const d=await r.json();if(Array.isArray(d)&&d.length>0)return d;return D[tb]||[]}catch{return D[tb]||[]}}
+        function rendhist(codes,pvp,explore){
+            try{
+                const h=hist();if(!h.length)return;
+                const w=document.getElementById('pageHome');if(!w)return;
+                let el=document.getElementById('recentSection');
+                if(!el){el=document.createElement('div');el.id='recentSection';el.className='recent-section';const hs=w.querySelector('.home-sections');if(!hs)return;w.insertBefore(el,hs)}
+                let items=[];
+                for(const x of h){
+                    let fd=null;
+                    for(const src of[codes,pvp,explore]){
+                        if(!Array.isArray(src))continue;
+                        fd=src.find(g=>g.id===x.id);if(fd)break
+                    }
+                    if(fd)items.push({item:fd,tab:x.tab})
+                }
+                if(!items.length){el.style.display='none';return}
+                el.style.display='';
+                const icmap={'pvp_guides':'⚔','explore_guides':'🗺','codes':'🎁','quickref':'📋'};
+                el.innerHTML=`<div class="sec-hdr"><h2 class="sec-title">🕐 最近浏览</h2></div><div class="recent-list">${items.map(({item,tab:tb2})=>{const nm=item.title||item.name||item.code||'';const ic=item.icon||icmap[tb2]||'📖';return`<div class="recent-item" data-id="${item.id}" data-tab="${tb2}"><span class="ri-icon">${ic}</span>${nm}</div>`}).join('')}</div>`;
+                el.querySelectorAll('.recent-item').forEach(ri=>{ri.addEventListener('click',async()=>{const id=parseInt(ri.dataset.id),tb2=ri.dataset.tab;try{const dt=await ld(tb2);const it=dt.find(g=>g.id===id);if(it){addhist(it.id,tb2);om(it,tb2,dt)}}catch(ex){console.warn('recent click:',ex)}})})
+            }catch(ex){console.warn('rendhist:',ex)}
+        }
+        async function ld(tb){
+            try{
+                const ctrl=new AbortController();
+                const tmr=setTimeout(()=>ctrl.abort(),8000);
+                const r=await fetch(`${API}/${tb}`,{signal:ctrl.signal});
+                clearTimeout(tmr);
+                const d=await r.json();
+                if(Array.isArray(d)&&d.length>0)return d;
+                console.log(`API ${tb}: empty array, using demo`);
+                return D[tb]||[];
+            }catch(e){
+                console.log(`API ${tb}: ${e.message}, using demo`);
+                return D[tb]||[];
+            }
+        }
         function TAB(t){if(t==='pvp')return'pvp_guides';if(t==='explore')return'explore_guides';if(t==='quickref')return'quickref';return t}
 
         function sw(t){
@@ -758,7 +788,7 @@
         }
 
         // ── Home ──
-        async function lh(){const p=await ld('pvp_guides');rhb(p);const c=await ld('codes');rcb(c);const e=await ld('explore_guides');rhg(p,e);rendhist(p,p,e)}
+        async function lh(){try{const p=await ld('pvp_guides');rhb(p);const c=await ld('codes');rcb(c);const e=await ld('explore_guides');rhg(p,e);try{rendhist(p,c,e)}catch(ex){console.warn('rendhist:',ex)}}catch(ex){console.error('lh:',ex)}}
 
         function rhb(g){
             const w=document.getElementById('heroWrap'),s=document.getElementById('heroSlider'),d=document.getElementById('heroDots');
@@ -784,7 +814,8 @@
         document.getElementById('homeSectionTabs').addEventListener('click',async e=>{const t=e.target.closest('.hs-tab');if(!t)return;homeTab=t.dataset.hometab;document.querySelectorAll('.hs-tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');const p=await ld('pvp_guides');const ex=await ld('explore_guides');rhg(p,ex)});
 
         // ── PVP Mode Tabs ──
-        document.getElementById('modeTabsWrap').addEventListener('click',function(e){const t=e.target.closest('.mode-tab');if(!t)return;pvpMode=t.dataset.mode;document.querySelectorAll('.mode-tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');filter='all';document.querySelectorAll('.filter-tag').forEach(x=>x.classList.remove('active'));const all=document.querySelector('.filter-tag[data-filter="all"]');if(all)all.classList.add('active');if(pvpMode==='all'){renderFiltersTab()}else{renderFiltersSimple()}rc()});
+        const mtw=document.getElementById('modeTabsWrap');
+        if(mtw)mtw.addEventListener('click',function(e){const t=e.target.closest('.mode-tab');if(!t)return;pvpMode=t.dataset.mode;document.querySelectorAll('.mode-tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');filter='all';document.querySelectorAll('.filter-tag').forEach(x=>x.classList.remove('active'));const all=document.querySelector('.filter-tag[data-filter="all"]');if(all)all.classList.add('active');if(pvpMode==='all'){renderFiltersTab()}else{renderFiltersSimple()}rc()});
 
         function renderFiltersTab(){
             const s=document.getElementById('filterSection');
@@ -896,21 +927,22 @@
 
         function cc(code,el){navigator.clipboard.writeText(code).then(()=>{const t=document.getElementById('copiedToast');t.textContent=`已复制: ${code}`;t.style.opacity='1';setTimeout(()=>t.style.opacity='0',2000)}).catch(()=>{})}
 
-        // ── Bindings ──
+        // ── Bindings (with null guards) ──
         document.querySelectorAll('.h-nav a').forEach(a=>a.addEventListener('click',()=>sw(a.dataset.tab)));
-        document.getElementById('hb').addEventListener('click',()=>document.getElementById('hnav').classList.toggle('open'));
-        document.getElementById('searchInput').addEventListener('input',e=>{sq=e.target.value;if(tab!=='home'&&tab!=='quickref')rc()});
-        document.getElementById('modalClose').addEventListener('click',cm);
-        document.getElementById('modalOverlay').addEventListener('click',e=>{if(e.target===document.getElementById('modalOverlay'))cm()});
-        document.addEventListener('keydown',e=>{if(e.key==='Escape')cm()});
-        document.getElementById('modalFavBtn').addEventListener('click',function(){const o=document.getElementById('modalOverlay');const id=parseInt(o.dataset.itemId),tb=o.dataset.itemTab;tfav(id,tb);this.textContent=isfav(id,tb)?'♥':'☆'});
-        document.getElementById('modalCopyBtn').addEventListener('click',async()=>{const o=document.getElementById('modalOverlay');const tb=o.dataset.itemTab,id=parseInt(o.dataset.itemId);const d=await ld(tb);const it=d.find(x=>x.id===id);if(!it)return;const tx=`【${it.title||''}】\n${(it.content||it.description||'').replace(/<[^>]*>/g,'')}`;navigator.clipboard.writeText(tx).then(()=>{const t=document.getElementById('copiedToast');t.textContent='内容已复制';t.style.opacity='1';setTimeout(()=>t.style.opacity='0',2000)}).catch(()=>{})});
+        const hbEl=document.getElementById('hb');if(hbEl)hbEl.addEventListener('click',()=>document.getElementById('hnav').classList.toggle('open'));
+        const siEl=document.getElementById('searchInput');if(siEl)siEl.addEventListener('input',e=>{sq=e.target.value;if(tab!=='home'&&tab!=='quickref')rc()});
+        const mcEl=document.getElementById('modalClose');if(mcEl)mcEl.addEventListener('click',cm);
+        const moEl=document.getElementById('modalOverlay');if(moEl)moEl.addEventListener('click',e=>{if(e.target===moEl)cm()});
+        const mkEl=document;if(mkEl)mkEl.addEventListener('keydown',e=>{if(e.key==='Escape')cm()});
+        const mfbEl=document.getElementById('modalFavBtn');if(mfbEl)mfbEl.addEventListener('click',function(){const o=document.getElementById('modalOverlay');if(!o)return;const id=parseInt(o.dataset.itemId),tb2=o.dataset.itemTab;tfav(id,tb2);this.textContent=isfav(id,tb2)?'♥':'☆'});
+        const mcbEl=document.getElementById('modalCopyBtn');if(mcbEl)mcbEl.addEventListener('click',async()=>{const o=document.getElementById('modalOverlay');if(!o)return;const tb2=o.dataset.itemTab,id=parseInt(o.dataset.itemId);try{const d=await ld(tb2);const it=d.find(x=>x.id===id);if(!it)return;const tx=`【${it.title||''}】\n${(it.content||it.description||'').replace(/<[^>]*>/g,'')}`;navigator.clipboard.writeText(tx).then(()=>{const t=document.getElementById('copiedToast');if(t){t.textContent='内容已复制';t.style.opacity='1';setTimeout(()=>t.style.opacity='0',2000)}}).catch(()=>{})}catch(ex){console.warn('copy:',ex)}});
         document.getElementById('favBtn').addEventListener('click',tfs);
         document.getElementById('favClose').addEventListener('click',tfs);
         document.getElementById('favoritesOverlay').addEventListener('click',tfs);
-        document.getElementById('favoritesList').addEventListener('click',async e=>{const it=e.target.closest('.fav-item');if(!it)return;const tb2=it.dataset.tab,id=parseInt(it.dataset.id);tfs();const ft=tb2==='pvp_guides'?'pvp':tb2==='explore_guides'?'explore':tb2==='quickref'?'quickref':'home';sw(ft);const d=await ld(tb2);const fd=d.find(x=>x.id===id);if(fd){addhist(fd.id,tb2);om(fd,tb2,d)}});
+        document.getElementById('favoritesList').addEventListener('click',async e=>{const it=e.target.closest('.fav-item');if(!it)return;const tb2=it.dataset.tab,id=parseInt(it.dataset.id);tfs();const ft=tb2==='pvp_guides'?'pvp':tb2==='explore_guides'?'explore':tb2==='quickref'?'quickref':'home';sw(ft);try{const d=await ld(tb2);const fd=d.find(x=>x.id===id);if(fd){addhist(fd.id,tb2);om(fd,tb2,d)}}catch(ex){console.warn('fav click:',ex)}});
 
-        updot();sw('home');
+        // Init - with error guard
+        try{updot();sw('home')}catch(ex){console.error('init:',ex);document.querySelector('.empty-state')||(document.getElementById('homeGrid').innerHTML='<div class="empty-state"><div class="icon">⚠️</div><p>页面加载出错，请刷新重试</p></div>')}
     </script>
 </body>
 </html>
