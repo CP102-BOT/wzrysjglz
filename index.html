@@ -759,6 +759,7 @@
                 el.querySelectorAll('.recent-item').forEach(ri=>{ri.addEventListener('click',async()=>{const id=parseInt(ri.dataset.id),tb2=ri.dataset.tab;try{const dt=await ld(tb2);const it=dt.find(g=>g.id===id);if(it){addhist(it.id,tb2);om(it,tb2,dt)}}catch(ex){console.warn('recent click:',ex)}})})
             }catch(ex){console.warn('rendhist:',ex)}
         }
+        const dataCache={};
         async function ld(tb){
             try{
                 const ctrl=new AbortController();
@@ -766,12 +767,12 @@
                 const r=await fetch(`${API}/${tb}`,{signal:ctrl.signal});
                 clearTimeout(tmr);
                 const d=await r.json();
-                if(Array.isArray(d)&&d.length>0)return d;
-                console.log(`API ${tb}: empty array, using demo`);
-                return D[tb]||[];
+                if(Array.isArray(d)&&d.length>0){dataCache[tb]=d;return d}
+                console.log(`API ${tb}: empty array, using cache/demo`);
+                return dataCache[tb]||D[tb]||[];
             }catch(e){
-                console.log(`API ${tb}: ${e.message}, using demo`);
-                return D[tb]||[];
+                console.log(`API ${tb}: ${e.message}, using cache/demo`);
+                return dataCache[tb]||D[tb]||[];
             }
         }
         function TAB(t){if(t==='pvp')return'pvp_guides';if(t==='explore')return'explore_guides';if(t==='quickref')return'quickref';return t}
