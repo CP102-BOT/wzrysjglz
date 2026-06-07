@@ -883,8 +883,8 @@
             const rows = [];
             for (let i = 1; i < Math.min(lines.length, 10); i++) rows.push(parseCSVLine(lines[i]));
             let thtml = '<table style="font-size:0.76rem;width:100%;">';
-            thtml += '<thead><tr>' + headers.map(h => `<th style="padding:0.35rem;">${h(h)}</th>`).join('') + '</tr></thead>';
-            thtml += '<tbody>' + rows.map(r => '<tr>' + headers.map(h => `<td style="padding:0.35rem;color:var(--text2);">${h(r[h]||'—')}</td>`).join('') + '</tr>').join('') + '</tbody></table>';
+            thtml += '<thead><tr>' + headers.map(hdr => `<th style="padding:0.35rem;">${hdr}</th>`).join('') + '</tr></thead>';
+            thtml += '<tbody>' + rows.map(r => '<tr>' + headers.map(hdr => `<td style="padding:0.35rem;color:var(--text2);">${h(r[hdr]||'—')}</td>`).join('') + '</tr>').join('') + '</tbody></table>';
             if (lines.length > 10) thtml += `<p style="color:var(--text3);font-size:0.78rem;margin-top:0.5rem;">...共 ${lines.length - 1} 条数据</p>`;
             Q('importPreviewTable').innerHTML = thtml;
             Q('importPreview').style.display = 'block';
