@@ -1,0 +1,14 @@
+services:
+  app:
+    build: .
+    container_name: wzrysjglz
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - ADMIN_USER=${ADMIN_USER:-admin}
+      - ADMIN_PASS=${ADMIN_PASS:-admin888}
+      - ADMIN_SECRET=${ADMIN_SECRET:-}
+    volumes:
+      - ./data:/app/data
+      - ./uploads:/app/uploads
