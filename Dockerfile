@@ -9,7 +9,7 @@ RUN uv pip install --system --no-cache -r requirements.txt
 
 COPY backend/ .
 
-RUN mkdir -p uploads
+RUN mkdir -p uploads data
 
 EXPOSE 8000
 

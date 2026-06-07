@@ -23,6 +23,7 @@ app = FastAPI(title="王者荣耀世界攻略站", lifespan=lifespan)
 app.include_router(admin_router)
 templates = Jinja2Templates(directory="templates")
 os.makedirs("uploads", exist_ok=True)
+os.makedirs("data", exist_ok=True)
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 
