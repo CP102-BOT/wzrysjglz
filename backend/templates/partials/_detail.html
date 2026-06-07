@@ -1,0 +1,29 @@
+<div data-detail-title="{{ item.title }}">
+  <div data-detail-body>
+    {% if item.video_url %}
+    <div class="modal-video">
+      {% if 'youtube' in item.video_url or 'bilibili' in item.video_url or 'player' in item.video_url %}
+      <iframe src="{{ item.video_url }}" allowfullscreen loading="lazy"></iframe>
+      {% else %}
+      <video controls src="{{ item.video_url }}"></video>
+      {% endif %}
+    </div>
+    {% endif %}
+    <div class="guide-content">
+      <p><strong>英雄：</strong>{{ item.title }}</p>
+      {% if item.category %}<p><strong>分类：</strong>{{ item.category }}</p>{% endif %}
+      {% if item.description %}
+      <h3>简介</h3>
+      <p>{{ item.description }}</p>
+      {% endif %}
+      {% if item.content %}
+      <h3>攻略内容</h3>
+      {% for line in item.content.split('\n') %}
+      {% if line.strip() %}
+      <p>{{ line }}</p>
+      {% endif %}
+      {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+</div>

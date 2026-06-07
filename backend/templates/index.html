@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="hero-section">
+  <div id="heroPartial" hx-get="/partials/hero" hx-trigger="load" hx-swap="innerHTML"></div>
+</div>
+
+<section style="margin-top:1.25rem">
+  <div id="codesPartial" hx-get="/partials/codes" hx-trigger="load" hx-swap="innerHTML"></div>
+</section>
+
+<section style="margin-top:1.5rem">
+  <div class="sec-hdr">
+    <div class="sec-title">PVP 英雄攻略</div>
+    <span class="sec-count" id="pvpCount"></span>
+  </div>
+  <div class="filter-bar" id="pvpFilters">
+    <button class="filter-btn active" hx-get="/partials/pvp?category=all" hx-target="#pvpGrid" hx-swap="innerHTML">全部</button>
+    <button class="filter-btn" hx-get="/partials/pvp?category=hero" hx-target="#pvpGrid" hx-swap="innerHTML">英雄</button>
+    <button class="filter-btn" hx-get="/partials/pvp?category=combo" hx-target="#pvpGrid" hx-swap="innerHTML">连招</button>
+    <button class="filter-btn" hx-get="/partials/pvp?category=item" hx-target="#pvpGrid" hx-swap="innerHTML">出装</button>
+    <button class="filter-btn" hx-get="/partials/pvp?category=tactic" hx-target="#pvpGrid" hx-swap="innerHTML">战术</button>
+  </div>
+  <div id="pvpGrid" hx-get="/partials/pvp?category=all" hx-trigger="load" hx-swap="innerHTML"></div>
+</section>
+
+<section style="margin-top:1.5rem">
+  <div class="sec-hdr">
+    <div class="sec-title">兑换码</div>
+  </div>
+  <div id="codeListPartial" hx-get="/partials/codes" hx-trigger="load" hx-swap="innerHTML"></div>
+</section>
+
+<section style="margin-top:1.5rem">
+  <div class="sec-hdr">
+    <div class="sec-title">快捷参考</div>
+  </div>
+  <div id="quickrefPartial" hx-get="/partials/quickref" hx-trigger="load" hx-swap="innerHTML"></div>
+</section>
+{% endblock %}

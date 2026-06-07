@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<section style="margin-top:1.25rem">
+  <div class="sec-hdr">
+    <div class="sec-title">PVP 攻略</div>
+    <span class="sec-count">{{ items|length }} 篇</span>
+  </div>
+  <div class="filter-bar">
+    <button class="filter-btn {% if category == 'all' %}active{% endif %}"
+      hx-get="/partials/pvp?category=all" hx-target="#pvpGrid" hx-swap="innerHTML">全部</button>
+    <button class="filter-btn {% if category == 'hero' %}active{% endif %}"
+      hx-get="/partials/pvp?category=hero" hx-target="#pvpGrid" hx-swap="innerHTML">英雄</button>
+    <button class="filter-btn {% if category == 'combo' %}active{% endif %}"
+      hx-get="/partials/pvp?category=combo" hx-target="#pvpGrid" hx-swap="innerHTML">连招</button>
+    <button class="filter-btn {% if category == 'item' %}active{% endif %}"
+      hx-get="/partials/pvp?category=item" hx-target="#pvpGrid" hx-swap="innerHTML">出装</button>
+    <button class="filter-btn {% if category == 'tactic' %}active{% endif %}"
+      hx-get="/partials/pvp?category=tactic" hx-target="#pvpGrid" hx-swap="innerHTML">战术</button>
+  </div>
+  <div id="pvpGrid">
+    {% include "partials/_card_grid.html" %}
+  </div>
+</section>
+{% endblock %}

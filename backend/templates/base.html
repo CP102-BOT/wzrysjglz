@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>王者荣耀世界 · PVP攻略站</title>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: oklch(0.07 0.025 270);
+            --bg: oklch(0.10 0.030 265);
+            --bg-card: oklch(0.13 0.035 260);
+            --bg-hover: oklch(0.17 0.040 258);
+            --bg-elevated: oklch(0.18 0.045 255);
+            --text: oklch(0.93 0.012 265);
+            --text-2: oklch(0.60 0.035 255);
+            --text-3: oklch(0.42 0.040 258);
+            --gold: oklch(0.72 0.140 85);
+            --gold-2: oklch(0.82 0.130 82);
+            --gold-bg: oklch(0.72 0.140 85 / 0.08);
+            --gold-glow: oklch(0.72 0.140 85 / 0.15);
+            --red: oklch(0.55 0.185 25);
+            --red-2: oklch(0.65 0.175 22);
+            --red-bg: oklch(0.55 0.185 25 / 0.08);
+            --cyan: oklch(0.60 0.120 210);
+            --cyan-2: oklch(0.72 0.110 215);
+            --cyan-bg: oklch(0.60 0.120 210 / 0.06);
+            --green: oklch(0.58 0.145 145);
+            --green-2: oklch(0.70 0.135 148);
+            --green-bg: oklch(0.58 0.145 145 / 0.08);
+            --purple: oklch(0.60 0.175 290);
+            --purple-bg: oklch(0.60 0.175 290 / 0.08);
+            --orange: oklch(0.72 0.165 72);
+            --orange-bg: oklch(0.72 0.165 72 / 0.08);
+            --border: oklch(0.60 0.035 255 / 0.08);
+            --border-2: oklch(0.60 0.035 255 / 0.15);
+            --radius-sm: 0.35rem;
+            --radius: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --shadow: 0 2px 8px oklch(0 0 0 / 0.35);
+            --shadow-lg: 0 8px 32px oklch(0 0 0 / 0.45);
+            --t: 0.2s cubic-bezier(0.4,0,0.2,1);
+            --t-slow: 0.35s cubic-bezier(0.22,1,0.36,1);
+            --font: 'Noto Sans SC', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            --font-display: 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif;
+            --z-dropdown: 100;
+            --z-sticky: 200;
+            --z-modal: 1000;
+            --z-toast: 1100;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: var(--font); background: var(--bg-deep); color: var(--text);
+            line-height: 1.6; min-height: 100vh; -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background:
+                radial-gradient(ellipse 65% 45% at 55% 0%, oklch(0.72 0.140 85 / 0.03) 0%, transparent 55%),
+                radial-gradient(ellipse 30% 30% at 75% 50%, oklch(0.60 0.120 210 / 0.02) 0%, transparent 45%),
+                radial-gradient(ellipse 25% 25% at 20% 75%, oklch(0.60 0.175 290 / 0.015) 0%, transparent 40%);
+        }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 2px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
+
+        h1, h2, h3 { text-wrap: balance; }
+
+        :focus-visible {
+            outline: 2px solid var(--gold);
+            outline-offset: 2px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
+
+        .header {
+            position: sticky; top: 0; z-index: var(--z-sticky);
+            background: oklch(0.10 0.030 265 / 0.92);
+            backdrop-filter: blur(20px) saturate(160%);
+            -webkit-backdrop-filter: blur(20px) saturate(160%);
+            border-bottom: 1px solid var(--border);
+        }
+        .h-inner {
+            max-width: 1320px; margin: 0 auto; padding: 0 1.25rem;
+            display: flex; justify-content: space-between; align-items: center;
+            height: 58px; gap: 1rem;
+        }
+        .logo {
+            font-size: clamp(0.85rem, 1.5vw, 1rem); font-weight: 800; color: var(--gold-2);
+            display: flex; align-items: center; gap: .55rem; letter-spacing: .02em;
+            font-family: var(--font-display); white-space: nowrap;
+        }
+        .logo svg { width: 30px; height: 30px; flex-shrink: 0; }
+        .h-nav { display: flex; gap: 2px; }
+        .h-nav a {
+            display: flex; align-items: center; gap: .4rem;
+            padding: .45rem .85rem; border-radius: var(--radius-sm); cursor: pointer;
+            text-decoration: none; color: var(--text-2); font-size: .84rem;
+            font-weight: 600; transition: var(--t); white-space: nowrap;
+        }
+        .h-nav a:hover { color: var(--text); background: var(--bg-hover); }
+        .h-nav a.active { color: var(--gold-2); background: var(--gold-bg); }
+        .h-nav a.pve-link { opacity: .75; }
+        .h-nav a.pve-link:hover { opacity: 1; }
+
+        .container { max-width: 1320px; margin: 0 auto; padding: 0 1.25rem; position: relative; z-index: 1; }
+
+        .hero-section { margin-top: 1.25rem; }
+        .hero-banner {
+            border-radius: var(--radius-xl); overflow: hidden; position: relative;
+            background: linear-gradient(135deg, oklch(0.08 0.028 268) 0%, oklch(0.11 0.032 260) 35%, oklch(0.09 0.030 265) 65%, oklch(0.07 0.025 270) 100%);
+            border: 1px solid var(--border-2); min-height: 200px;
+        }
+        .hero-banner::before {
+            content: ''; position: absolute; inset: 0; z-index: 0;
+            background:
+                radial-gradient(circle at 25% 30%, oklch(0.72 0.140 85 / 0.06), transparent 45%),
+                radial-gradient(circle at 75% 60%, oklch(0.60 0.120 210 / 0.04), transparent 35%);
+        }
+        .hero-slide {
+            display: none; padding: 2rem 2.5rem; align-items: center; gap: 2rem;
+            position: relative; z-index: 1;
+        }
+        .hero-slide.active { display: flex; }
+        .hero-slide.active { animation: heroIn .45s cubic-bezier(0.22,1,0.36,1); }
+        @keyframes heroIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .hero-icon {
+            width: 80px; height: 80px; border-radius: var(--radius-lg);
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-elevated));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.2rem; flex-shrink: 0; border: 1px solid var(--border-2);
+            box-shadow: var(--shadow);
+        }
+        .hero-info { flex: 1; min-width: 0; }
+        .hero-info h2 { font-size: clamp(1rem, 2vw, 1.25rem); font-weight: 800; margin-bottom: .3rem; display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+        .hero-badge { font-size: .64rem; padding: .15rem .5rem; border-radius: .25rem; font-weight: 700; letter-spacing: .03em; }
+        .hero-badge.hot { background: var(--red-bg); color: var(--red-2); border: 1px solid oklch(0.55 0.185 25 / 0.2); }
+        .hero-badge.new { background: var(--green-bg); color: var(--green-2); border: 1px solid oklch(0.58 0.145 145 / 0.2); }
+        .hero-info .sub { color: var(--text-2); font-size: .82rem; }
+        .hero-dots { display: flex; gap: .4rem; justify-content: center; padding: .75rem; position: relative; z-index: 1; }
+        .hero-dot { width: 8px; height: 8px; border-radius: 50%; cursor: pointer; background: var(--border-2); transition: var(--t); }
+        .hero-dot.active { background: var(--gold); width: 24px; border-radius: 4px; }
+
+        .code-banner {
+            background: linear-gradient(135deg, oklch(0.72 0.140 85 / 0.06), oklch(0.72 0.140 85 / 0.02));
+            border: 1px solid oklch(0.72 0.140 85 / 0.12);
+            border-radius: var(--radius); padding: 1rem 1.25rem;
+            display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+        }
+        .code-banner .cb-icon { font-size: 1.5rem; flex-shrink: 0; }
+        .code-banner .cb-info { flex: 1; min-width: 160px; }
+        .code-banner .cb-title { font-weight: 700; font-size: .86rem; color: var(--gold-2); margin-bottom: .1rem; }
+        .code-tag {
+            padding: .3rem .7rem; border-radius: 999px;
+            background: oklch(0.72 0.140 85 / 0.08); border: 1px solid oklch(0.72 0.140 85 / 0.2);
+            font-family: 'SF Mono', 'Menlo', monospace; font-size: .83rem;
+            color: var(--gold-2); cursor: pointer; transition: var(--t); font-weight: 600;
+        }
+        .code-tag:hover { background: oklch(0.72 0.140 85 / 0.15); box-shadow: 0 0 0 1px oklch(0.72 0.140 85 / 0.15); }
+        .code-tag .reward { display: block; font-size: .64rem; color: var(--text-2); font-weight: 400; font-family: var(--font); }
+
+        .sec-hdr { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: .85rem; }
+        .sec-title { font-size: 1rem; font-weight: 800; display: flex; align-items: center; gap: .5rem; }
+        .sec-title::before { content: ''; width: 3px; height: 1rem; background: var(--gold); border-radius: 2px; }
+        .sec-count { color: var(--text-3); font-size: .78rem; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: .85rem; }
+        @media (min-width: 1100px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (min-width: 1450px) { .grid { grid-template-columns: repeat(4, 1fr); } }
+
+        .card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius-lg); cursor: pointer; transition: transform var(--t-slow), border-color var(--t), background var(--t), box-shadow var(--t-slow);
+            overflow: hidden; display: flex; flex-direction: column; position: relative;
+            transform: translateY(0); will-change: transform;
+        }
+        .card:hover { border-color: var(--border-2); background: var(--bg-hover); transform: translateY(-2px); box-shadow: 0 8px 24px oklch(0 0 0 / 0.35), 0 0 0 1px oklch(0.72 0.140 85 / 0.05); }
+        .card.stagger { opacity: 0; transform: translateY(12px); }
+        .card.stagger-in { animation: staggerIn .4s cubic-bezier(0.22,1,0.36,1) forwards; }
+        @keyframes staggerIn { to { opacity: 1; transform: translateY(0); } }
+        .card-img {
+            height: 155px; background: var(--bg-elevated); display: flex;
+            align-items: center; justify-content: center; font-size: 2.6rem;
+            position: relative; overflow: hidden;
+        }
+        .card-img::after {
+            content: ''; position: absolute; inset: 0; opacity: 0;
+            background: linear-gradient(180deg, transparent 60%, oklch(0.13 0.035 260 / 0.6));
+            transition: opacity var(--t);
+        }
+        .card:hover .card-img::after { opacity: 1; }
+        .card-badge {
+            position: absolute; top: .55rem; left: .55rem;
+            padding: .18rem .5rem; border-radius: .25rem;
+            font-size: .66rem; font-weight: 700; z-index: 4; letter-spacing: .03em;
+        }
+        .card-badge.hot { background: var(--red); color: #fff; }
+        .card-badge.new { background: var(--green); color: #fff; }
+        .card-body { padding: .9rem 1rem 1rem; flex: 1; display: flex; flex-direction: column; }
+        .card-title { font-size: .9rem; font-weight: 700; margin-bottom: .25rem; display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem; }
+        .card-meta { color: var(--text-3); font-size: .75rem; margin-bottom: .35rem; text-transform: uppercase; letter-spacing: .04em; }
+        .card-tags { display: flex; gap: .25rem; flex-wrap: wrap; margin-bottom: .35rem; }
+        .card-tag {
+            padding: .1rem .45rem; border-radius: 999px;
+            background: var(--cyan-bg); color: var(--cyan-2);
+            font-size: .68rem; font-weight: 500; border: 1px solid oklch(0.60 0.120 210 / 0.1);
+        }
+        .card-tag.purple { background: var(--purple-bg); color: var(--purple); border-color: oklch(0.60 0.175 290 / 0.1); }
+        .card-tag.orange { background: var(--orange-bg); color: var(--orange); border-color: oklch(0.72 0.165 72 / 0.1); }
+        .card-desc {
+            color: var(--text-2); font-size: .78rem; line-height: 1.55; margin-top: auto;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        }
+
+        .filter-bar { display: flex; gap: .35rem; flex-wrap: wrap; align-items: center; margin: .85rem 0; }
+        .filter-btn {
+            padding: .3rem .75rem; border-radius: 999px; cursor: pointer;
+            border: 1px solid var(--border); background: var(--bg-card);
+            color: var(--text-2); font-size: .77rem; transition: var(--t); font-weight: 500;
+            min-height: 32px;
+        }
+        .filter-btn:hover { border-color: var(--border-2); color: var(--text); background: var(--bg-hover); }
+        .filter-btn.active { background: var(--gold-bg); color: var(--gold-2); border-color: oklch(0.72 0.140 85 / 0.25); }
+
+        .modal-overlay {
+            position: fixed; inset: 0; background: oklch(0.07 0.025 270 / 0.85);
+            display: none; align-items: center; justify-content: center;
+            z-index: var(--z-modal); padding: 1rem; backdrop-filter: blur(8px);
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: var(--bg-card); border-radius: var(--radius-xl);
+            border: 1px solid var(--border-2); max-width: 820px; width: 100%;
+            max-height: 88vh; overflow-y: auto; box-shadow: var(--shadow-lg);
+            animation: modalIn .25s cubic-bezier(0.22,1,0.36,1);
+        }
+        @keyframes modalIn { from { opacity: 0; transform: scale(.97) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        .modal-header {
+            padding: 1rem 1.4rem; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; background: var(--bg-card); z-index: 10;
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        }
+        .modal-header h3 { font-size: 1rem; font-weight: 700; }
+        .modal-close {
+            background: none; border: none; color: var(--text-2); font-size: 1.2rem;
+            cursor: pointer; width: 30px; height: 30px; border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center; transition: var(--t);
+        }
+        .modal-close:hover { background: var(--bg-hover); color: var(--red-2); }
+        .modal-body { padding: 1.4rem; }
+        .modal-video {
+            position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;
+            border-radius: var(--radius); margin-bottom: 1rem; background: #000;
+        }
+        .modal-video iframe, .modal-video video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+        .guide-content { color: var(--text-2); line-height: 1.8; font-size: .86rem; }
+        .guide-content h3 { color: var(--text); font-size: .95rem; margin: 1rem 0 .45rem; font-weight: 700; }
+        .guide-content h3:first-child { margin-top: 0; }
+        .guide-content p { margin-bottom: .5rem; }
+        .guide-content strong { color: var(--text); }
+        .guide-content ul { margin: .35rem 0 .35rem 1.4rem; }
+        .guide-content li { margin-bottom: .2rem; }
+        .guide-content li::marker { color: var(--gold); }
+
+        .empty { text-align: center; padding: 4rem 2rem; color: var(--text-3); }
+
+        .rank-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: .85rem; }
+        .rank-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius-lg); padding: 1.15rem; transition: var(--t); position: relative; overflow: hidden;
+        }
+        .rank-card:hover { border-color: var(--border-2); background: var(--bg-hover); }
+        .rank-card .rk-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .75rem; }
+        .rank-card .rk-title { font-weight: 700; font-size: .85rem; color: var(--text-2); }
+
+        .footer { text-align: center; padding: 2rem; color: var(--text-3); font-size: .78rem; border-top: 1px solid var(--border); margin-top: 2rem; }
+
+        @media (max-width: 768px) {
+            .h-inner { height: 52px; padding: 0 1rem; }
+            .h-nav a { font-size: .78rem; padding: .35rem .6rem; }
+            .grid { grid-template-columns: 1fr !important; gap: .65rem; }
+            .hero-slide { flex-direction: column; text-align: center; padding: 1.5rem; }
+            .hero-icon { width: 64px; height: 64px; font-size: 1.8rem; }
+            .rank-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="h-inner">
+            <div class="logo">
+                <svg viewBox="0 0 30 30" fill="none" aria-hidden="true">
+                    <rect x="2" y="2" width="26" height="26" rx="7" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                    <path d="M15 6l4 8-4 6-4-6 4-8z" fill="currentColor" opacity=".5"/>
+                    <path d="M11 14l4-2 4 2-4 6-4-6z" fill="currentColor" opacity=".3"/>
+                </svg>
+                王者荣耀世界·PVP攻略站
+            </div>
+            <nav class="h-nav" id="mainNav" aria-label="主导航">
+                <a href="/" class="active" data-nav="home" aria-current="page">首页</a>
+                <a href="/pvp" data-nav="pvp">PVP攻略</a>
+                <a href="/pve" data-nav="pve" class="pve-link">探索攻略</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container" id="mainContent">
+        {% block content %}{% endblock %}
+    </main>
+
+    <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-label="攻略详情">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle"></h3>
+                <button class="modal-close" aria-label="关闭">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <footer class="footer" role="contentinfo">
+        王者荣耀世界 · PVP攻略站 · 数据仅供参考
+    </footer>
+
+    <script>
+        document.addEventListener('click', ev => {
+            const card = ev.target.closest('.card[data-hx-get]');
+            if (!card) return;
+            const url = card.getAttribute('data-hx-get');
+            if (!url) return;
+            fetch(url).then(r => r.text()).then(html => {
+                const overlay = document.getElementById('modalOverlay');
+                const body = document.getElementById('modalBody');
+                const title = document.getElementById('modalTitle');
+                const tmp = document.createElement('div');
+                tmp.innerHTML = html;
+                const h = tmp.querySelector('[data-detail-title]');
+                if (h) title.textContent = h.getAttribute('data-detail-title');
+                body.innerHTML = tmp.querySelector('[data-detail-body]')?.innerHTML || html;
+                overlay.classList.add('active');
+            });
+        });
+        document.getElementById('modalOverlay')?.addEventListener('click', ev => {
+            if (ev.target === ev.currentTarget || ev.target.classList.contains('modal-close')) {
+                ev.currentTarget.classList.remove('active');
+            }
+        });
+        document.addEventListener('keydown', ev => {
+            if (ev.key === 'Escape') document.getElementById('modalOverlay')?.classList.remove('active');
+        });
+
+        const staggerObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('stagger-in');
+                    staggerObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.05 });
+        document.addEventListener('htmx:afterSwap', () => {
+            document.querySelectorAll('.card.stagger').forEach(el => staggerObserver.observe(el));
+        });
+    </script>
+</body>
+</html>

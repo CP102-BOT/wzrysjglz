@@ -401,9 +401,21 @@
 
     <script>
         const Q = id => document.getElementById(id);
-        const API = '';  // same origin
+        const API = '';
 
-        // State
+        let token = sessionStorage.getItem('admin_token') || '';
+        function api(path, opts = {}) {
+            const h = { ...(opts.headers || {}) };
+            if (token) h['Authorization'] = 'Bearer ' + token;
+            if (opts.body && !h['Content-Type']) h['Content-Type'] = 'application/json';
+            return fetch(path, { ...opts, headers: h }).then(async r => {
+                if (r.status === 401) { token = ''; sessionStorage.removeItem('admin_token'); Q('loginPage').style.display = 'flex'; Q('adminPage').style.display = 'none'; throw new Error('未登录'); }
+                if (!r.ok) { const t = await r.text(); throw new Error(t || r.statusText); }
+                const ct = r.headers.get('content-type') || '';
+                return ct.includes('json') ? r.json() : r.text();
+            });
+        }
+
         let currentTable = 'dashboard';
         let currentData = [];
         let editingItem = null;
@@ -479,18 +491,18 @@
         // ── Login ──
         Q('loginBtn').addEventListener('click', async () => {
             const u = Q('loginUser').value, p = Q('loginPass').value;
-            const res = await fetch('/api/admin/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username: u, password: p })
-            });
-            const data = await res.json();
-            if (data.success) {
+            try {
+                const data = await api('/api/admin/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ username: u, password: p })
+                });
+                token = data.token;
+                sessionStorage.setItem('admin_token', token);
                 Q('loginPage').style.display = 'none';
                 Q('adminPage').style.display = 'block';
                 switchTab('dashboard');
-            } else {
-                Q('loginError').textContent = data.error || '账号或密码错误';
+            } catch(e) {
+                Q('loginError').textContent = '账号或密码错误';
                 Q('loginError').style.display = 'block';
             }
         });
@@ -499,8 +511,7 @@
         // Auto-check login
         (async () => {
             try {
-                const res = await fetch('/api/admin/check');
-                const data = await res.json();
+                const data = await api('/api/admin/check');
                 if (data.logged_in) {
                     Q('loginPage').style.display = 'none';
                     Q('adminPage').style.display = 'block';
@@ -510,7 +521,7 @@
         })();
 
         Q('logoutBtn').addEventListener('click', async () => {
-            await fetch('/api/admin/logout', { method: 'POST' });
+            token = ''; sessionStorage.removeItem('admin_token');
             Q('loginPage').style.display = 'flex';
             Q('adminPage').style.display = 'none';
         });
@@ -535,8 +546,7 @@
 
         // ── Dashboard ──
         async function loadDashboard() {
-            const res = await fetch('/api/admin/stats');
-            const stats = await res.json();
+            const stats = await api('/api/admin/stats');
             const names = { pvp_guides:'⚔ PVP攻略', explore_guides:'🗺 探索攻略', codes:'🎁 兑换码', quickref:'📋 速查手册' };
             let html = '<div class="dash-grid">';
             ['pvp_guides','explore_guides','codes','quickref'].forEach(t => {
@@ -563,8 +573,7 @@
 
         // ── Table → Card List ──
         async function loadTable(table) {
-            const res = await fetch(`/api/data/${table}`);
-            currentData = await res.json();
+            currentData = await api(`/api/admin/data/${table}`);
             renderCardList();
         }
 
@@ -671,10 +680,10 @@
                 const id = parseInt(btn.dataset.id);
                 const action = btn.dataset.action;
                 if (action === 'edit') openEditModal(id);
-                else if (action === 'dup') { await fetch(`/api/admin/${currentTable}/${id}/duplicate`, { method: 'POST' }); await loadTable(currentTable); toast('已复制'); }
+                else if (action === 'dup') { await api(`/api/admin/${currentTable}/${id}/duplicate`, { method: 'POST' }); await loadTable(currentTable); toast('已复制'); }
                 else if (action === 'del') {
                     if (!confirm('删除后不可恢复，确认？')) return;
-                    await fetch(`/api/admin/${currentTable}/${id}`, { method: 'DELETE' });
+                    await api(`/api/admin/${currentTable}/${id}`, { method: 'DELETE' });
                     await loadTable(currentTable); toast('已删除');
                 }
             });
@@ -700,9 +709,8 @@
                     const moved = currentData.splice(fromIdx, 1)[0];
                     currentData.splice(toIdx, 0, moved);
                     const payload = currentData.map((r, i) => ({ id: r.id, sort_order: i }));
-                    await fetch(`/api/admin/${currentTable}/sort`, {
+                    await api(`/api/admin/${currentTable}/sort`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ items: payload })
                     });
                     renderCardList();
@@ -836,21 +844,18 @@
             const url = editingItem
                 ? `/api/admin/${currentTable}/${editingItem}`
                 : `/api/admin/${currentTable}`;
-            const res = await fetch(url, {
-                method: editingItem ? 'PUT' : 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            if (res.ok) { closeEditModal(); await loadTable(currentTable); toast(editingItem ? '已保存' : '已创建'); }
+            try {
+                await api(url, { method: editingItem ? 'PUT' : 'POST', body: JSON.stringify(data) });
+                closeEditModal(); await loadTable(currentTable); toast(editingItem ? '已保存' : '已创建');
+            } catch(e) { toast('保存失败'); }
         }
 
         // ── Batch Delete ──
         Q('btnBatchDel').addEventListener('click', async () => {
             if (!selectedIds.size) return toast('请先选择要删除的内容');
             if (!confirm(`确认永久删除 ${selectedIds.size} 条数据？`)) return;
-            await fetch('/api/admin/batch-delete', {
+            await api('/api/admin/batch-delete', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ table: currentTable, ids: [...selectedIds] })
             });
             selectedIds.clear();
@@ -897,8 +902,7 @@
             btn.disabled = true; btn.textContent = '导入中...';
             const fd = new FormData(); fd.append('file', file); fd.append('table', currentTable);
             try {
-                const res = await fetch('/api/admin/import', { method: 'POST', body: fd });
-                const r = await res.json();
+                const r = await api('/api/admin/import', { method: 'POST', body: fd });
                 if (r.success) {
                     toast(`导入完成：${r.inserted} 条`);
                     importModal.classList.remove('active');
@@ -931,8 +935,7 @@
         function openMediaForField(fieldName) { mediaTargetField = fieldName; mediaModal.classList.add('active'); loadMedia(); }
 
         async function loadMedia() {
-            const res = await fetch('/api/admin/media');
-            const files = await res.json();
+            const files = await api('/api/admin/media');
             if (!files.length) { mediaGrid.innerHTML = '<p style="color:var(--text3);">暂无文件，上传后出现</p>'; return; }
             mediaGrid.innerHTML = files.map(f => `
                 <div class="media-item">
@@ -959,7 +962,7 @@
 
         async function deleteMedia(filename) {
             if (!confirm('删除此文件？')) return;
-            await fetch(`/api/admin/media/${filename}`, { method: 'DELETE' });
+            await api(`/api/admin/media/${filename}`, { method: 'DELETE' });
             await loadMedia();
         }
 
@@ -968,8 +971,7 @@
             Q('mediaUploadStatus').innerHTML = '⏳ 上传中...';
             const fd = new FormData(); fd.append('file', file);
             try {
-                const res = await fetch('/api/admin/upload', { method: 'POST', body: fd });
-                const data = await res.json();
+                const data = await api('/api/admin/upload', { method: 'POST', body: fd });
                 if (data.success) {
                     Q('mediaUploadStatus').innerHTML = `✅ 上传成功`;
                     this.value = '';
@@ -982,8 +984,7 @@
 
         // ── Export ──
         Q('btnExport').addEventListener('click', async () => {
-            const res = await fetch('/api/admin/export');
-            const data = await res.json();
+            const data = await api('/api/admin/export');
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);

@@ -1,0 +1,18 @@
+{% if items %}
+<div class="rank-grid">
+  {% for item in items %}
+  <div class="rank-card">
+    <div class="rk-header">
+      <div class="rk-title">{{ item.title }}</div>
+    </div>
+    {% if item.content %}
+    <div class="guide-content" style="font-size:.78rem;color:var(--text-2)">
+      {{ item.content[:200] }}{% if item.content|length > 200 %}…{% endif %}
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty">暂无参考</div>
+{% endif %}

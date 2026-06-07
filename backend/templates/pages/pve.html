@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<section style="margin-top:1.25rem">
+  <div class="sec-hdr">
+    <div class="sec-title">探索攻略</div>
+    <span class="sec-count">{{ items|length }} 篇</span>
+  </div>
+  <div class="filter-bar">
+    <button class="filter-btn {% if category == 'all' %}active{% endif %}"
+      hx-get="/partials/pve?category=all" hx-target="#pveGrid" hx-swap="innerHTML">全部</button>
+    <button class="filter-btn {% if category == 'boss' %}active{% endif %}"
+      hx-get="/partials/pve?category=boss" hx-target="#pveGrid" hx-swap="innerHTML">BOSS</button>
+    <button class="filter-btn {% if category == 'explore' %}active{% endif %}"
+      hx-get="/partials/pve?category=explore" hx-target="#pveGrid" hx-swap="innerHTML">探索</button>
+    <button class="filter-btn {% if category == 'quest' %}active{% endif %}"
+      hx-get="/partials/pve?category=quest" hx-target="#pveGrid" hx-swap="innerHTML">任务</button>
+  </div>
+  <div id="pveGrid">
+    {% include "partials/_card_grid.html" %}
+  </div>
+</section>
+{% endblock %}

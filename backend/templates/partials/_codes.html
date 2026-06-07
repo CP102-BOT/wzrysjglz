@@ -1,0 +1,16 @@
+{% if items %}
+<div class="code-banner">
+  <div class="cb-icon">🎁</div>
+  <div class="cb-info">
+    <div class="cb-title">限时兑换码</div>
+  </div>
+  <div style="display:flex;gap:.4rem;flex-wrap:wrap;">
+    {% for item in items %}
+    <span class="code-tag" onclick="navigator.clipboard.writeText('{{ item.code }}');this.style.color='var(--green-2)';setTimeout(()=>this.style.color='',1200)">
+      {{ item.code }}
+      {% if item.description %}<span class="reward">{{ item.description[:30] }}</span>{% endif %}
+    </span>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
