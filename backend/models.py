@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, func
+from datetime import datetime
+from sqlalchemy import Column, Integer, String, Text, DateTime, func, Index
 from database import Base
 
 
@@ -17,6 +18,13 @@ class PvPGuide(Base):
     video_url = Column(String(512), default="")
     sort_order = Column(Integer, default=0)
     created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+
+    __table_args__ = (
+        Index("ix_pvp_category", "category"),
+        Index("ix_pvp_sort_order", "sort_order"),
+        Index("ix_pvp_badge", "badge"),
+    )
 
 
 class PvEGuide(Base):
@@ -34,6 +42,12 @@ class PvEGuide(Base):
     video_url = Column(String(512), default="")
     sort_order = Column(Integer, default=0)
     created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+
+    __table_args__ = (
+        Index("ix_pve_category", "category"),
+        Index("ix_pve_sort_order", "sort_order"),
+    )
 
 
 class CodeItem(Base):
@@ -48,6 +62,12 @@ class CodeItem(Base):
     is_active = Column(Integer, default=1)
     sort_order = Column(Integer, default=0)
     created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+
+    __table_args__ = (
+        Index("ix_codes_is_active", "is_active"),
+        Index("ix_codes_sort_order", "sort_order"),
+    )
 
 
 class QuickRef(Base):
@@ -60,3 +80,23 @@ class QuickRef(Base):
     items = Column(Text, default="[]")
     sort_order = Column(Integer, default=0)
     created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+
+    __table_args__ = (
+        Index("ix_quickref_sort_order", "sort_order"),
+    )
+
+
+class AuditLog(Base):
+    __tablename__ = "audit_logs"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    action = Column(String(64), nullable=False)
+    table_name = Column(String(64), default="")
+    item_id = Column(Integer, nullable=True)
+    detail = Column(Text, default="")
+    created_at = Column(DateTime, server_default=func.now())
+
+    __table_args__ = (
+        Index("ix_audit_created_at", "created_at"),
+    )

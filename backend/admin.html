@@ -397,6 +397,35 @@
         </div>
     </div>
 
+    <!-- Change Password Modal -->
+    <div class="modal-overlay" id="changePassModal">
+        <div class="modal" style="max-width:420px;">
+            <div class="modal-header">
+                <h3>🔒 修改密码</h3>
+                <button class="btn btn-ghost btn-icon" id="changePassClose" style="font-size:1.2rem;">✕</button>
+            </div>
+            <div class="modal-body">
+                <p style="color:var(--red2);font-size:0.85rem;margin-bottom:1rem;" id="changePassWarning">您正在使用默认密码，为安全起见请立即修改！</p>
+                <div class="form-group">
+                    <label>当前密码</label>
+                    <input type="password" id="currentPass" placeholder="输入当前密码">
+                </div>
+                <div class="form-group">
+                    <label>新密码</label>
+                    <input type="password" id="newPass" placeholder="至少8位">
+                </div>
+                <div class="form-group">
+                    <label>确认新密码</label>
+                    <input type="password" id="confirmPass" placeholder="再次输入新密码">
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-primary" id="btnChangePass">确认修改</button>
+                </div>
+                <p id="changePassError" style="color:var(--red2);font-size:0.84rem;margin-top:0.5rem;display:none;"></p>
+            </div>
+        </div>
+    </div>
+
     <div class="toast" id="toast"></div>
 
     <script>
@@ -430,7 +459,7 @@
                     { key: 'description', label: '简介', type: 'textarea' },
                     { key: 'icon', label: '图标 emoji', type: 'text' },
                     { key: 'image_url', label: '封面图链接', type: 'media' },
-                    { key: 'category', label: '分类', type: 'select', options: ['1v1','4v4','general'] },
+                    { key: 'category', label: '分类', type: 'select', options: ['hero','combo','item','tactic'] },
                     { key: 'tags', label: '标签（逗号分隔）', type: 'text' },
                     { key: 'badge', label: '角标', type: 'select', options: ['','new','hot'] },
                     { key: 'video_url', label: '视频链接', type: 'media' },
@@ -438,7 +467,7 @@
                     { key: 'sort_order', label: '排序权重', type: 'number' },
                 ])(),
                 nameField: 'title',
-                catLabels: { '1v1':'⚔ 1v1竞技', '4v4':'🛡 4v4团队', 'general':'📖 通用技巧' }
+                catLabels: { 'hero':'⚔ 英雄', 'combo':'🔗 连招', 'item':'🛡 出装', 'tactic':'🧠 战术' }
             },
             explore_guides: {
                 name: '探索攻略',
@@ -447,7 +476,7 @@
                     { key: 'description', label: '简介', type: 'textarea' },
                     { key: 'icon', label: '图标 emoji', type: 'text' },
                     { key: 'image_url', label: '封面图链接', type: 'media' },
-                    { key: 'category', label: '分类', type: 'select', options: ['map','boss','collection','beginner'] },
+                    { key: 'category', label: '分类', type: 'select', options: ['boss','explore','quest'] },
                     { key: 'tags', label: '标签（逗号分隔）', type: 'text' },
                     { key: 'badge', label: '角标', type: 'select', options: ['','new','hot'] },
                     { key: 'video_url', label: '视频链接', type: 'media' },
@@ -455,7 +484,7 @@
                     { key: 'sort_order', label: '排序权重', type: 'number' },
                 ])(),
                 nameField: 'title',
-                catLabels: { 'map':'🗺 地图探索', 'boss':'👹 BOSS攻略', 'collection':'💎 收集养成', 'beginner':'🌱 新手入门' }
+                catLabels: { 'boss':'👹 BOSS', 'explore':'🗺 探索', 'quest':'📋 任务' }
             },
             codes: {
                 name: '兑换码',
@@ -474,7 +503,7 @@
                 fields: [
                     { key: 'title', label: '标题', type: 'text', big: true },
                     { key: 'icon', label: '图标 emoji', type: 'text' },
-                    { key: 'items', label: '条目（每行一个）', type: 'items' },
+                    { key: 'content', label: '内容', type: 'textarea' },
                     { key: 'sort_order', label: '排序权重', type: 'number' },
                 ],
                 nameField: 'title'
@@ -501,12 +530,52 @@
                 Q('loginPage').style.display = 'none';
                 Q('adminPage').style.display = 'block';
                 switchTab('dashboard');
+                // Check if must change password
+                if (data.must_change_password) {
+                    Q('changePassWarning').style.display = 'block';
+                    Q('changePassModal').classList.add('active');
+                }
             } catch(e) {
                 Q('loginError').textContent = '账号或密码错误';
                 Q('loginError').style.display = 'block';
             }
         });
         Q('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') Q('loginBtn').click(); });
+
+        // ── Change Password ──
+        Q('changePassClose').addEventListener('click', () => {
+            Q('changePassModal').classList.remove('active');
+        });
+        Q('btnChangePass').addEventListener('click', async () => {
+            const cur = Q('currentPass').value;
+            const np = Q('newPass').value;
+            const cp = Q('confirmPass').value;
+            const errEl = Q('changePassError');
+            
+            if (!cur || !np || !cp) {
+                errEl.textContent = '请填写所有字段'; errEl.style.display = 'block'; return;
+            }
+            if (np.length < 8) {
+                errEl.textContent = '新密码长度不能少于8位'; errEl.style.display = 'block'; return;
+            }
+            if (np !== cp) {
+                errEl.textContent = '两次输入的密码不一致'; errEl.style.display = 'block'; return;
+            }
+            
+            try {
+                await api('/api/admin/change-password', {
+                    method: 'POST',
+                    body: JSON.stringify({ current_password: cur, new_password: np })
+                });
+                Q('changePassModal').classList.remove('active');
+                toast('密码修改成功');
+                Q('currentPass').value = '';
+                Q('newPass').value = '';
+                Q('confirmPass').value = '';
+            } catch(e) {
+                errEl.textContent = e.message || '修改失败'; errEl.style.display = 'block';
+            }
+        });
 
         // Auto-check login
         (async () => {
@@ -572,8 +641,16 @@
         }
 
         // ── Table → Card List ──
-        async function loadTable(table) {
-            currentData = await api(`/api/admin/data/${table}`);
+        let currentPage = 1;
+        let currentTotal = 0;
+        let currentTotalPages = 1;
+
+        async function loadTable(table, page) {
+            if (page !== undefined) currentPage = page;
+            const resp = await api(`/api/admin/data/${table}?page=${currentPage}&page_size=20`);
+            currentData = resp.items || [];
+            currentTotal = resp.total || 0;
+            currentTotalPages = resp.total_pages || 1;
             renderCardList();
         }
 
@@ -598,11 +675,11 @@
             }
 
             // Select all checkbox
-            let html = `<div style="margin-bottom:0.75rem;display:flex;align-items:center;gap:0.5rem;">
+            let html = `<div style="margin-bottom:0.75rem;display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
                 <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer;color:var(--text2);font-size:0.84rem;font-weight:600;">
                     <input type="checkbox" id="selectAll" style="width:18px;height:18px;accent-color:var(--gold);"> 全选
                 </label>
-                <span style="color:var(--text3);font-size:0.8rem;">共 ${rows.length} 条</span>
+                <span style="color:var(--text3);font-size:0.8rem;">共 ${currentTotal} 条 (第${currentPage}/${currentTotalPages}页)</span>
             </div>`;
 
             html += '<div class="card-list">';
@@ -646,8 +723,36 @@
                 </div>`;
             });
             html += '</div>';
+
+            // Pagination
+            if (currentTotalPages > 1) {
+                html += '<div style="display:flex;gap:0.4rem;align-items:center;justify-content:center;margin-top:1rem;">';
+                html += `<button class="btn btn-sm ${currentPage <= 1 ? 'btn-outline' : 'btn-primary'}" data-page="prev" ${currentPage <= 1 ? 'disabled style="opacity:0.4"' : ''}>‹ 上一页</button>`;
+                const startP = Math.max(1, currentPage - 2);
+                const endP = Math.min(currentTotalPages, currentPage + 2);
+                for (let p = startP; p <= endP; p++) {
+                    html += `<button class="btn btn-sm ${p === currentPage ? 'btn-primary' : 'btn-outline'}" data-page="${p}">${p}</button>`;
+                }
+                html += `<button class="btn btn-sm ${currentPage >= currentTotalPages ? 'btn-outline' : 'btn-primary'}" data-page="next" ${currentPage >= currentTotalPages ? 'disabled style="opacity:0.4"' : ''}>下一页 ›</button>`;
+                html += '</div>';
+            }
+
             Q('contentWrap').innerHTML = html;
             bindCardListEvents();
+            bindPaginationEvents();
+        }
+
+        function bindPaginationEvents() {
+            Q('contentWrap').querySelectorAll('[data-page]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (this.disabled) return;
+                    let p = this.dataset.page;
+                    if (p === 'prev') p = currentPage - 1;
+                    if (p === 'next') p = currentPage + 1;
+                    p = Math.max(1, Math.min(currentTotalPages, parseInt(p)));
+                    if (p !== currentPage) loadTable(currentTable, p);
+                });
+            });
         }
 
         function bindCardListEvents() {

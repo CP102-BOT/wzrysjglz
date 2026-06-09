@@ -46,8 +46,7 @@ wzrysjglz/
 
 访问 `https://你的域名/admin`
 
-- 账号：`site_admin_2026`
-- 密码：`K9xP!7qR#3zL@2sN$5aM`
+- 账号密码通过环境变量配置，见 `.env.example`
 
 ### 后台功能
 

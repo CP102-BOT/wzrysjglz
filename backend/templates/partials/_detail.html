@@ -2,7 +2,8 @@
   <div data-detail-body>
     {% if item.video_url %}
     <div class="modal-video">
-      {% if 'youtube' in item.video_url or 'bilibili' in item.video_url or 'player' in item.video_url %}
+      {% set vu = item.video_url|lower %}
+      {% if 'youtube.com' in vu or 'youtu.be' in vu or 'bilibili.com' in vu or 'player.' in vu %}
       <iframe src="{{ item.video_url }}" allowfullscreen loading="lazy"></iframe>
       {% else %}
       <video controls src="{{ item.video_url }}"></video>
@@ -20,7 +21,7 @@
       <h3>攻略内容</h3>
       {% for line in item.content.split('\n') %}
       {% if line.strip() %}
-      <p>{{ line }}</p>
+      <p>{{ line|safe }}</p>
       {% endif %}
       {% endfor %}
       {% endif %}

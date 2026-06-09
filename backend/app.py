@@ -1,30 +1,75 @@
 import json, os
 from contextlib import asynccontextmanager
+from datetime import datetime
 from pathlib import Path
 from fastapi import FastAPI, Depends, Request
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi.middleware.cors import CORSMiddleware
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import init_db, get_db
 from models import PvPGuide, PvEGuide, CodeItem, QuickRef
 from admin_routes import router as admin_router
+from logging_config import setup_logging
+from exceptions import AppError, app_error_handler, generic_error_handler
 
+# Load .env
+from dotenv import load_dotenv
+load_dotenv(Path(__file__).parent / ".env")
+
+# Setup logging
+logger = setup_logging()
+
+# Rate limiter
+limiter = Limiter(key_func=get_remote_address)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    logger.info("Starting application...")
     await init_db()
+    logger.info("Database initialized")
     yield
+    logger.info("Shutting down application...")
 
 
 app = FastAPI(title="王者荣耀世界攻略站", lifespan=lifespan)
+
+# Rate limiting
+app.state.limiter = limiter
+
+@app.exception_handler(RateLimitExceeded)
+async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
+    return JSONResponse(
+        status_code=429,
+        content={"error": "RATE_LIMITED", "message": "请求过于频繁，请稍后再试"}
+    )
+
+# Exception handlers
+app.add_exception_handler(AppError, app_error_handler)
+app.add_exception_handler(Exception, generic_error_handler)
+
+# CORS
+cors_origins = os.environ.get("CORS_ORIGINS", "http://localhost:8080").split(",")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[o.strip() for o in cors_origins],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["*"],
+)
+
 app.include_router(admin_router)
-templates = Jinja2Templates(directory="templates")
-os.makedirs("uploads", exist_ok=True)
-os.makedirs("data", exist_ok=True)
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+BASE_DIR = Path(__file__).parent
+templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+os.makedirs(BASE_DIR / "uploads", exist_ok=True)
+os.makedirs(BASE_DIR / "data", exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=str(BASE_DIR / "uploads")), name="uploads")
 
 
 def parse_json_field(val: str):
@@ -34,6 +79,11 @@ def parse_json_field(val: str):
         except (json.JSONDecodeError, TypeError):
             return val
     return val
+
+
+@app.get("/health")
+async def health():
+    return {"status": "ok", "timestamp": datetime.now().isoformat()}
 
 
 @app.get("/api/{table}")
@@ -55,12 +105,8 @@ async def api_list(table: str, db: AsyncSession = Depends(get_db)):
 
 
 @app.get("/", response_class=HTMLResponse)
-async def index(request: Request, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(PvPGuide).order_by(PvPGuide.sort_order, PvPGuide.id))
-    pvp_list = result.scalars().all()
-    return templates.TemplateResponse(request, "index.html", {
-        "pvp_list": pvp_list, "section": "home"
-    })
+async def index(request: Request):
+    return templates.TemplateResponse(request, "index.html", {"section": "home"})
 
 
 @app.get("/pvp", response_class=HTMLResponse)
@@ -129,7 +175,7 @@ async def quickref_partial(request: Request, db: AsyncSession = Depends(get_db))
 
 @app.get("/admin", response_class=HTMLResponse)
 async def admin_page():
-    return HTMLResponse(Path("admin.html").read_text("utf-8"))
+    return HTMLResponse((BASE_DIR / "admin.html").read_text("utf-8"))
 
 
 @app.get("/partials/codes", response_class=HTMLResponse)

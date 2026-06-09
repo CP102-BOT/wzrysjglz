@@ -4,13 +4,23 @@
   <div class="cb-info">
     <div class="cb-title">限时兑换码</div>
   </div>
-  <div style="display:flex;gap:.4rem;flex-wrap:wrap;">
+  <div style="display:flex;gap:.4rem;flex-wrap:wrap;" id="codeList">
     {% for item in items %}
-    <span class="code-tag" onclick="navigator.clipboard.writeText('{{ item.code }}');this.style.color='var(--green-2)';setTimeout(()=>this.style.color='',1200)">
+    <span class="code-tag" data-code="{{ item.code|e }}">
       {{ item.code }}
       {% if item.description %}<span class="reward">{{ item.description[:30] }}</span>{% endif %}
     </span>
     {% endfor %}
   </div>
 </div>
+<script>
+document.getElementById('codeList')?.addEventListener('click', function(e) {
+  const tag = e.target.closest('.code-tag');
+  if (!tag) return;
+  const code = tag.dataset.code;
+  navigator.clipboard.writeText(code);
+  tag.style.color = 'var(--green-2)';
+  setTimeout(() => tag.style.color = '', 1200);
+});
+</script>
 {% endif %}
