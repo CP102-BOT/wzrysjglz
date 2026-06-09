@@ -1,36 +1,36 @@
 {% if items %}
 <div class="grid">
   {% for item in items %}
-  <div class="card stagger" data-hx-get="/guide/{{ table }}/{{ item.id }}" style="animation-delay:{{ loop.index0 * 0.06 }}s">
-    <div class="card-img">
-      {% if item.badge %}
-      <span class="card-badge {% if item.badge == 'hot' %}hot{% elif item.badge == 'new' %}new{% endif %}">
-        {{ 'HOT' if item.badge == 'hot' else 'NEW' if item.badge == 'new' else item.badge }}
-      </span>
-      {% endif %}
-      {{ item.icon or '⚔' }}
-    </div>
-    <div class="card-body">
-      <div class="card-title">
-        <span>{{ item.title }}</span>
-      </div>
-      {% if item.category %}
-      <div class="card-meta">{{ item.category }}</div>
-      {% endif %}
-      {% if item.tags %}
-      <div class="card-tags">
-        {% set tag_str = item.tags[1:-1] if item.tags.startswith('[') and item.tags.endswith(']') else item.tags %}
-        {% for part in tag_str.split(',') if tag_str %}
-        {% set t = part.strip().strip('"').strip("'") %}
-        {% if t %}
-        <span class="card-tag {% if loop.index0 % 2 == 0 %}purple{% else %}orange{% endif %}">{{ t }}</span>
+  <div class="card" data-hx-get="/guide/{{ table }}/{{ item.id }}">
+    <div class="card-inner">
+      <div class="card-media">
+        {% if item.video_url %}
+        <div class="card-video-badge">▶ 视频</div>
         {% endif %}
-        {% endfor %}
+        <div class="card-icon">{{ item.icon or '⚔' }}</div>
+        {% if item.badge %}
+        <span style="position:absolute;top:10px;left:10px;z-index:4;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;text-transform:uppercase;
+          {% if item.badge == 'hot' %}background:linear-gradient(-45deg,#e81cff,#40c9ff);color:#fff
+          {% else %}background:rgba(64,201,255,0.2);color:#40c9ff;border:1px solid rgba(64,201,255,0.3){% endif %}">
+          {{ 'HOT' if item.badge == 'hot' else 'NEW' if item.badge == 'new' else item.badge }}
+        </span>
+        {% endif %}
       </div>
-      {% endif %}
-      {% if item.description %}
-      <div class="card-desc">{{ item.description[:80] }}{% if item.description|length > 80 %}…{% endif %}</div>
-      {% endif %}
+      <div class="card-body">
+        <div class="card-title">{{ item.title }}</div>
+        <div class="card-meta">
+          {% if item.category %}<span>{{ item.category }}</span>{% endif %}
+        </div>
+        <div class="card-tags">
+          {% set tag_str = item.tags[1:-1] if item.tags.startswith('[') and item.tags.endswith(']') else item.tags %}
+          {% for part in tag_str.split(',') if tag_str %}
+          {% set t = part.strip().strip('"').strip("'") %}
+          {% if t %}
+          <span class="card-tag">{{ t }}</span>
+          {% endif %}
+          {% endfor %}
+        </div>
+      </div>
     </div>
   </div>
   {% endfor %}

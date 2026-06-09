@@ -463,42 +463,99 @@
         .rank-bar{height:100%;border-radius:2px;background:linear-gradient(90deg,#e81cff,#40c9ff);transition:width .8s cubic-bezier(0.25,0.46,0.45,0.94)}
 
         /* ═══════ GRID ═══════ */
-        .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1.25rem}
-        .grid:hover .card:not(:hover){filter:brightness(0.65) blur(1px);opacity:0.65;transform:scale(0.98)}
+        .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.25rem}
         @media(min-width:1100px){.grid{grid-template-columns:repeat(3,1fr)}}
         @media(min-width:1450px){.grid{grid-template-columns:repeat(4,1fr)}}
 
-        /* ═══════ CARD ═══════ */
+        /* ═══════ CARD — Uiverse Daniel1227k inspired ═══════ */
         .card{
-            position:relative;width:100%;min-height:260px;
-            background:var(--glass);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);
-            display:flex;flex-direction:column;justify-content:end;
-            padding:14px;gap:14px;border-radius:14px;cursor:pointer;
-            transition:var(--t-smooth);
+            position:relative;width:100%;height:280px;
+            background:rgba(13,21,32,0.6);
+            display:flex;justify-content:center;align-items:center;
+            border-radius:14px;cursor:pointer;overflow:hidden;
+            transition:transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+            will-change:transform;
         }
         .card::before{
-            content:'';position:absolute;inset:0;left:-5px;margin:auto;
-            width:calc(100% + 10px);height:calc(100% + 10px);
-            border-radius:16px;
-            background:linear-gradient(-45deg,#e81cff 0%,#40c9ff 100%);
-            z-index:-10;pointer-events:none;
-            transition:all 0.7s cubic-bezier(0.25,0.46,0.45,0.94);
+            content:'';position:absolute;inset:0;
+            background:linear-gradient(315deg,#a855f7,#40c9ff);
+            opacity:0;
+            transition:opacity 0.5s ease;
         }
         .card::after{
-            content:"";z-index:-1;position:absolute;inset:0;
-            background:linear-gradient(-45deg,#fc00ff 0%,#00dbde 100%);
-            transform:translate3d(0,0,0) scale(0.95);filter:blur(20px);
-            transition:filter 0.7s cubic-bezier(0.25,0.46,0.45,0.94);
+            content:'';position:absolute;inset:0;
+            background:linear-gradient(315deg,#a855f7,#40c9ff);
+            filter:blur(30px);opacity:0;
+            transition:opacity 0.5s ease;
         }
-        .card .heading{
-            font-size:20px;text-transform:capitalize;font-weight:700;
-            position:relative;z-index:2;
-        }
-        .card p:not(.heading){font-size:14px;position:relative;z-index:2}
-        .card p:last-child{color:#e81cff;font-weight:600}
+        .card:hover::before{opacity:1}
+        .card:hover::after{opacity:0.6}
         .card:hover{transform:translateY(-4px)}
-        .card:hover::after{filter:blur(30px)}
-        .card:hover::before{transform:rotate(-90deg) scaleX(1.34) scaleY(0.77)}
+
+        .card .card-inner{
+            position:absolute;inset:6px;
+            background:rgba(0,0,0,0.7);
+            backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+            border-radius:11px;z-index:2;
+            display:flex;flex-direction:column;overflow:hidden;
+            transition:background 0.4s ease;
+        }
+        .card:hover .card-inner{background:rgba(0,0,0,0.5)}
+
+        .card .card-media{
+            flex:1;display:flex;align-items:center;justify-content:center;
+            position:relative;overflow:hidden;
+        }
+        .card .card-icon{
+            font-size:3rem;transition:all 0.5s ease;z-index:1;
+            filter:drop-shadow(0 0 8px rgba(168,85,247,0.3));
+        }
+        .card:hover .card-icon{
+            transform:translateY(-20px) scale(0.85);
+            opacity:0.6;
+            filter:drop-shadow(0 0 15px rgba(168,85,247,0.5));
+        }
+
+        .card .card-video-badge{
+            position:absolute;top:10px;right:10px;z-index:4;
+            background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);
+            border:1px solid rgba(168,85,247,0.3);
+            border-radius:8px;padding:4px 8px;
+            font-size:11px;color:#fff;display:flex;align-items:center;gap:4px;
+            font-weight:600;pointer-events:none;
+        }
+
+        .card .card-body{
+            padding:12px 16px 16px;z-index:3;
+            transform:translateY(0);transition:all 0.4s ease;
+        }
+        .card .card-title{
+            font-size:15px;font-weight:700;color:#fff;margin-bottom:2px;
+            white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+        }
+        .card .card-meta{
+            font-size:12px;color:rgba(255,255,255,0.45);
+            display:flex;gap:8px;align-items:center;
+        }
+        .card .card-meta .badge{
+            padding:1px 7px;border-radius:6px;font-size:10px;font-weight:700;
+            text-transform:uppercase;
+        }
+        .card .card-meta .badge-hot{background:linear-gradient(-45deg,#e81cff,#40c9ff);color:#fff}
+        .card .card-meta .badge-new{background:rgba(64,201,255,0.2);color:#40c9ff;border:1px solid rgba(64,201,255,0.3)}
+
+        .card .card-tags{
+            display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;
+            max-height:0;overflow:hidden;transition:max-height 0.4s ease;
+        }
+        .card:hover .card-tags{
+            max-height:40px;
+        }
+        .card .card-tag{
+            padding:1px 7px;border-radius:6px;font-size:10px;
+            font-weight:600;background:rgba(168,85,247,0.12);
+            color:rgba(255,255,255,0.7);border:1px solid rgba(168,85,247,0.15);
+        }
 
         /* ═══════ BUTTON ═══════ */
         .button{

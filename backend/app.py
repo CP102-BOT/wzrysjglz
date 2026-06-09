@@ -67,6 +67,19 @@ app.add_middleware(
 app.include_router(admin_router)
 BASE_DIR = Path(__file__).parent
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+
+
+def video_thumbnail(url: str) -> str | None:
+    """Extract video thumbnail URL from YouTube/Bilibili links."""
+    if not url:
+        return None
+    m = __import__("re").search(r"(?:youtube\.com/watch\?v=|youtu\.be/|youtube\.com/embed/)([a-zA-Z0-9_-]{11})", url)
+    if m:
+        return f"https://img.youtube.com/vi/{m.group(1)}/hqdefault.jpg"
+    return None
+
+
+templates.env.filters["video_thumbnail"] = video_thumbnail
 os.makedirs(BASE_DIR / "uploads", exist_ok=True)
 os.makedirs(BASE_DIR / "data", exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=str(BASE_DIR / "uploads")), name="uploads")
