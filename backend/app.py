@@ -70,10 +70,11 @@ templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 
 def video_thumbnail(url: str) -> str | None:
-    """Extract video thumbnail URL from YouTube/Bilibili links."""
+    """Extract video thumbnail URL from YouTube links."""
     if not url:
         return None
-    m = __import__("re").search(r"(?:youtube\.com/watch\?v=|youtu\.be/|youtube\.com/embed/)([a-zA-Z0-9_-]{11})", url)
+    import re
+    m = re.search(r"(?:youtube\.com/watch\?v=|youtu\.be/|youtube\.com/embed/)([a-zA-Z0-9_-]{11})", url)
     if m:
         return f"https://img.youtube.com/vi/{m.group(1)}/hqdefault.jpg"
     return None

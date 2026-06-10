@@ -140,6 +140,39 @@ async def log_audit(db: AsyncSession, action: str, table_name: str = "", item_id
     await db.commit()
 
 
+@router.get("/audit-logs")
+async def admin_audit_logs(
+    page: int = 1, page_size: int = 20,
+    table: str = "", action: str = "",
+    _=Depends(get_current_user), db: AsyncSession = Depends(get_db)
+):
+    page = max(1, page)
+    page_size = max(1, min(200, page_size))
+    stmt = select(AuditLog)
+    if table:
+        stmt = stmt.where(AuditLog.table_name == table)
+    if action:
+        stmt = stmt.where(AuditLog.action == action)
+    total_q = select(func.count()).select_from(stmt.subquery())
+    total = (await db.execute(total_q)).scalar() or 0
+    offset = (page - 1) * page_size
+    rows = (await db.execute(
+        stmt.order_by(AuditLog.created_at.desc()).offset(offset).limit(page_size)
+    )).scalars().all()
+    return {
+        "items": [
+            {"id": r.id, "action": r.action, "table_name": r.table_name,
+             "item_id": r.item_id, "detail": r.detail,
+             "created_at": str(r.created_at) if r.created_at else None}
+            for r in rows
+        ],
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+        "total_pages": (total + page_size - 1) // page_size or 1,
+    }
+
+
 @router.get("/data/{table}")
 async def admin_list(table: str, page: int = 1, page_size: int = 50,
                      _=Depends(get_current_user), db: AsyncSession = Depends(get_db)):

@@ -274,6 +274,19 @@
             overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
         }
 
+        .log-action-badge {
+            display: inline-block; padding: 0.1rem 0.45rem; border-radius: 4px;
+            font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+            margin-right: 0.35rem; vertical-align: middle;
+        }
+        .action-create { background: rgba(64,201,255,0.2); color: #40c9ff; }
+        .action-update { background: rgba(168,85,247,0.2); color: #a855f7; }
+        .action-delete { background: rgba(239,68,68,0.2); color: #ef4444; }
+        .action-duplicate { background: rgba(34,197,94,0.2); color: #22c55e; }
+        .action-batch_delete { background: rgba(239,68,68,0.15); color: #f87171; }
+        .action-import { background: rgba(251,191,36,0.2); color: #fbbf24; }
+        .action-login { background: rgba(148,163,184,0.2); color: #94a3b8; }
+
         .empty { text-align: center; padding: 4rem 2rem; color: var(--text3); font-size: 0.95rem; }
 
         .toast {
@@ -324,9 +337,11 @@
                     <a data-table="explore_guides">探索攻略</a>
                     <a data-table="codes">兑换码</a>
                     <a data-table="quickref">速查手册</a>
+                    <a data-table="auditlogs">📋 审计日志</a>
                 </nav>
                 <div class="topbar-actions">
                     <a href="/" class="btn btn-outline btn-sm">👁 前台</a>
+                    <button class="btn btn-ghost btn-sm" id="changePassBtn">🔑 修改密码</button>
                     <button class="btn btn-ghost btn-sm" id="logoutBtn">退出</button>
                 </div>
             </div>
@@ -594,6 +609,14 @@
             Q('loginPage').style.display = 'flex';
             Q('adminPage').style.display = 'none';
         });
+        Q('changePassBtn').addEventListener('click', () => {
+            Q('changePassWarning').style.display = 'none';
+            Q('currentPass').value = '';
+            Q('newPass').value = '';
+            Q('confirmPass').value = '';
+            Q('changePassError').style.display = 'none';
+            Q('changePassModal').classList.add('active');
+        });
 
         // ── Navigation ──
         Q('adminNav').addEventListener('click', e => {
@@ -607,9 +630,10 @@
             document.querySelectorAll('#adminNav a').forEach(a => a.classList.remove('active'));
             const link = document.querySelector(`#adminNav a[data-table="${table}"]`);
             if (link) link.classList.add('active');
-            Q('toolbarRow').style.display = table === 'dashboard' ? 'none' : '';
+            Q('toolbarRow').style.display = table === 'dashboard' || table === 'auditlogs' ? 'none' : '';
             Q('searchAdmin').value = '';
             if (table === 'dashboard') loadDashboard();
+            else if (table === 'auditlogs') loadAuditLogs();
             else loadTable(table);
         }
 
@@ -629,7 +653,10 @@
             html += '</div>';
             if (stats.logs && stats.logs.length) {
                 html += `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.5rem;">
-                    <h3 style="font-size:0.95rem;font-weight:700;color:var(--text2);margin-bottom:0.75rem;">最近操作</h3>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+                        <h3 style="font-size:0.95rem;font-weight:700;color:var(--text2);margin:0;">最近操作</h3>
+                        <button class="btn btn-ghost btn-sm log-see-all" style="font-size:0.8rem;">查看全部 →</button>
+                    </div>
                     <div class="log-list">
                         ${stats.logs.map(log => `<div class="log-item">
                             <span><strong style="color:var(--text);">${h(log.action)}</strong> ${h(log.detail)}</span>
@@ -638,6 +665,83 @@
                     </div></div>`;
             }
             Q('contentWrap').innerHTML = html;
+            // Link "查看更多" to audit log tab
+            const seeAll = Q('contentWrap').querySelector('.log-see-all');
+            if (seeAll) seeAll.onclick = () => switchTab('auditlogs');
+        }
+
+        // ── Audit Logs ──
+        let auditPage = 1;
+        let auditTotalPages = 1;
+        let auditFilterTable = '';
+        let auditFilterAction = '';
+
+        async function loadAuditLogs(page) {
+            if (page !== undefined) auditPage = page;
+            const params = new URLSearchParams({ page: auditPage, page_size: 20 });
+            if (auditFilterTable) params.set('table', auditFilterTable);
+            if (auditFilterAction) params.set('action', auditFilterAction);
+            const resp = await api(`/api/admin/audit-logs?${params}`);
+            auditTotalPages = resp.total_pages || 1;
+            renderAuditLogs(resp);
+        }
+
+        function renderAuditLogs(resp) {
+            const actionLabels = { create:'创建', update:'更新', delete:'删除', duplicate:'复制',
+                batch_delete:'批量删除', import:'导入', login:'登录' };
+            const tableOptions = ['pvp_guides','explore_guides','codes','quickref'];
+            const tableNames = { pvp_guides:'PVP攻略', explore_guides:'探索攻略', codes:'兑换码', quickref:'速查手册' };
+            let html = `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.5rem;">
+                <div style="display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap;margin-bottom:1rem;">
+                    <div class="form-group" style="flex:0 0 160px;">
+                        <label style="font-size:0.8rem;color:var(--text2);">数据表</label>
+                        <select id="auditFilterTable" style="width:100%;padding:0.4rem 0.5rem;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:0.84rem;">
+                            <option value="">全部</option>
+                            ${tableOptions.map(t => `<option value="${t}"${auditFilterTable===t?' selected':''}>${tableNames[t]||t}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex:0 0 160px;">
+                        <label style="font-size:0.8rem;color:var(--text2);">操作类型</label>
+                        <select id="auditFilterAction" style="width:100%;padding:0.4rem 0.5rem;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:0.84rem;">
+                            <option value="">全部</option>
+                            ${Object.entries(actionLabels).map(([k,v]) => `<option value="${k}"${auditFilterAction===k?' selected':''}>${v}</option>`).join('')}
+                        </select>
+                    </div>
+                    <button class="btn btn-primary btn-sm" id="auditFilterBtn" style="margin-bottom:0.3rem;">筛选</button>
+                </div>`;
+            if (resp.items && resp.items.length) {
+                html += `<div class="log-list">
+                    ${resp.items.map(log => `<div class="log-item">
+                        <span><span class="log-action-badge action-${log.action}">${h(actionLabels[log.action] || log.action)}</span>
+                        ${h(log.detail)}</span>
+                        <span class="log-time">${(log.created_at||'').slice(0,16).replace('T',' ')}</span>
+                    </div>`).join('')}
+                </div>`;
+            } else {
+                html += '<div class="empty" style="padding:2rem 0;">暂无审计日志</div>';
+            }
+            // Pagination
+            if (auditTotalPages > 1) {
+                html += '<div style="display:flex;gap:0.4rem;align-items:center;justify-content:center;margin-top:1rem;">';
+                html += `<button class="btn btn-sm" data-al-page="${auditPage-1}"${auditPage<=1?' disabled':''}>上一页</button>`;
+                for (let p = Math.max(1, auditPage-2); p <= Math.min(auditTotalPages, auditPage+2); p++) {
+                    html += `<button class="btn btn-sm${p===auditPage?' btn-primary':''}" data-al-page="${p}">${p}</button>`;
+                }
+                html += `<button class="btn btn-sm" data-al-page="${auditPage+1}"${auditPage>=auditTotalPages?' disabled':''}>下一页</button>`;
+                html += `</div>`;
+            }
+            html += '</div>';
+            Q('contentWrap').innerHTML = html;
+            // Event delegation for pagination
+            Q('contentWrap').querySelectorAll('[data-al-page]').forEach(btn => {
+                btn.addEventListener('click', () => { auditPage = parseInt(btn.dataset.alPage); loadAuditLogs(); });
+            });
+            Q('auditFilterBtn').addEventListener('click', () => {
+                auditFilterTable = Q('auditFilterTable').value;
+                auditFilterAction = Q('auditFilterAction').value;
+                auditPage = 1;
+                loadAuditLogs();
+            });
         }
 
         // ── Table → Card List ──

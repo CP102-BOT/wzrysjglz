@@ -22,7 +22,8 @@
           {% if item.category %}<span>{{ item.category }}</span>{% endif %}
         </div>
         <div class="card-tags">
-          {% set tag_str = item.tags[1:-1] if item.tags.startswith('[') and item.tags.endswith(']') else item.tags %}
+          {% set raw_tags = item.tags or '[]' %}
+          {% set tag_str = raw_tags[1:-1] if raw_tags.startswith('[') and raw_tags.endswith(']') else raw_tags %}
           {% for part in tag_str.split(',') if tag_str %}
           {% set t = part.strip().strip('"').strip("'") %}
           {% if t %}
